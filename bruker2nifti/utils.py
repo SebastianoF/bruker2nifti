@@ -38,6 +38,11 @@ def indian_file_parser(s, sh=None):
     else:
         a = s[:]
 
+    # added to correct for version paravision 6:
+    if isinstance(a, list):
+        if len(a) == 1:
+            a = a[0]
+
     return a
 
 
@@ -87,6 +92,14 @@ def bruker_read_files(param_file, data_path, reco_num=1):
 
         line_in = lines[line_num]
 
+        print param_file.lower()
+        print line_num
+        print line_in
+        print
+
+        if line_num == 671 and param_file.lower() == 'visu_pars':
+            print 'spam'
+
         if '##' in line_in:
 
             # A:
@@ -95,17 +108,29 @@ def bruker_read_files(param_file, data_path, reco_num=1):
                 splitted_line = line_in.split('=')
                 # name of the variable contained in the row, and shape:
                 var_name = var_name_clean(splitted_line[0][3:])
-                sh = splitted_line[1].replace('(', '').replace(')', '').replace('\n', '').strip()
 
                 done = False
                 indian_file = ''
                 pos = line_num
+                sh = splitted_line[1]
 
-                if '.' in sh:
+                if sh.replace(' ', '').endswith(',\n'):  # this is not the shape of the vector but the beginning of a full vector.
+                    sh = sh.replace('(', '').replace(')', '').replace('\n', '').strip()
                     indian_file += sh
-
-                else:
+                    sh = None
+                elif sh.replace(' ', '').endswith(')\n') and '.' in sh:  # this is not the shape of the vector but a full vector.
+                    sh = sh.replace('(', '').replace(')', '').replace('\n', '').strip()
+                    indian_file += sh
+                    sh = None
+                else:  # this is finally the shape of the vector that will start in the next line.
+                    sh = sh.replace('(', '').replace(')', '').replace('\n', '').strip()
                     sh = [int(num) for num in sh.split(',')]
+
+                # if '.' in sh:
+                #     indian_file += sh
+
+                # else:
+                #     sh = [int(num) for num in sh.split(',')]
 
                 while not done:
 
@@ -170,6 +195,9 @@ def bruker_read_files(param_file, data_path, reco_num=1):
                 var_name = var_name_clean(splitted_line[0])
                 dict_info[var_name] = splitted_line[1].replace('(', '').replace(')', '').replace('\n', ''). \
                                                        replace('<', '').replace('>', '').replace(',', ' ').strip()
+
+        else:
+            pass  # line does not contain any assignable variable, so this information is not included in the info.
 
     return dict_info
 
