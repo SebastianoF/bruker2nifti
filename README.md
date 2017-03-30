@@ -1,5 +1,7 @@
 ## Conversion from bruker format to nifti
 
+Python 2.7
+
 ### Glossary:
 
 study: folder structure containing the scans produced with paravision (PV) software.
@@ -141,7 +143,7 @@ in a [virtualenv](http://docs.python-guide.org/en/latest/dev/virtualenvs/).
 
 `cd ../`
 
-`pip install LabelManager/dist/LabelsManager-XX.tar.gz`
+`pip install bruker2nifti/dist/bruker2nifti-XX.tar.gz`
 
 where XX is the chosen version.
 
@@ -170,16 +172,18 @@ where XX is the chosen version.
 
 To uninstall:
 
- `pip uninstall LabelsManager`
+ `pip uninstall bruker2nifti`
  
 To delete the library in the virtualenv in case something really wrong happen and pip uninstall will not work correctly:
   
-  `sudo rm -rf /path_to_site_packages_in_virtualenv/site-packages/LabelsManager*`
+  `sudo rm -rf /path_to_site_packages_in_virtualenv/site-packages/bruker2nifti*`
  
 
 ## Utilities:
-websites...
 
++ [official documentation nifti format](https://nifti.nimh.nih.gov/nifti-1)
++ [non-official documentation nifti format](https://brainder.org/2012/09/23/the-nifti-file-format/)
++ [nibabel python library](http://nipy.org/nibabel/)
 
 # Thanks
 Thanks to Bernard Siow (Centre for Advanced Biomedical Imaging, UCL) and Willy Gsell (Department of Imaging and Pathology, KU Leuven).
