@@ -1,0 +1,9 @@
+
+.gitignore
+.idea/
+LICENCE.txt
+README.md
+definitions.py
+setup.py
+z_*
+parser.py
