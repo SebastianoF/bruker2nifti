@@ -1,5 +1,6 @@
 import numpy as np
 import os
+
 import nibabel as nib
 from sympy.core.cache import clear_cache
 
@@ -92,11 +93,6 @@ def bruker_read_files(param_file, data_path, reco_num=1):
 
         line_in = lines[line_num]
 
-        print param_file.lower()
-        print line_num
-        print line_in
-        print
-
         if line_num == 671 and param_file.lower() == 'visu_pars':
             print 'spam'
 
@@ -125,12 +121,6 @@ def bruker_read_files(param_file, data_path, reco_num=1):
                 else:  # this is finally the shape of the vector that will start in the next line.
                     sh = sh.replace('(', '').replace(')', '').replace('\n', '').strip()
                     sh = [int(num) for num in sh.split(',')]
-
-                # if '.' in sh:
-                #     indian_file += sh
-
-                # else:
-                #     sh = [int(num) for num in sh.split(',')]
 
                 while not done:
 
@@ -228,7 +218,7 @@ def correct_for_the_slope(data, slope, num_initial_dir_to_skip=None):
         slope = slope[num_initial_dir_to_skip:]
         data = data[..., num_initial_dir_to_skip:]
 
-    if isinstance(slope, int) or isinstance(slope, float) :
+    if isinstance(slope, int) or isinstance(slope, float):
         data = slope * data  # scalar times 3d array
 
     else:

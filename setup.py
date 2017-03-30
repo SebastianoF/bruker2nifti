@@ -8,7 +8,7 @@ root_dir = os.path.abspath(os.path.dirname(__file__))
 infos = {
          'name': 'bruker2nifti',
          'version': '0.0.0',
-         'description': 'From raw brukert to nifty, home-made converter.',
+         'description': 'From raw Brukert to nifti, home-made converter.',
          'web_infos' : '',
          'repository': {
                         'type': 'git',
@@ -28,5 +28,5 @@ setup(name=infos['name'],
       author=infos['author'],
       author_email=infos['author_email'],
       url=infos['repository']['url'],
-      packages=['bruker2nifti']
+      packages=find_packages()
       )
