@@ -1,5 +1,4 @@
 import os
-import pprint
 
 from utils import list_files, bruker_read_files
 from scan_converter import convert_a_scan

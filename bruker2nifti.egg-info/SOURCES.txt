@@ -1,0 +1,12 @@
+setup.py
+bruker2nifti/__init__.py
+bruker2nifti/parser.py
+bruker2nifti/scan_converter.py
+bruker2nifti/study_converter.py
+bruker2nifti/utils.py
+bruker2nifti/z_run.py
+bruker2nifti/z_utils_extra.py
+bruker2nifti.egg-info/PKG-INFO
+bruker2nifti.egg-info/SOURCES.txt
+bruker2nifti.egg-info/dependency_links.txt
+bruker2nifti.egg-info/top_level.txt

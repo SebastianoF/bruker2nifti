@@ -116,13 +116,13 @@ Information to fill the header (and b-values and b-vectors if any) are
 again in the files
 method, acqp, reco and visu_pars. The img_data is stored in the file 2dseq.
 
-
+<!---
 ## Code structure:
 
 
 ## Examples:
 
-
+--->
 
 ## Instructions
 
@@ -157,13 +157,16 @@ where XX is the chosen version.
 
 `pip install -e .`
 
++ To verify that it has been installed in your libraries:
+
+`pip list`
+
 + To verify that it works:
 
 `python`
 
-`from labels_manager.main import LabelsManager as LM`
+`import bruker2nifti`
 
-`lm = LM('/some/folder')`
 
 To uninstall:
 
