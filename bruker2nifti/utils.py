@@ -69,8 +69,10 @@ def bruker_read_files(param_file, data_path, reco_num=1):
         f = open(os.path.join(data_path, 'method'), 'r')
     elif param_file.lower() == 'visu_pars':
         f = open(os.path.join(data_path, 'pdata', '1', 'visu_pars'), 'r')
+    elif param_file.lower() == 'subject':
+        f = open(os.path.join(data_path, 'subject'), 'r')
     else:
-        raise IOError('param_file should be the string reco, acqp, method or visu_pars')
+        raise IOError('param_file should be the string reco, acqp, method, visu_pars or subject')
 
     dict_info = {}
     lines = f.readlines()
@@ -88,7 +90,7 @@ def bruker_read_files(param_file, data_path, reco_num=1):
         if '##' in line_in:
 
             # A:
-            if ('$' in line_in) and ('(' in line_in):
+            if ('$' in line_in) and ('(' in line_in) and ('<' not in line_in):
 
                 splitted_line = line_in.split('=')
                 # name of the variable contained in the row, and shape:
@@ -100,9 +102,8 @@ def bruker_read_files(param_file, data_path, reco_num=1):
                 pos = line_num
 
                 if '.' in sh:
-                    # method.ExcPulse has not integer values as argument.
-                    # in this case add the value to the argument
                     indian_file += sh
+
                 else:
                     sh = [int(num) for num in sh.split(',')]
 
@@ -122,14 +123,16 @@ def bruker_read_files(param_file, data_path, reco_num=1):
 
                 dict_info[var_name] = indian_file_parser(indian_file, sh)
 
-            if ('$' in line_in) and ('(' not in line_in):
+            # B:
+            elif ('$' in line_in) and ('(' not in line_in):
                 splitted_line = line_in.split('=')
                 var_name = var_name_clean(splitted_line[0][3:])
                 indian_file = splitted_line[1]
 
                 dict_info[var_name] = indian_file_parser(indian_file)
 
-            if ('$' not in line_in) and ('(' in line_in):
+            # C:
+            elif ('$' not in line_in) and ('(' in line_in):
 
                 splitted_line = line_in.split('=')
                 var_name = var_name_clean(splitted_line[0][2:])
@@ -155,13 +158,21 @@ def bruker_read_files(param_file, data_path, reco_num=1):
 
                 dict_info[var_name] = indian_file_parser(indian_file)
 
-            if ('$' not in line_in) and ('(' not in line_in):
+            # D:
+            elif ('$' not in line_in) and ('(' not in line_in):
                 splitted_line = line_in.split('=')
                 var_name = var_name_clean(splitted_line[0])
                 indian_file = splitted_line[1].replace('=', '').strip()
                 dict_info[var_name] = indian_file_parser(indian_file)
+            # General case: take it as a simple and clean.
+            else:
+                splitted_line = line_in.split('=')
+                var_name = var_name_clean(splitted_line[0])
+                dict_info[var_name] = splitted_line[1].replace('(', '').replace(')', '').replace('\n', ''). \
+                                                       replace('<', '').replace('>', '').replace(',', ' ').strip()
 
     return dict_info
+
 
 def normalise_b_vect(b_vect, remove_nan=True):
 

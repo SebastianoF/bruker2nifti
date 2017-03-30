@@ -30,7 +30,7 @@ In the range of my possibilities PEP-8 convention was followed.
 ### Common file structure:
 
 Usual structure of a study (paravision 5) is:
-
+```
 └── StudyName
     ├── 1
     ├── 2
@@ -41,9 +41,9 @@ Usual structure of a study (paravision 5) is:
     ├── AdjResult
     ├── AdjStatePerStudy
     └── subject
-
+```
 where each folder numbered 1 to 6 is a scan, whose usual structure is
-
+```
 ├── 3
 │   ├── AdjRefgProfiles.dat
 │   ├── AdjStatePerScan
@@ -63,13 +63,13 @@ where each folder numbered 1 to 6 is a scan, whose usual structure is
 │   ├── spnam0
 │   ├── spnam23
 │   └── uxnmr.par
-
+```
 Information to fill the header (and b-values and b-vectors if any) are in the files
 method, acqp, reco and visu_pars. The img_data is stored in the file 2dseq.
 
 
 Usual structure of a study (paravision 6) is:
-
+```
 └── StudyName
     ├── 1
     ├── 2
@@ -81,9 +81,9 @@ Usual structure of a study (paravision 6) is:
     ├── ResultState
     ├── ScanProgram.scanProgram
     └── subject
-
+```
 where each folder numbered 1 to 6 is a scan, whose usual structure is
-
+```
 ├── 3
 │   ├── AdjStatePerScan
 │   ├── acqp
@@ -111,7 +111,7 @@ where each folder numbered 1 to 6 is a scan, whose usual structure is
 │   ├── uxnmr.info
 │   ├── uxnmr.par
 │   └── visu_pars
-
+```
 Information to fill the header (and b-values and b-vectors if any) are
 again in the files
 method, acqp, reco and visu_pars. The img_data is stored in the file 2dseq.

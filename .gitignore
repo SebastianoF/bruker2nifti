@@ -1,5 +1,3 @@
-
-.gitignore
 .idea/
 *.pyc
 z_*

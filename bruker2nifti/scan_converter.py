@@ -14,7 +14,6 @@ pfo_scan  = path to folder of a raw Buker scan.
 
 def get_info_and_img_data(pfo_scan):
     """
-
     :param pfo_scan: path to folder scan (typically inside a study with an integer as folder name).
     :return: [info, img_data], info that contains the future header information and img_data the numpy array with the
     data of the future nifti image.
@@ -40,7 +39,7 @@ def get_info_and_img_data(pfo_scan):
     else:
         raise IOError('Unknown imaging acquisition dimensionality.')
 
-    dimensions = dimensions.astype(np.int)
+    dimensions = np.array(dimensions).astype(np.int)
 
     if int(acqp['NR']) > 1:
         dimensions = [k for k in dimensions] + [int(acqp['NR'])]
@@ -116,7 +115,12 @@ def get_spatial_resolution_from_info(info):
     :return: info['acqp']['ACQ_sw_version'] reordered 1, 0, 2
     """
     sp_resol = info['method']['SpatResol']
-    return np.array([sp_resol[1], sp_resol[0], sp_resol[2]])
+    if len(sp_resol) == 3:
+        return np.array([sp_resol[1], sp_resol[0], sp_resol[2]])
+    elif len(sp_resol) == 2:
+        return np.array([sp_resol[0], sp_resol[1]])
+    else:
+        raise IOError("The variable info['method']['SpatResol'] requires some more investigation")
 
 
 def get_slope_from_info(info):
@@ -179,7 +183,7 @@ def write_info(info, pfo_output, save_human_readable=True, separate_shells_if_dw
                num_shells=3, num_initial_dir_to_skip=7, normalise_b_vectors_if_dwi=True, verbose=1):
 
     if not os.path.isdir(pfo_output):
-        raise IOError('Input folder does not exists.')
+        raise IOError('Output folder does not exists.')
 
     # print ordered dictionaries values to console
     if verbose > 1:
@@ -319,8 +323,6 @@ def write_scan_to_nifti(info,
         print shape_from_info
         np.testing.assert_array_equal(shape_from_info,
                                       nib_im.shape)
-
-
 
         nib.save(nib_im, pfi_output)
 
