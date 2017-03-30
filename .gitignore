@@ -2,4 +2,5 @@
 *.pyc
 z_*
 parser.py
-sdist
+dist
+*.egg-info
