@@ -1,9 +1,6 @@
 
 .gitignore
 .idea/
-LICENCE.txt
-README.md
-definitions.py
-setup.py
+*.pyc
 z_*
 parser.py
