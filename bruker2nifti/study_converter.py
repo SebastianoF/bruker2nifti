@@ -115,10 +115,10 @@ def convert_a_study(pfo_study_brukert_input,
 
         pfo_scan_bruker = os.path.join(pfo_study_brukert_input, brukert_scan_name)
         pfo_scan_nifti = os.path.join(pfo_nifti_study, nifti_scan_name)
-        os.system('mkdir -p {0}'.format(pfo_scan_nifti))
 
         convert_a_scan(pfo_scan_bruker,
                        pfo_scan_nifti,
+                       create_output_folder_if_not_esists=True,
                        fin_output=list_new_name_each_scan,
                        nifti_version=nifti_version,
                        qform=qform,

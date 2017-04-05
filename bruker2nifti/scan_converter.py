@@ -29,20 +29,19 @@ def get_info_and_img_data(pfo_scan):
 
     # get dimensions
     if method['SpatDimEnum'] == '2D':
-        dimensions = [0] * 3
-        dimensions[0:2] = reco['RECO_size'][0:2]
-        dimensions[2] = acqp['NSLICES']
+        dimensions = reco['RECO_size'][0:2]
     elif method['SpatDimEnum'] == '3D':
         dimensions = method['Matrix'][0:3]
     else:
         raise IOError('Unknown imaging acquisition dimensionality.')
 
-    dimensions = np.array(dimensions).astype(np.int)
+    # casting to a list of int:
+    dimensions = list(np.array(dimensions).astype(np.int))
 
     if int(acqp['NR']) > 1:  # extra dimension for DWI
-        dimensions = [k for k in dimensions] + [int(acqp['NR'])]
-    if int(acqp['NI']) > 1:  # estra dimension for FieldMap and alike
-        dimensions = [k for k in dimensions] + [int(acqp['NI'])]
+        dimensions += [int(acqp['NR'])]
+    if int(acqp['NI']) > 1:  # estra dimension for FieldMap, MSME_T2 and alike
+        dimensions += [int(acqp['NI'])]
 
     # get datatype
     if reco['RECO_wordtype'] == '_32BIT_SGN_INT':
@@ -72,6 +71,8 @@ def get_info_and_img_data(pfo_scan):
 
     if not data_endian_ness == system_endian_nes:
         img_data.byteswap(True)
+
+    # dimensions = [240, 240, 512]
 
     # reshape the array according to the dimension: - note that we use the Fortran ordering convention. Swap x, y
     if method['SpatDimEnum'] == '2D':
@@ -113,11 +114,18 @@ def get_spatial_resolution_from_info(info):
     :param info: as provided as output from get_img_and_info
     :return: info['acqp']['ACQ_sw_version'] reordered 1, 0, 2
     """
+    # (*) in the resolution data for 2d slices stacked as 3d
+    #  info['acqp']['ACQ_slice_thick'] works for my data, not sure in general.
     sp_resol = info['method']['SpatResol']
     if len(sp_resol) == 3:
         return np.array([sp_resol[1], sp_resol[0], sp_resol[2]])
     elif len(sp_resol) == 2:
-        return np.array([sp_resol[0], sp_resol[1]])
+
+        slice_thick = info['acqp']['ACQ_slice_thick']  # (*)
+        if slice_thick > 0 :
+            return np.array([sp_resol[0],  sp_resol[1], slice_thick])
+        else:
+            return np.array([sp_resol[0], sp_resol[1]])
     else:
         raise IOError("The variable info['method']['SpatResol'] requires some more investigation")
 
@@ -335,9 +343,6 @@ def write_to_nifti(info,
     :param verbose: 0 no, 1 yes, 2 yes for debug.
     :return: [None] write the corresponding nifti image.
     """
-    # (*) in the resolution data for 2d slices stacked as 3d
-    #  info['acqp']['ACQ_slice_thick'] works for my data, not sure in general.
-    #
     # qform 2, sform 1, axis direction (-1,-1,1) to reproduce output of Leuven matlab script.
     # axis_direction=(1,1,1) means in the header L S I (left-superior-inferior).
     if not pfi_output.endswith('.nii') and not pfi_output.endswith('.nii.gz'):
@@ -355,10 +360,22 @@ def write_to_nifti(info,
 
     else:
         if correct_slope:
-            img_data = img_data.astype(np.float64)
             img_data = correct_for_the_slope(img_data, get_slope_from_info(info))
+        # this can be done when needed only after the slope correction,
+        # as the slope has the length given by info['acqp']['NI']
+        if int(info['acqp']['ACQ_n_echo_images']) > 1:
+            last_dim = img_data.shape[-1]
+            eco_dim = int(info['acqp']['ACQ_n_echo_images'])
+            # the last dimension of the image is including the echo dimension. This is how the slope
+            # is encoded. Last dim and echo dim are finally disentagled here.
+            if last_dim % eco_dim is not 0:
+                raise IOError('Echo dim and last dim are not compatible. Cannot disentangle them.')
+            last_dim_new = last_dim / eco_dim
+            new_shape = list(img_data.shape[:-1]) + [last_dim_new, eco_dim]
+            img_data = img_data.reshape(new_shape)
+
         sp_res = list(get_spatial_resolution_from_info(info))
-        sp_res = np.array(sp_res + [info['acqp']['ACQ_slice_thick'], ] * (3 - len(sp_res)) + [1])  # (*)
+        sp_res = np.array(sp_res + [1, ] * (3 - len(sp_res)) + [1])
         axis_direction = list(axis_direction)
         axis_direction = np.array(axis_direction + [1, ] * (3 - len(axis_direction)) + [1])
 
@@ -408,6 +425,7 @@ def write_to_nifti(info,
 
 def convert_a_scan(pfo_input_scan,
                    pfo_output,
+                   create_output_folder_if_not_esists=True,
                    fin_output=None,
                    nifti_version=1,
                    qform=2,
@@ -422,6 +440,7 @@ def convert_a_scan(pfo_input_scan,
     The bridge goes FROM the path where the bruker scan is stored TO where the output will be saved.
     :param pfo_input_scan: path to folder containing a scan from Bruker.
     :param pfo_output: path to folder where the nifti and all the additional informations will be stored.
+    :param create_output_folder_if_not_esists: [True]
     :param fin_output: [None] filename of the nifti image that will be saved into the pfo_output folder.
     :param nifti_version: [1]
     :param qform:
@@ -433,6 +452,9 @@ def convert_a_scan(pfo_input_scan,
     :param verbose: 0 no, 1 yes, 2 yes debug
     :return: [None] save the data parsed from the raw Bruker scan into a folder, including the nifti image.
     """
+    if create_output_folder_if_not_esists:
+        os.system('mkdir -p {}'.format(pfo_output))
+
     info, img_data = get_info_and_img_data(pfo_input_scan)
 
     if fin_output is None:  # filename output

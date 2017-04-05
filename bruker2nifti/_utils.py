@@ -217,6 +217,8 @@ def correct_for_the_slope(data, slope, num_initial_dir_to_skip=None):
     if len(data.shape) > 4:
         raise IOError('4d or lower dimensional images allowed. Input data has shape'.format(data.shape))
 
+    data = data.astype(np.float64)
+
     if num_initial_dir_to_skip is not None:
         slope = slope[num_initial_dir_to_skip:]
         data = data[..., num_initial_dir_to_skip:]
