@@ -58,6 +58,7 @@ def convert_a_study(pfo_study_brukert_input,
                     study_name=None,
                     scans_list=None,
                     list_new_name_each_scan=None,
+                    list_new_nifti_file_names=None,
                     nifti_version=1,
                     qform=2,
                     sform=1,
@@ -77,9 +78,12 @@ def convert_a_study(pfo_study_brukert_input,
     :param scans_list: [None] scans of the study that will be converted.
         E.g. scans_list=('3', '4')
     If default None, all the study will be converted
-    :param list_new_name_each_scan:
-    :param list_new_name_each_scan: [None] dictionary of the filename of the nifti images output corresponding to the scan list
-        E.g, dict_fin_output={'3':'Patient supine', '4':'Patient prone'}
+    :param list_new_name_each_scan: [None] list of the filename of the folder corresponding to each acquisition in the
+     same order of the parameter scan_list
+        E.g, list_new_name_each_scan=('Patient supine', 'Patient prone')
+        -> the scan '3' will be stored in the folder 'Patient supine' once converted and
+         the scan '4' will be stored in the folder 'Patient prone'.
+    :param list_new_nifti_file_names:
     :param nifti_version: see convert_a_scan.__doc__
     :param qform:
     :param sform:
@@ -101,7 +105,9 @@ def convert_a_study(pfo_study_brukert_input,
     if study_name is None:
         study_name = get_subject_name(pfo_study_brukert_input)
     if list_new_name_each_scan is None:
-        list_new_name_each_scan = scans_list
+        list_new_name_each_scan = [study_name + '_' + ls for ls in scans_list]
+    if list_new_nifti_file_names is None:
+        list_new_nifti_file_names = list_new_name_each_scan
     else:
         if not len(scans_list) == len(list_new_name_each_scan):
             msg = 'list_name_each_scan {0} does not have the same amount of scans in the ' \
@@ -111,15 +117,15 @@ def convert_a_study(pfo_study_brukert_input,
     pfo_nifti_study = os.path.join(pfo_study_nifti_output, study_name)
     os.system('mkdir -p {0}'.format(pfo_nifti_study))
 
-    for brukert_scan_name, nifti_scan_name in zip(scans_list, list_new_name_each_scan):
+    for brukert_scan_name, scan_name, nifti_file_name in zip(scans_list, list_new_name_each_scan, list_new_nifti_file_names):
 
         pfo_scan_bruker = os.path.join(pfo_study_brukert_input, brukert_scan_name)
-        pfo_scan_nifti = os.path.join(pfo_nifti_study, nifti_scan_name)
+        pfo_scan_nifti = os.path.join(pfo_nifti_study, scan_name)
 
         convert_a_scan(pfo_scan_bruker,
                        pfo_scan_nifti,
                        create_output_folder_if_not_esists=True,
-                       fin_output=nifti_scan_name,
+                       fin_output=nifti_file_name,
                        nifti_version=nifti_version,
                        qform=qform,
                        sform=sform,

@@ -84,6 +84,9 @@ def get_info_and_img_data(pfo_scan):
             dimensions = [dimensions[1], dimensions[0], dimensions[2], dimensions[3]]
         img_data = img_data.reshape(dimensions, order='F')
 
+    # Squeeze extra dimensions:
+    img_data = np.squeeze(img_data)
+
     # From dictionary of frozenset for safety:
     info = {'acqp': acqp, 'method': method, 'reco': reco, 'visu_pars': visu_pars}
 
@@ -131,6 +134,13 @@ def get_spatial_resolution_from_info(info):
 
 
 def get_slope_from_info(info):
+    """
+    From the acqp file, the method extracts the slope of the acquisition.
+    :param info: as provided as output from get_img_and_info
+    :return: info['visu_pars']['VisuCoreDataSlope'] slope, as the data structure (int, float or array) containing the
+    constant factor(s) multiplying each slice or echo aimed at optimising the img_data memory size reducing the number
+    of bits used by its type.
+    """
     return info['visu_pars']['VisuCoreDataSlope']
 
 
@@ -373,6 +383,7 @@ def write_to_nifti(info,
             last_dim_new = last_dim / eco_dim
             new_shape = list(img_data.shape[:-1]) + [last_dim_new, eco_dim]
             img_data = img_data.reshape(new_shape)
+            img_data = np.squeeze(img_data)
 
         sp_res = list(get_spatial_resolution_from_info(info))
         sp_res = np.array(sp_res + [1, ] * (3 - len(sp_res)) + [1])
