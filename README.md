@@ -148,12 +148,21 @@ again in the files
 method, acqp, reco and visu_pars. The img_data is stored in the file 2dseq.
 
 
-<!---
+
 ## Code structure:
 
++ **bruker2nifti._utils.py** contains the utils, whose core is the method indian_file_parser component of the bridge 
+parsing the text contained in the main raw bruker structure into dictionaries.
++ **bruker2nifti.scan_converter.py** contains the code to convert a single scan.
+The main method convert_a_scan put togheter the main components get_info_and_img_data, write_info and write_to_nifti.
++ **bruker2nifti.study_converter.py** contains the code to convert a study.
+The main method convert_a_study browse the study folder and apply convert_a_scan to all the scans contained.
+Results are saved in a folder structure homologous to bruker study with the files converted to nifti.
++ The folder **parsers** contains some parsers that can be used to access the method directly
+from command line.
 
+<!---
 ## Examples:
-
 --->
 
 ### Instructions <a name="instructions"></a>
