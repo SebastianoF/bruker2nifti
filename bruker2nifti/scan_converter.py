@@ -334,8 +334,8 @@ def write_to_nifti(info,
     :param num_initial_dir_to_skip:
     :param nifti_version: nifti file can be 1 or 2. The values of the nifti attributes are filled in the same way
     (as nifti1 even when nifti2 is selected).
-    :param qform:
-    :param sform:
+    :param qform [2]:
+    :param sform [1]:
     :param axis_direction: [(-1, -,1, 1)] the signs of the diagonal of the affine transformation
     (otherwise providing the positive spatial resolution in the diagonal of the affine transformation. By default
     the affine matrix is a diagonal matrix).
