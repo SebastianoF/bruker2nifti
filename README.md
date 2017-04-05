@@ -168,8 +168,9 @@ from command line.
 ### Instructions <a name="instructions"></a>
 
 + Install python requirements in requirements.txt with
-
-    `pip install -r requirements.txt`
+```
+pip install -r requirements.txt
+```
 
 in a [virtualenv](http://docs.python-guide.org/en/latest/dev/virtualenvs/).
 
@@ -177,46 +178,47 @@ in a [virtualenv](http://docs.python-guide.org/en/latest/dev/virtualenvs/).
 + activate the virtualenvironment and go in the root folder of the repository.
 
 + To install as a library (option 1):
-    
-    `python setup.py sdist`
-    
-    `cd ../`
-    
-    `pip install bruker2nifti/dist/bruker2nifti-XX.tar.gz`
+```
+python setup.py sdist
 
+cd ../
+
+pip install bruker2nifti/dist/bruker2nifti-XX.tar.gz
+```
 where XX is the chosen version.
 
 + To install as a library (option 2):
-
-    `python setup.py install`
-
+```
+python setup.py install
+```
 + To install in [development mode](http://setuptools.readthedocs.io/en/latest/setuptools.html#development-mode) (option 1) 
-
-    `python setup.py develop`
+```
+python setup.py develop
+```
 
 + To install in development mode (option 2, suggested)
-
-    `pip install -e .`
+```
+pip install -e .
+```
 
 + To verify that it has been installed in your libraries, see the list of libraries installed:
-
-    `pip list`
-
-+ To verify that that it works:
-    
-    `python`
-    
-    `import bruker2nifti`
-
+```
+pip list
+```
++ To verify that that it works (at least the setup):
+```    
+python
+import bruker2nifti
+```
 
 To uninstall:
-
-    `pip uninstall bruker2nifti`
- 
+```
+pip uninstall bruker2nifti
+```
 To delete the library in the virtualenv in case something really wrong happen and pip uninstall will be able to work correctly:
-  
-    `sudo rm -rf /path_to_site_packages_in_virtualenv/site-packages/bruker2nifti*`
- 
+```
+sudo rm -rf /path_to_site_packages_in_virtualenv/site-packages/bruker2nifti*
+```
 
 ### Utilities <a name="utilities"></a>
 
