@@ -12,7 +12,7 @@ Python 2.7
 
 
 
-###Glossary <a name="glossary"></a>
+### Glossary <a name="glossary"></a>
 
 **study**: a series of acquisition related to the same subject, acquired in the same scanning session
 and usually containing multiple scans.
@@ -29,7 +29,7 @@ Patient/subject information are embedded in the study (opposed hierarchy as in t
 store them to the nifti header and to reshape img_data.
 
 
-###Code rationale <a name="rationale"></a>
+### Code rationale <a name="rationale"></a>
 
 Mainly due to lack of information, at the present stage not all the possible
 output of the paravision software are
@@ -156,7 +156,7 @@ method, acqp, reco and visu_pars. The img_data is stored in the file 2dseq.
 
 --->
 
-###Instructions <a name="instructions"></a>
+### Instructions <a name="instructions"></a>
 
 + Install python requirements in requirements.txt with
 
@@ -209,13 +209,14 @@ To delete the library in the virtualenv in case something really wrong happen an
     `sudo rm -rf /path_to_site_packages_in_virtualenv/site-packages/bruker2nifti*`
  
 
-###Utilities <a name="utilities"></a>
+### Utilities <a name="utilities"></a>
 
 + [official documentation nifti format](https://nifti.nimh.nih.gov/nifti-1)
 + [non-official documentation nifti format](https://brainder.org/2012/09/23/the-nifti-file-format/)
 + [nibabel python library](http://nipy.org/nibabel/)
 
-##Thanks <a name="thanks"></a>
+## Thanks <a name="thanks"></a>
+
 Thanks to Bernard Siow (Centre for Advanced Biomedical Imaging, UCL) and Willy Gsell (Department of Imaging and Pathology, KU Leuven).
 
 
@@ -226,12 +227,12 @@ Examples of differencies in the text-files:
 Under **methods** the attribute `PVM_SpatDimEnum` in pv5 appears as: 
 
 ```
-##$PVM_SpatDimEnum=3D
+## $PVM_SpatDimEnum=3D
 ```
 
 whereas in pv6:
  
 ```
-##$PVM_SpatDimEnum=<3D>
+## $PVM_SpatDimEnum=<3D>
 ```
 --->
