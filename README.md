@@ -244,5 +244,16 @@ whereas in pv6:
  
 ```
 ## $PVM_SpatDimEnum=<3D>
+
 ```
+$ACQ_time:
+paravision 5: 
+##$ACQ_time=( 24 )
+<20:19:47  1 Sep 2016>
+
+paravision 6: 
+##$ACQ_time=<2017-03-07T19:56:48,575+0100>
+
+
+
 --->

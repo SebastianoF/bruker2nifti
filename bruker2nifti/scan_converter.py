@@ -334,11 +334,14 @@ def write_to_nifti(info,
     :param verbose: 0 no, 1 yes, 2 yes for debug.
     :return: [None] write the corresponding nifti image.
     """
-    # qform 2, sform 1, axis direction (-1,-1,1) to reproduce output of Leuven matlab script
-    # axis_direction=(1,1,1) means in the header L S I (left-superior-inferior)
-    if not pfi_output.endswith('.nii') or pfi_output.endswith('.nii.gz'):
+    # (*) in the resolution data for 2d slices stacked as 3d
+    #  info['acqp']['ACQ_slice_thick'] works for my data, not sure in general.
+    #
+    # qform 2, sform 1, axis direction (-1,-1,1) to reproduce output of Leuven matlab script.
+    # axis_direction=(1,1,1) means in the header L S I (left-superior-inferior).
+    if not pfi_output.endswith('.nii') and not pfi_output.endswith('.nii.gz'):
         pfi_output += '.nii.gz'
-        raise Warning('Output file not ending with .nii or .nii.gz. Default .nii.gz added')
+        print('Output file not ending with .nii or .nii.gz. Default .nii.gz added')
 
     if separate_shells_if_dwi:
         # TODO
@@ -353,45 +356,46 @@ def write_to_nifti(info,
         if correct_slope:
             img_data = img_data.astype(np.float64)
             img_data = correct_for_the_slope(img_data, get_slope_from_info(info))
-        sp_res = list(get_spatial_resolution_from_info(info)) + [1]
+        sp_res = list(get_spatial_resolution_from_info(info))
+        sp_res = np.array(sp_res + [info['acqp']['ACQ_slice_thick'], ] * (3 - len(sp_res)) + [1])  # (*)
+        axis_direction = list(axis_direction)
+        axis_direction = np.array(axis_direction + [1, ] * (3 - len(axis_direction)) + [1])
 
-        affine = np.diag([axis_direction[0] * sp_res[0],
-                          axis_direction[1] * sp_res[1],
-                          axis_direction[2] * sp_res[2],
-                                              sp_res[3]]).astype(np.float64)
+        affine = np.diag(sp_res * axis_direction).astype(np.float64)
 
         if verbose > 1:
             print(affine)
 
         if nifti_version == 1:
             nib_im = nib.Nifti1Image(img_data, affine=affine)
-            hdr = nib_im.header
-            hdr.set_qform(affine, qform)
-            hdr.set_sform(affine, sform)
-            nib_im.update_header()
-
         elif nifti_version == 2:
             nib_im = nib.Nifti2Image(img_data, affine=affine)
-            hdr = nib_im.header
-            hdr.set_qform(affine, qform)
-            hdr.set_sform(affine, sform)
-            nib_im.update_header()
         else:
-            raise IOError
+            raise IOError('Nifti versions allowed are 1 or 2.')
+
+        hdr = nib_im.header
+        hdr.set_qform(affine, qform)
+        hdr.set_sform(affine, sform)
+        nib_im.update_header()
 
         # sanity check image dimension from header to shape:
         shape_from_info = list(info['visu_pars']['VisuCoreSize'])
         if info['acqp']['NR'] > 1:
             shape_from_info = shape_from_info + [info['acqp']['NR'], ]
 
-        np.testing.assert_array_equal(shape_from_info,
-                                      nib_im.shape)
+        if info['method']['SpatDimEnum'] == '3D':
+            np.testing.assert_array_equal(shape_from_info, nib_im.shape)
+        elif info['method']['SpatDimEnum'] == '2D':
+            np.testing.assert_array_equal(shape_from_info[:2], nib_im.shape[:2])
+        else:
+            print("method['SpatDimEnum'] is " + info['method']['SpatDimEnum'] +
+                  " [not '2D' or '3D']-> no sanity check on dimensions..")
 
         nib.save(nib_im, pfi_output)
 
         if verbose > 0:
             print('Scan saved in nifti format version {0} at: \n{1}'.format(nifti_version, pfi_output))
-            print('Shape : \n {0}\n affine: {1}\n'.format(nib_im.shape, nib_im.affine))
+            print('Shape : \n {0}\n affine: \n{1}\n'.format(nib_im.shape, nib_im.affine))
 
 
 def convert_a_scan(pfo_input_scan,
@@ -425,8 +429,9 @@ def convert_a_scan(pfo_input_scan,
 
     if fin_output is None:  # filename output
         fin_output = info['method']['Method'].lower() + \
-                     str(info['acqp']['ACQ_time'][0][-11:]).replace(' ', '').replace(':', '_') + '.nii.gz'
-
+                     info['acqp']['ACQ_time'].split(',')[0]
+        fin_output = fin_output.replace(' ', '_').replace(':', '_').replace('T', '_')
+        fin_output += '.nii.gz'
     write_info(info,
                pfo_output,
                save_human_readable=save_human_readable,

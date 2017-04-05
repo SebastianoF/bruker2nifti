@@ -105,7 +105,9 @@ def main():
 
         if args.fin_output is None:
             fin_output = info['method']['Method'].lower() + \
-                         str(info['acqp']['ACQ_time'][0][-11:]).replace(' ', '').replace(':', '_') + '.nii.gz'
+                         str(info['acqp']['ACQ_time'][0][-11:])
+            fin_output = fin_output.replace(' ', '').replace(':', '_')
+            fin_output += '.nii.gz'
         else:
             fin_output = args.fin_output
 

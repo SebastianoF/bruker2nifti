@@ -222,11 +222,19 @@ def correct_for_the_slope(data, slope, num_initial_dir_to_skip=None):
         data = data[..., num_initial_dir_to_skip:]
 
     if isinstance(slope, int) or isinstance(slope, float):
-        data = slope * data  # scalar times 3d array
+        # scalar times 3d array
+        data = slope * data
 
+    elif len(data.shape) ==3 and len(slope.shape) == 1:
+        # each slice of the 3d image is multiplied an element of the slope
+        if data.shape[2] == slope.shape[0]:
+            for t, sl in enumerate(slope):
+                data[..., t] = data[..., t] * sl
+        else:
+            raise IOError('Shape of the 2d image and slope dimensions are not consistent')
     else:
         if not slope.size == data.shape[3]:
-            raise IOError('Shape of the image and slope dimensions are not consistent')
+            raise IOError('Shape of the 3d image and slope dimensions are not consistent')
         for t in range(data.shape[3]):
             data[..., t] = data[..., t] * slope[t]
 
