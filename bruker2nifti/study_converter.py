@@ -56,9 +56,9 @@ def get_subject_id(pfo_study):
 def convert_a_study(pfo_study_brukert_input,
                     pfo_study_nifti_output,
                     study_name=None,
-                    scans_list = ('3', '4'),
+                    scans_list=None,
                     list_new_name_each_scan=None,
-                    fin_output=None,
+                    dict_fin_output=None,
                     nifti_version=1,
                     qform=2,
                     sform=1,
@@ -72,21 +72,24 @@ def convert_a_study(pfo_study_brukert_input,
     Core method of the module from a study Bruker folder structure to the homologous folder structure containing
      all the scans in nifti format and the additional information as python dictionaries and readable and ordered .txt
      files.
-    :param pfo_study_brukert_input:
-    :param pfo_study_nifti_output:
-    :param study_name:
-    :param scans_list:
+    :param pfo_study_brukert_input: path to folder Bruker study.
+    :param pfo_study_nifti_output: path to folder where the converted study will be stored.
+    :param study_name: [None] study name, that will be the name of the main output folder with the new structure.
+    :param scans_list: [None] scans of the study that will be converted.
+        E.g. scans_list=('3', '4')
+    If default None, all the study will be converted
     :param list_new_name_each_scan:
-    :param fin_output:
-    :param nifti_version:
+    :param dict_fin_output: [None] dictionary of the filename of the nifti images output corresponding to the scan list
+        E.g, dict_fin_output={'3':'Patient supine', '4':'Patient prone'}
+    :param nifti_version: see convert_a_scan.__doc__
     :param qform:
     :param sform:
     :param axis_direction:
     :param save_human_readable:
     :param normalise_b_vectors_if_dwi:
     :param correct_slope:
-    :param verbose:
-    :return:
+    :param verbose: 0 no, 1 yes, 2 yes for debug
+    :return: [None]
     """
     if not os.path.isdir(pfo_study_brukert_input):
         raise IOError('Input folder does not exists.')
@@ -115,15 +118,32 @@ def convert_a_study(pfo_study_brukert_input,
         pfo_scan_nifti = os.path.join(pfo_nifti_study, nifti_scan_name)
         os.system('mkdir -p {0}'.format(pfo_scan_nifti))
 
-        convert_a_scan(pfo_scan_bruker,
-                       pfo_scan_nifti,
-                       fin_output=fin_output,
-                       nifti_version=nifti_version,
-                       qform=qform,
-                       sform=sform,
-                       axis_direction=axis_direction,
-                       save_human_readable=save_human_readable,
-                       normalise_b_vectors_if_dwi=normalise_b_vectors_if_dwi,
-                       correct_slope=correct_slope,
-                       verbose=verbose
-                       )
+        if dict_fin_output is None:
+
+            convert_a_scan(pfo_scan_bruker,
+                           pfo_scan_nifti,
+                           fin_output=dict_fin_output,
+                           nifti_version=nifti_version,
+                           qform=qform,
+                           sform=sform,
+                           axis_direction=axis_direction,
+                           save_human_readable=save_human_readable,
+                           normalise_b_vectors_if_dwi=normalise_b_vectors_if_dwi,
+                           correct_slope=correct_slope,
+                           verbose=verbose
+                           )
+
+        else:  # assign the name to the output files in the structure
+
+            convert_a_scan(pfo_scan_bruker,
+                           pfo_scan_nifti,
+                           fin_output=dict_fin_output[brukert_scan_name],
+                           nifti_version=nifti_version,
+                           qform=qform,
+                           sform=sform,
+                           axis_direction=axis_direction,
+                           save_human_readable=save_human_readable,
+                           normalise_b_vectors_if_dwi=normalise_b_vectors_if_dwi,
+                           correct_slope=correct_slope,
+                           verbose=verbose
+                           )
