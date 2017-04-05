@@ -380,7 +380,7 @@ def write_to_nifti(info,
             # is encoded. Last dim and echo dim are finally disentagled here.
             if last_dim % eco_dim is not 0:
                 raise IOError('Echo dim and last dim are not compatible. Cannot disentangle them.')
-            last_dim_new = last_dim / eco_dim
+            last_dim_new = int(last_dim / eco_dim)
             new_shape = list(img_data.shape[:-1]) + [last_dim_new, eco_dim]
             img_data = img_data.reshape(new_shape)
             img_data = np.squeeze(img_data)
