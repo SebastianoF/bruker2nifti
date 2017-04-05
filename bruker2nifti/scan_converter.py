@@ -3,12 +3,14 @@ import sys
 import numpy as np
 import nibabel as nib
 import pprint
-from utils import normalise_b_vect, correct_for_the_slope, bruker_read_files
+
+from _utils import normalise_b_vect, correct_for_the_slope, bruker_read_files
 
 
 def get_info_and_img_data(pfo_scan):
     """
-    This is the core bridge of the parser, going from raw Bruker to python arrays and dictionaries.
+    This is the first of the two main components of the bridge constituting the parser,
+    going from a raw Bruker scan to a python array and a dictionary containing the additional information.
     Python arrays and dictionaries will be further saved into nifti by the method convert_a_scan.
     :param pfo_scan: path to folder scan (typically inside a study with an integer as folder name).
     :return: [info, img_data], info that contains the future header information and img_data the numpy array with the
@@ -302,7 +304,9 @@ def write_to_nifti(info,
                    axis_direction=(-1, -1, 1),
                    verbose=1):
     """
-    Core bridge method. From the info and img_data, as data structure obtained as output of the method
+    Second main component of the bridge and core method.
+    From the info and img_data, as data structure obtained as output of the method get_info_and_img_data it saves
+    the nifti image in the specified file.
     :param info: info data structure as provided by get_info_and_img_data.
     :param img_data: image data structure as provided by get_info_and_img_data. See get_info_and_img_data.__doc__ .
     :param pfi_output: path to file output. Here the nifti will be stored.

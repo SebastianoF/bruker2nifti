@@ -1,7 +1,6 @@
 import numpy as np
 import os
 
-import nibabel as nib
 from sympy.core.cache import clear_cache
 
 
@@ -109,16 +108,18 @@ def bruker_read_files(param_file, data_path, reco_num=1):
                 indian_file = ''
                 pos = line_num
                 sh = splitted_line[1]
-
-                if sh.replace(' ', '').endswith(',\n'):  # this is not the shape of the vector but the beginning of a full vector.
+                # this is not the shape of the vector but the beginning of a full vector.
+                if sh.replace(' ', '').endswith(',\n'):
                     sh = sh.replace('(', '').replace(')', '').replace('\n', '').strip()
                     indian_file += sh
                     sh = None
-                elif sh.replace(' ', '').endswith(')\n') and '.' in sh:  # this is not the shape of the vector but a full vector.
+                # this is not the shape of the vector but a full vector.
+                elif sh.replace(' ', '').endswith(')\n') and '.' in sh:
                     sh = sh.replace('(', '').replace(')', '').replace('\n', '').strip()
                     indian_file += sh
                     sh = None
-                else:  # this is finally the shape of the vector that will start in the next line.
+                # this is finally the shape of the vector that will start in the next line.
+                else:
                     sh = sh.replace('(', '').replace(')', '').replace('\n', '').strip()
                     sh = [int(num) for num in sh.split(',')]
 
@@ -187,8 +188,10 @@ def bruker_read_files(param_file, data_path, reco_num=1):
                                                        replace('<', '').replace('>', '').replace(',', ' ').strip()
 
         else:
-            pass  # line does not contain any assignable variable, so this information is not included in the info.
+            # line does not contain any assignable variable, so this information is not included in the info.
+            pass
 
+    clear_cache()
     return dict_info
 
 

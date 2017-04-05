@@ -1,10 +1,15 @@
 import os
 
-from utils import list_files, bruker_read_files
+from _utils import list_files, bruker_read_files
 from scan_converter import convert_a_scan
 
 
 def show_study_structure(pfo_study):
+    """
+    Print to console the structure of the study.
+    :param pfo_study: path to folder study.
+    :return: [None] only print to console information.
+    """
 
     if not os.path.isdir(pfo_study):
         raise IOError('Input folder does not exists.')
@@ -19,6 +24,10 @@ def show_study_structure(pfo_study):
 
 
 def get_info_sj(pfo_study):
+    """
+    :param pfo_study: path to study folder.
+    :return: get the information of the subject as a dictionary.
+    """
 
     if not os.path.isdir(pfo_study):
         raise IOError('Input folder does not exists.')
@@ -27,11 +36,19 @@ def get_info_sj(pfo_study):
 
 
 def get_subject_name(pfo_study):
+    """
+    :param pfo_study: path to study folder.
+    :return: name of the subject in the study. See get_subject_id.
+    """
     info_sj = get_info_sj(pfo_study)
     return info_sj['SUBJECT_name']
 
 
 def get_subject_id(pfo_study):
+    """
+    :param pfo_study: path to study folder.
+    :return: id of the subject. See get_subject_name
+    """
     info_sj = get_info_sj(pfo_study)
     return info_sj['SUBJECT_id'][0]
 
@@ -51,7 +68,26 @@ def convert_a_study(pfo_study_brukert_input,
                     correct_slope=False,
                     verbose=1
                     ):
-
+    """
+    Core method of the module from a study Bruker folder structure to the homologous folder structure containing
+     all the scans in nifti format and the additional information as python dictionaries and readable and ordered .txt
+     files.
+    :param pfo_study_brukert_input:
+    :param pfo_study_nifti_output:
+    :param study_name:
+    :param scans_list:
+    :param list_new_name_each_scan:
+    :param fin_output:
+    :param nifti_version:
+    :param qform:
+    :param sform:
+    :param axis_direction:
+    :param save_human_readable:
+    :param normalise_b_vectors_if_dwi:
+    :param correct_slope:
+    :param verbose:
+    :return:
+    """
     if not os.path.isdir(pfo_study_brukert_input):
         raise IOError('Input folder does not exists.')
     if not os.path.isdir(pfo_study_nifti_output):

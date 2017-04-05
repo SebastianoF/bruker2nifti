@@ -14,7 +14,10 @@ Python 2.7
 
 ###Glossary <a name="glossary"></a>
 
-**study**: folder structure containing the scans produced with paravision (PV) software.
+**study**: a series of acquisition related to the same subject, acquired in the same scanning session
+and usually containing multiple scans.
+It is provided as a folder structure containing the scans produced with paravision (PV) software.
+Patient/subject information are embedded in the study (opposed hierarchy as in the DICOM files). 
 
 **scan**: individual image acquired with various protocols.
 
@@ -36,24 +39,24 @@ We do not exclude that different settings of the same scanner
 and the same PV version
 can produce different folder structures.
 Therefore the code is written in the most readable way (readability is always
-preferred to efficiency at this stage) so that it will be easier for you to modify it
+preferred to efficiency, at least at this stage) so that it will be easier for you to modify it
 according to your needs.
 
 Further versions may sacrifice readability for the sake of efficiency only
 when the standards will be established and tested.
 
-In the range of my possibilities PEP-8 convention was followed.
+In the range of my possibilities PEP-8 convention is followed.
 
-The code is written an run in python 2.7 (cross compatibility with python 3 is implemented when possible).
-The choice of Python is after personal preferences, the availability of nibabel library, 
-and the availability of dictionaries (mapping) type and numpy arrays, that appears to be
-the best option to parse the textfiles of Paravision into easily accessible structures that 
+The code is written an runs in python 2.7 (cross compatibility with python 3 is implemented when possible).
+The choice of Python programming language is after personal preferences, the availability of nibabel library,
+the availability of dictionaries (mapping) type and numpy arrays, that appears to be
+the best option to parse the textfiles of Paravision into easily accessible structures while 
 keeping the same original name convention.  
 
 
 ### Common file structure <a name="file_structure"></a>
 
-Usual structure of a study (ParaVision 5) is:
+A study structure in ParaVision 5 can be:
 ```
 └── StudyName
     ├── 1
@@ -66,7 +69,7 @@ Usual structure of a study (ParaVision 5) is:
     ├── AdjStatePerStudy
     └── subject
 ```
-where each folder numbered 1 to 6 is a scan, whose usual structure is
+where each folder numbered 1 to 6 is a scan, whose sub-structure can be
 ```
 ├── 3
 │   ├── AdjRefgProfiles.dat
@@ -88,15 +91,15 @@ where each folder numbered 1 to 6 is a scan, whose usual structure is
 │   ├── spnam23
 │   └── uxnmr.par
 ```
-In the Bruker structure there are more information than the one required to fill a
+The Bruker structure contains more information than the one required to fill a
 nifti header (scanner setting, location, users, sample or subject scanned biometrics
-can appear in the Bruker raw data, if filled by the user).
+can appear in the Bruker raw data, if filled when scanning the data).
 To obtain relevant information to fill the nifti header (and b-values and b-vectors if any) 
 we can restrict our attention towards
 **method**, **acqp**, **reco** and **visu_pars**. The img_data is stored in the file **2dseq**.
 
 
-Usual structure of a study (paravision 6) is:
+A study structure in paravision 6 can be:
 ```
 └── StudyName
     ├── 1
@@ -110,7 +113,7 @@ Usual structure of a study (paravision 6) is:
     ├── ScanProgram.scanProgram
     └── subject
 ```
-where each folder numbered 1 to 6 is a scan, whose usual structure is
+where each folder numbered 1 to 6 is a scan, whose structure can be
 ```
 ├── 3
 │   ├── AdjStatePerScan
@@ -186,11 +189,11 @@ where XX is the chosen version.
 
     `pip install -e .`
 
-+ To verify that it has been installed in your libraries:
++ To verify that it has been installed in your libraries, see the list of libraries installed:
 
     `pip list`
 
-+ To verify that it works:
++ To verify that that it works:
     
     `python`
     
@@ -201,7 +204,7 @@ To uninstall:
 
     `pip uninstall bruker2nifti`
  
-To delete the library in the virtualenv in case something really wrong happen and pip uninstall will not work correctly:
+To delete the library in the virtualenv in case something really wrong happen and pip uninstall will be able to work correctly:
   
     `sudo rm -rf /path_to_site_packages_in_virtualenv/site-packages/bruker2nifti*`
  
