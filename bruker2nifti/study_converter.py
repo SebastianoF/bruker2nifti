@@ -1,6 +1,6 @@
 import os
 
-from _utils import list_files, bruker_read_files
+from _utils import get_list_scans, bruker_read_files
 from scan_converter import convert_a_scan
 
 
@@ -58,7 +58,6 @@ def convert_a_study(pfo_study_brukert_input,
                     study_name=None,
                     scans_list=None,
                     list_new_name_each_scan=None,
-                    dict_fin_output=None,
                     nifti_version=1,
                     qform=2,
                     sform=1,
@@ -79,7 +78,7 @@ def convert_a_study(pfo_study_brukert_input,
         E.g. scans_list=('3', '4')
     If default None, all the study will be converted
     :param list_new_name_each_scan:
-    :param dict_fin_output: [None] dictionary of the filename of the nifti images output corresponding to the scan list
+    :param list_new_name_each_scan: [None] dictionary of the filename of the nifti images output corresponding to the scan list
         E.g, dict_fin_output={'3':'Patient supine', '4':'Patient prone'}
     :param nifti_version: see convert_a_scan.__doc__
     :param qform:
@@ -97,7 +96,7 @@ def convert_a_study(pfo_study_brukert_input,
         raise IOError('Output folder does not exists.')
 
     if scans_list is None:
-        scans_list = list_files(pfo_study_brukert_input)
+        scans_list = get_list_scans(pfo_study_brukert_input)
 
     if study_name is None:
         study_name = get_subject_name(pfo_study_brukert_input)
@@ -118,32 +117,15 @@ def convert_a_study(pfo_study_brukert_input,
         pfo_scan_nifti = os.path.join(pfo_nifti_study, nifti_scan_name)
         os.system('mkdir -p {0}'.format(pfo_scan_nifti))
 
-        if dict_fin_output is None:
-
-            convert_a_scan(pfo_scan_bruker,
-                           pfo_scan_nifti,
-                           fin_output=dict_fin_output,
-                           nifti_version=nifti_version,
-                           qform=qform,
-                           sform=sform,
-                           axis_direction=axis_direction,
-                           save_human_readable=save_human_readable,
-                           normalise_b_vectors_if_dwi=normalise_b_vectors_if_dwi,
-                           correct_slope=correct_slope,
-                           verbose=verbose
-                           )
-
-        else:  # assign the name to the output files in the structure
-
-            convert_a_scan(pfo_scan_bruker,
-                           pfo_scan_nifti,
-                           fin_output=dict_fin_output[brukert_scan_name],
-                           nifti_version=nifti_version,
-                           qform=qform,
-                           sform=sform,
-                           axis_direction=axis_direction,
-                           save_human_readable=save_human_readable,
-                           normalise_b_vectors_if_dwi=normalise_b_vectors_if_dwi,
-                           correct_slope=correct_slope,
-                           verbose=verbose
-                           )
+        convert_a_scan(pfo_scan_bruker,
+                       pfo_scan_nifti,
+                       fin_output=list_new_name_each_scan,
+                       nifti_version=nifti_version,
+                       qform=qform,
+                       sform=sform,
+                       axis_direction=axis_direction,
+                       save_human_readable=save_human_readable,
+                       normalise_b_vectors_if_dwi=normalise_b_vectors_if_dwi,
+                       correct_slope=correct_slope,
+                       verbose=verbose
+                       )

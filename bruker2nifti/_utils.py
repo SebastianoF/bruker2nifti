@@ -233,7 +233,7 @@ def correct_for_the_slope(data, slope, num_initial_dir_to_skip=None):
     return data
 
 
-def list_files(start_path):
+def get_list_scans(start_path):
 
     scans_list = []
 

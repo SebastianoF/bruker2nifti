@@ -1,6 +1,6 @@
 ## bruker2nifti: conversion from Bruker raw format to nifti
 
-Python 2.7
+Python 2.7 and Python 3 compatible.
 
 ### Table of Contents
 + [Glossary](#glossary)
@@ -222,6 +222,7 @@ Thanks to Bernard Siow (Centre for Advanced Biomedical Imaging, UCL) and Willy G
 
 <!---
 ### Note about the differencies between paravision 5 and 6:
+
 Examples of differencies in the text-files:
 
 Under **methods** the attribute `PVM_SpatDimEnum` in pv5 appears as: 

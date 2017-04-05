@@ -192,8 +192,14 @@ def read_info(pfo_input):
     return info
 
 
-def write_info(info, pfo_output, save_human_readable=True, separate_shells_if_dwi=False,
-               num_shells=3, num_initial_dir_to_skip=None, normalise_b_vectors_if_dwi=True, verbose=1):
+def write_info(info,
+               pfo_output,
+               save_human_readable=True,
+               separate_shells_if_dwi=False,
+               num_shells=3,
+               num_initial_dir_to_skip=None,
+               normalise_b_vectors_if_dwi=True,
+               verbose=1):
     """
     write the info data structure (dictionary containing informations from 'acqp', 'method', 'reco' and 'visu_pars')
     in files. It can divide the b-vals and b-vect by shells (if dwi) and store them in individual files.
