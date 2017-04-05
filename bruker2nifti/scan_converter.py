@@ -39,8 +39,10 @@ def get_info_and_img_data(pfo_scan):
 
     dimensions = np.array(dimensions).astype(np.int)
 
-    if int(acqp['NR']) > 1:
+    if int(acqp['NR']) > 1:  # extra dimension for DWI
         dimensions = [k for k in dimensions] + [int(acqp['NR'])]
+    if int(acqp['NI']) > 1:  # estra dimension for FieldMap and alike
+        dimensions = [k for k in dimensions] + [int(acqp['NI'])]
 
     # get datatype
     if reco['RECO_wordtype'] == '_32BIT_SGN_INT':
@@ -79,7 +81,6 @@ def get_info_and_img_data(pfo_scan):
             dimensions = [dimensions[1], dimensions[0], dimensions[2]]
         elif len(dimensions) == 4:
             dimensions = [dimensions[1], dimensions[0], dimensions[2], dimensions[3]]
-
         img_data = img_data.reshape(dimensions, order='F')
 
     # From dictionary of frozenset for safety:
@@ -384,13 +385,20 @@ def write_to_nifti(info,
             shape_from_info = shape_from_info + [info['acqp']['NR'], ]
 
         if info['method']['SpatDimEnum'] == '3D':
-            np.testing.assert_array_equal(shape_from_info, nib_im.shape)
+            if info['method']['Method'] == 'FieldMap':
+                np.testing.assert_array_equal(shape_from_info[:2], nib_im.shape[:2])
+            else:
+                np.testing.assert_array_equal(shape_from_info, nib_im.shape)
         elif info['method']['SpatDimEnum'] == '2D':
             np.testing.assert_array_equal(shape_from_info[:2], nib_im.shape[:2])
         else:
             print("method['SpatDimEnum'] is " + info['method']['SpatDimEnum'] +
-                  " [not '2D' or '3D']-> no sanity check on dimensions..")
+                  " [not '2D' or '3D']-> no sanity check on dimensions.")
 
+        if verbose > 0:
+            print('Saving image to nifti (may take a while)...\n')
+
+        # saving with nibabel:
         nib.save(nib_im, pfi_output)
 
         if verbose > 0:
@@ -432,6 +440,7 @@ def convert_a_scan(pfo_input_scan,
                      info['acqp']['ACQ_time'].split(',')[0]
         fin_output = fin_output.replace(' ', '_').replace(':', '_').replace('T', '_')
         fin_output += '.nii.gz'
+
     write_info(info,
                pfo_output,
                save_human_readable=save_human_readable,

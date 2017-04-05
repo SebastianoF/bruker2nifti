@@ -92,8 +92,8 @@ def bruker_read_files(param_file, data_path, reco_num=1):
 
         line_in = lines[line_num]
 
-        if line_num == 671 and param_file.lower() == 'visu_pars':
-            print 'spam'
+        # if line_num == 671 and param_file.lower() == 'visu_pars':
+        #     print 'spam'
 
         if '##' in line_in:
 
@@ -225,7 +225,7 @@ def correct_for_the_slope(data, slope, num_initial_dir_to_skip=None):
         # scalar times 3d array
         data = slope * data
 
-    elif len(data.shape) ==3 and len(slope.shape) == 1:
+    elif len(data.shape) == 3 and len(slope.shape) == 1:
         # each slice of the 3d image is multiplied an element of the slope
         if data.shape[2] == slope.shape[0]:
             for t, sl in enumerate(slope):
