@@ -1,17 +1,32 @@
-## Conversion from bruker format to nifti
+## bruker2nifti: conversion from Bruker raw format to nifti
 
 Python 2.7
 
-### Glossary:
+### Table of Contents
++ [Glossary](#glossary)
++ [Code rationale](#rationale)
++ [Common file structure](#file_structure)
++ [Instructions](#instructions)
++ [Utilities](#utilities)
++ [Thanks](#thanks)
 
-study: folder structure containing the scans produced with paravision (PV) software.
-scan: individual image acquired with various protocols.
-header: header of the nifti format.
-img_data: data of the nifti format.
-info: dictionary aimed at collecting the information from the raw Bruker and
+
+
+###Glossary <a name="glossary"></a>
+
+**study**: folder structure containing the scans produced with paravision (PV) software.
+
+**scan**: individual image acquired with various protocols.
+
+**header**: header of the nifti format.
+
+**img_data**: data of the nifti format.
+
+**info**: dictionary aimed at collecting the information from the raw Bruker and
 store them to the nifti header and to reshape img_data.
 
-### Code rationale:
+
+###Code rationale <a name="rationale"></a>
 
 Mainly due to lack of information, at the present stage not all the possible
 output of the paravision software are
@@ -21,17 +36,24 @@ We do not exclude that different settings of the same scanner
 and the same PV version
 can produce different folder structures.
 Therefore the code is written in the most readable way (readability is always
-preferred to efficiency) so that you will be hopefully able to modify it
+preferred to efficiency at this stage) so that it will be easier for you to modify it
 according to your needs.
 
 Further versions may sacrifice readability for the sake of efficiency only
-the general enough case will be covered.
+when the standards will be established and tested.
 
 In the range of my possibilities PEP-8 convention was followed.
 
-### Common file structure:
+The code is written an run in python 2.7 (cross compatibility with python 3 is implemented when possible).
+The choice of Python is after personal preferences, the availability of nibabel library, 
+and the availability of dictionaries (mapping) type and numpy arrays, that appears to be
+the best option to parse the textfiles of Paravision into easily accessible structures that 
+keeping the same original name convention.  
 
-Usual structure of a study (paravision 5) is:
+
+### Common file structure <a name="file_structure"></a>
+
+Usual structure of a study (ParaVision 5) is:
 ```
 └── StudyName
     ├── 1
@@ -66,8 +88,12 @@ where each folder numbered 1 to 6 is a scan, whose usual structure is
 │   ├── spnam23
 │   └── uxnmr.par
 ```
-Information to fill the header (and b-values and b-vectors if any) are in the files
-method, acqp, reco and visu_pars. The img_data is stored in the file 2dseq.
+In the Bruker structure there are more information than the one required to fill a
+nifti header (scanner setting, location, users, sample or subject scanned biometrics
+can appear in the Bruker raw data, if filled by the user).
+To obtain relevant information to fill the nifti header (and b-values and b-vectors if any) 
+we can restrict our attention towards
+**method**, **acqp**, **reco** and **visu_pars**. The img_data is stored in the file **2dseq**.
 
 
 Usual structure of a study (paravision 6) is:
@@ -118,6 +144,7 @@ Information to fill the header (and b-values and b-vectors if any) are
 again in the files
 method, acqp, reco and visu_pars. The img_data is stored in the file 2dseq.
 
+
 <!---
 ## Code structure:
 
@@ -126,7 +153,7 @@ method, acqp, reco and visu_pars. The img_data is stored in the file 2dseq.
 
 --->
 
-## Instructions
+###Instructions <a name="instructions"></a>
 
 + Install python requirements in requirements.txt with
 
@@ -138,52 +165,70 @@ in a [virtualenv](http://docs.python-guide.org/en/latest/dev/virtualenvs/).
 + activate the virtualenvironment and go in the root folder of the repository.
 
 + To install as a library (option 1):
-
-`python setup.py sdist`
-
-`cd ../`
-
-`pip install bruker2nifti/dist/bruker2nifti-XX.tar.gz`
+    
+    `python setup.py sdist`
+    
+    `cd ../`
+    
+    `pip install bruker2nifti/dist/bruker2nifti-XX.tar.gz`
 
 where XX is the chosen version.
 
 + To install as a library (option 2):
 
-`python setup.py install`
+    `python setup.py install`
 
 + To install in [development mode](http://setuptools.readthedocs.io/en/latest/setuptools.html#development-mode) (option 1) 
 
-`python setup.py develop`
+    `python setup.py develop`
 
-+ To install in development mode (option 2)
++ To install in development mode (option 2, suggested)
 
-`pip install -e .`
+    `pip install -e .`
 
 + To verify that it has been installed in your libraries:
 
-`pip list`
+    `pip list`
 
 + To verify that it works:
-
-`python`
-
-`import bruker2nifti`
+    
+    `python`
+    
+    `import bruker2nifti`
 
 
 To uninstall:
 
- `pip uninstall bruker2nifti`
+    `pip uninstall bruker2nifti`
  
 To delete the library in the virtualenv in case something really wrong happen and pip uninstall will not work correctly:
   
-  `sudo rm -rf /path_to_site_packages_in_virtualenv/site-packages/bruker2nifti*`
+    `sudo rm -rf /path_to_site_packages_in_virtualenv/site-packages/bruker2nifti*`
  
 
-## Utilities:
+###Utilities <a name="utilities"></a>
 
 + [official documentation nifti format](https://nifti.nimh.nih.gov/nifti-1)
 + [non-official documentation nifti format](https://brainder.org/2012/09/23/the-nifti-file-format/)
 + [nibabel python library](http://nipy.org/nibabel/)
 
-# Thanks
+##Thanks <a name="thanks"></a>
 Thanks to Bernard Siow (Centre for Advanced Biomedical Imaging, UCL) and Willy Gsell (Department of Imaging and Pathology, KU Leuven).
+
+
+<!---
+### Note about the differencies between paravision 5 and 6:
+Examples of differencies in the text-files:
+
+Under **methods** the attribute `PVM_SpatDimEnum` in pv5 appears as: 
+
+```
+##$PVM_SpatDimEnum=3D
+```
+
+whereas in pv6:
+ 
+```
+##$PVM_SpatDimEnum=<3D>
+```
+--->

@@ -78,7 +78,7 @@ def bruker_read_files(param_file, data_path, reco_num=1):
     elif param_file.lower() == 'subject':
         f = open(os.path.join(data_path, 'subject'), 'r')
     else:
-        raise IOError('param_file should be the string reco, acqp, method, visu_pars or subject')
+        raise IOError("param_file input must be the string 'reco', 'acqp', 'method', 'visu_pars' or 'subject'")
 
     dict_info = {}
     lines = f.readlines()

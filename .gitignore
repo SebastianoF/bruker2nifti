@@ -4,3 +4,7 @@ z_*
 parser.py
 dist
 *.egg-info
+make.bat
+Makefile
+build
+source
