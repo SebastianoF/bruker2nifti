@@ -15,7 +15,7 @@ def show_study_structure(pfo_study):
         raise IOError('Input folder does not exists.')
 
     print('Study folder structure: ')
-    scans_list = list_files(pfo_study)
+    scans_list = get_list_scans(pfo_study)
     print('\n')
     print('List of scans: {}'.format(scans_list))
     pfi_first_scan = os.path.join(pfo_study, scans_list[0])

@@ -13,7 +13,10 @@ def get_info_and_img_data(pfo_scan, correct_slope=True, verbose=0):
     going from a raw Bruker scan to a python array and a dictionary containing the additional information.
     Python arrays and dictionaries will be further saved into nifti by the method convert_a_scan.
     :param pfo_scan: path to folder scan (typically inside a study with an integer as folder name).
-    :param correct_slope:
+    :param correct_slope: [True] multiply the data of the image by the slope
+    (in this version, the attribute of the nifti image scl_slope that
+    usually stores the slope is never used due to possible misuse this value may cause).
+    :param verbose: [0] 0 no, 1 yes, 2, debug.
     :return: [info, img_data], info that contains the future header information and img_data the numpy array with the
     data of the future nifti image.
     .. note:: Info is a dictionary of three dictionaries containing respectively the information in
@@ -31,14 +34,24 @@ def get_info_and_img_data(pfo_scan, correct_slope=True, verbose=0):
     # And store them in the final info data structure
     info = {'acqp': acqp, 'method': method, 'reco': reco, 'visu_pars': visu_pars}
 
-    # From this point on we parse img_data, using the information obtained from the info.
-
+    # visual sanity check:
     if verbose > 1:
-        print(method['SpatDimEnum'])  # said 2D or 3D
-        print(reco['RECO_size'])  # size of the 2d or 3d stack
-        print(acqp['NR'])  # number of repetitions
-        print(acqp['NI'])  # number of echo and/or third dimension (can be the shape of the slope)
-        print(acqp['ACQ_n_echo_images'])  # number of echo to be disentagled from the NI, AFTER the slope correction
+        print('If PV5 / PV6 note reco and visu_pars coherent / not-coherent.')
+        print('\n\nPARAVISION VERSION: {} \n\n'.format(acqp['ACQ_sw_version']))
+        # said 2D or 3D
+        print("method['SpatDimEnum'] = {} ".format(method['SpatDimEnum']))
+        # size of the 2d or 3d stack from RECO
+        print("reco['RECO_size'] = {} ".format(reco['RECO_size']))
+        # size of the 2d or 3d stack from VISU
+        print("visu_pars['VisuCoreSize']) = {} ".format(visu_pars['VisuCoreSize']))
+        # number of repetitions
+        print("acqp['NR']) = {} ".format(acqp['NR']))
+        # number of echo and/or third dimension (can be the shape of the slope)
+        print("acqp['NI']) = {} ".format(acqp['NI']))
+        # number of echo to be disentagled from the NI, AFTER the slope correction
+        print("acqp['ACQ_n_echo_images']) = {} ".format(acqp['ACQ_n_echo_images']))
+
+    # From this point on we parse img_data, using the information obtained from the info.
 
     # Get datatype
     if reco['RECO_wordtype'] == '_32BIT_SGN_INT':
@@ -88,13 +101,15 @@ def get_info_and_img_data(pfo_scan, correct_slope=True, verbose=0):
 
     # Reshape the img_data according to the dimension: - note that we use the Fortran ordering. Swap x, y
     if method['SpatDimEnum'] == '2D':
-        img_data = img_data.reshape(pre_dimensions, order='F')
+        img_data = img_data.reshape(pre_dimensions, order='C')
     elif method['SpatDimEnum'] == '3D':
-        if len(pre_dimensions) == 3:
-            pre_dimensions = [pre_dimensions[1], pre_dimensions[0], pre_dimensions[2]]
-        elif len(pre_dimensions) == 4:
-            pre_dimensions = [pre_dimensions[1], pre_dimensions[0], pre_dimensions[2], pre_dimensions[3]]
-        img_data = img_data.reshape(pre_dimensions, order='F')
+
+        # Swap x and y: (due to lack of coherence between dimensions reco and visu_pars in PV version 5)
+        # TODO: NEED TO VERIFY THIS SWAP IS 'CORRECT'!
+        #if acqp['ACQ_sw_version'] == 'PV 5.1' or acqp['ACQ_sw_version'] == '5.1':
+        #    pre_dimensions[0], pre_dimensions[1] = pre_dimensions[1], pre_dimensions[0]
+
+        img_data = img_data.reshape(pre_dimensions, order='C')
 
     # Correct for the slope when the image is in pre_dimension:
     # this can be done when needed only after the slope correction,
@@ -149,7 +164,13 @@ def get_spatial_resolution_from_info(info):
     #  info['acqp']['ACQ_slice_thick'] works for my data, not sure in general.
     sp_resol = info['method']['SpatResol']
     if len(sp_resol) == 3:
-        return np.array([sp_resol[1], sp_resol[0], sp_resol[2]])
+
+        # issue version x,y, orientation:
+        if info['acqp']['ACQ_sw_version'] == 'PV 5.1' or info['acqp']['ACQ_sw_version'] == '5.1':
+            return np.array([sp_resol[1], sp_resol[0], sp_resol[2]])
+        else:
+            return np.array([sp_resol[0], sp_resol[1], sp_resol[2]])
+
     elif len(sp_resol) == 2:
 
         slice_thick = info['acqp']['ACQ_slice_thick']  # (*)
@@ -270,8 +291,8 @@ def write_info(info,
     if not os.path.isdir(pfo_output):
         raise IOError('Output folder does not exists.')
 
-    # print ordered dictionaries values to console
-    if verbose > 1:
+    # print ordered dictionaries values to console. very very verbose!
+    if verbose > 2:
         print('\n\n -------------- acqp --------------')
         print(pprint.pprint(info['acqp']))
         print('\n\n -------------- method --------------')
@@ -346,7 +367,6 @@ def write_info(info,
 def write_to_nifti(info,
                    img_data,
                    pfi_output,
-                   correct_slope=True,
                    separate_shells_if_dwi=False,
                    num_shells=3,
                    num_initial_dir_to_skip=7,
@@ -362,9 +382,6 @@ def write_to_nifti(info,
     :param info: info data structure as provided by get_info_and_img_data.
     :param img_data: image data structure as provided by get_info_and_img_data. See get_info_and_img_data.__doc__ .
     :param pfi_output: path to file output. Here the nifti will be stored.
-    :param correct_slope: [True] multiply the data of the image by the slope
-    (in this version, the attribute of the nifti image scl_slope that
-    usually stores the slope is never used due to possible misuse this value may cause).
     :param separate_shells_if_dwi: [False] TODO
     :param num_shells:
     :param num_initial_dir_to_skip:
@@ -415,7 +432,11 @@ def write_to_nifti(info,
         nib_im.update_header()
 
         # sanity check image dimension from header to shape:
-        shape_from_info = list(info['visu_pars']['VisuCoreSize'])
+        shape_from_info = list(info['reco']['RECO_size'])
+
+        #if info['acqp']['ACQ_sw_version'] == 'PV 5.1' or info['acqp']['ACQ_sw_version'] == '5.1':
+        #   shape_from_info[1], shape_from_info[0] = shape_from_info[0], shape_from_info[1]
+
         if info['acqp']['NR'] > 1:
             shape_from_info = shape_from_info + [info['acqp']['NR'], ]
 
@@ -473,7 +494,7 @@ def convert_a_scan(pfo_input_scan,
     if create_output_folder_if_not_esists:
         os.system('mkdir -p {}'.format(pfo_output))
 
-    info, img_data = get_info_and_img_data(pfo_input_scan, correct_slope=correct_slope)
+    info, img_data = get_info_and_img_data(pfo_input_scan, correct_slope=correct_slope, verbose=verbose)
 
     if fin_output is None:  # filename output
         fin_output = info['method']['Method'].lower() + \
@@ -490,7 +511,6 @@ def convert_a_scan(pfo_input_scan,
     write_to_nifti(info,
                    img_data,
                    os.path.join(pfo_output, fin_output),
-                   correct_slope=correct_slope,
                    qform=qform,
                    sform=sform,
                    axis_direction=axis_direction,
