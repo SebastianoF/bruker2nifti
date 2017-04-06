@@ -7,7 +7,7 @@ import pprint
 from _utils import normalise_b_vect, correct_for_the_slope, bruker_read_files
 
 
-def get_info_and_img_data(pfo_scan):
+def get_info_and_img_data(pfo_scan):  # correct for the slope here.
     """
     This is the first of the two main components of the bridge constituting the parser,
     going from a raw Bruker scan to a python array and a dictionary containing the additional information.
@@ -40,7 +40,7 @@ def get_info_and_img_data(pfo_scan):
 
     if int(acqp['NR']) > 1:  # extra dimension for DWI
         dimensions += [int(acqp['NR'])]
-    if int(acqp['NI']) > 1:  # estra dimension for FieldMap, MSME_T2 and alike
+    if int(acqp['NI']) > 1:  # extra dimension for FieldMap, MSME_T2 and alike
         dimensions += [int(acqp['NI'])]
 
     # get datatype
@@ -71,8 +71,6 @@ def get_info_and_img_data(pfo_scan):
 
     if not data_endian_ness == system_endian_nes:
         img_data.byteswap(True)
-
-    # dimensions = [240, 240, 512]
 
     # reshape the array according to the dimension: - note that we use the Fortran ordering convention. Swap x, y
     if method['SpatDimEnum'] == '2D':
@@ -377,7 +375,7 @@ def write_to_nifti(info,
             last_dim = img_data.shape[-1]
             eco_dim = int(info['acqp']['ACQ_n_echo_images'])
             # the last dimension of the image is including the echo dimension. This is how the slope
-            # is encoded. Last dim and echo dim are finally disentagled here.
+            # is encoded. Last dim and echo dim are finally disentagled here (and not before).
             if last_dim % eco_dim is not 0:
                 raise IOError('Echo dim and last dim are not compatible. Cannot disentangle them.')
             last_dim_new = int(last_dim / eco_dim)
@@ -413,7 +411,7 @@ def write_to_nifti(info,
             shape_from_info = shape_from_info + [info['acqp']['NR'], ]
 
         if info['method']['SpatDimEnum'] == '3D':
-            if info['method']['Method'] == 'FieldMap':
+            if info['method']['Method'] == 'FieldMap' or info['method']['Method'] == 'Bruker:FieldMap':
                 np.testing.assert_array_equal(shape_from_info[:2], nib_im.shape[:2])
             else:
                 np.testing.assert_array_equal(shape_from_info, nib_im.shape)
