@@ -7,12 +7,13 @@ import pprint
 from _utils import normalise_b_vect, correct_for_the_slope, bruker_read_files
 
 
-def get_info_and_img_data(pfo_scan):  # correct for the slope here.
+def get_info_and_img_data(pfo_scan, correct_slope=True, verbose=0):
     """
     This is the first of the two main components of the bridge constituting the parser,
     going from a raw Bruker scan to a python array and a dictionary containing the additional information.
     Python arrays and dictionaries will be further saved into nifti by the method convert_a_scan.
     :param pfo_scan: path to folder scan (typically inside a study with an integer as folder name).
+    :param correct_slope:
     :return: [info, img_data], info that contains the future header information and img_data the numpy array with the
     data of the future nifti image.
     .. note:: Info is a dictionary of three dictionaries containing respectively the information in
@@ -27,23 +28,19 @@ def get_info_and_img_data(pfo_scan):  # correct for the slope here.
     reco = bruker_read_files('reco', pfo_scan)
     visu_pars = bruker_read_files('visu_pars', pfo_scan)
 
-    # get dimensions
-    if method['SpatDimEnum'] == '2D':
-        dimensions = reco['RECO_size'][0:2]
-    elif method['SpatDimEnum'] == '3D':
-        dimensions = method['Matrix'][0:3]
-    else:
-        raise IOError('Unknown imaging acquisition dimensionality.')
+    # And store them in the final info data structure
+    info = {'acqp': acqp, 'method': method, 'reco': reco, 'visu_pars': visu_pars}
 
-    # casting to a list of int:
-    dimensions = list(np.array(dimensions).astype(np.int))
+    # From this point on we parse img_data, using the information obtained from the info.
 
-    if int(acqp['NR']) > 1:  # extra dimension for DWI
-        dimensions += [int(acqp['NR'])]
-    if int(acqp['NI']) > 1:  # extra dimension for FieldMap, MSME_T2 and alike
-        dimensions += [int(acqp['NI'])]
+    if verbose > 1:
+        print(method['SpatDimEnum'])  # said 2D or 3D
+        print(reco['RECO_size'])  # size of the 2d or 3d stack
+        print(acqp['NR'])  # number of repetitions
+        print(acqp['NI'])  # number of echo and/or third dimension (can be the shape of the slope)
+        print(acqp['ACQ_n_echo_images'])  # number of echo to be disentagled from the NI, AFTER the slope correction
 
-    # get datatype
+    # Get datatype
     if reco['RECO_wordtype'] == '_32BIT_SGN_INT':
         dt = np.int32
     elif reco['RECO_wordtype'] == '_16BIT_SGN_INT':
@@ -55,7 +52,7 @@ def get_info_and_img_data(pfo_scan):  # correct for the slope here.
     else:
         raise IOError('Unknown data type.')
 
-    # get data endian_nes - # default is big!!
+    # Get data endian_nes - default big!!
     if reco['RECO_byte_order'] == 'littleEndian':
         data_endian_ness = 'little'
     elif reco['RECO_byte_order'] == 'bigEndian':
@@ -63,30 +60,63 @@ def get_info_and_img_data(pfo_scan):  # correct for the slope here.
     else:
         data_endian_ness = 'big'
 
-    # get system endian_nes
+    # Get system endian_nes
     system_endian_nes = sys.byteorder
 
-    # get image data from the 2d-seq file
+    # Get image data from the 2d-seq file
     img_data = np.copy(np.fromfile(os.path.join(pfo_scan, 'pdata', '1', '2dseq'), dtype=dt))
 
     if not data_endian_ness == system_endian_nes:
         img_data.byteswap(True)
 
-    # reshape the array according to the dimension: - note that we use the Fortran ordering convention. Swap x, y
+    # Get pre_dimensions: i.e. the dimension before correcting for the slope.
     if method['SpatDimEnum'] == '2D':
-        img_data = img_data.reshape(dimensions, order='F')
+        pre_dimensions = reco['RECO_size'][0:2]
     elif method['SpatDimEnum'] == '3D':
-        if len(dimensions) == 3:
-            dimensions = [dimensions[1], dimensions[0], dimensions[2]]
-        elif len(dimensions) == 4:
-            dimensions = [dimensions[1], dimensions[0], dimensions[2], dimensions[3]]
-        img_data = img_data.reshape(dimensions, order='F')
+        pre_dimensions = method['Matrix'][0:3]
+    else:
+        raise IOError('Unknown imaging acquisition dimensionality.')
 
-    # Squeeze extra dimensions:
-    img_data = np.squeeze(img_data)
+    # Casting to a list of int:
+    pre_dimensions = [int(d) for d in pre_dimensions]
 
-    # From dictionary of frozenset for safety:
-    info = {'acqp': acqp, 'method': method, 'reco': reco, 'visu_pars': visu_pars}
+    # Consider extra dimensions
+    if int(acqp['NR']) > 1:  # Extra dimension for DWI
+        pre_dimensions += [int(acqp['NR'])]
+    if int(acqp['NI']) > 1:  # Extra dimension for FieldMap, MSME_T2 and alike
+        pre_dimensions += [int(acqp['NI'])]
+
+    # Reshape the img_data according to the dimension: - note that we use the Fortran ordering. Swap x, y
+    if method['SpatDimEnum'] == '2D':
+        img_data = img_data.reshape(pre_dimensions, order='F')
+    elif method['SpatDimEnum'] == '3D':
+        if len(pre_dimensions) == 3:
+            pre_dimensions = [pre_dimensions[1], pre_dimensions[0], pre_dimensions[2]]
+        elif len(pre_dimensions) == 4:
+            pre_dimensions = [pre_dimensions[1], pre_dimensions[0], pre_dimensions[2], pre_dimensions[3]]
+        img_data = img_data.reshape(pre_dimensions, order='F')
+
+    # Correct for the slope when the image is in pre_dimension:
+    # this can be done when needed only after the slope correction,
+    # as the slope has the length given by info['acqp']['NI']:
+    # so echo and last dimension are stacked in the same dimension.
+    if correct_slope:
+
+        img_data = correct_for_the_slope(img_data, visu_pars['VisuCoreDataSlope'])
+
+        if int(acqp['ACQ_n_echo_images']) > 1:
+            # disentangle last dimension and echo times.
+            last_dim = img_data.shape[-1]
+            eco_dim = int(acqp['ACQ_n_echo_images'])
+
+            if last_dim % eco_dim is not 0:
+                raise IOError('Echo dim and last dim are not compatible. Cannot disentangle them.')
+            last_dim_new = int(last_dim / eco_dim)
+
+            # new dimension after slope correction
+            dimensions = list(img_data.shape[:-1]) + [last_dim_new, eco_dim]
+            img_data = img_data.reshape(dimensions)
+            img_data = np.squeeze(img_data)
 
     return [info, img_data]  # future header information and image voxel content
 
@@ -317,7 +347,6 @@ def write_to_nifti(info,
                    img_data,
                    pfi_output,
                    correct_slope=True,
-                   correct_shape=False,
                    separate_shells_if_dwi=False,
                    num_shells=3,
                    num_initial_dir_to_skip=7,
@@ -336,14 +365,13 @@ def write_to_nifti(info,
     :param correct_slope: [True] multiply the data of the image by the slope
     (in this version, the attribute of the nifti image scl_slope that
     usually stores the slope is never used due to possible misuse this value may cause).
-    :param correct_shape: post processing corrector of the shape.
     :param separate_shells_if_dwi: [False] TODO
     :param num_shells:
     :param num_initial_dir_to_skip:
     :param nifti_version: nifti file can be 1 or 2. The values of the nifti attributes are filled in the same way
     (as nifti1 even when nifti2 is selected).
-    :param qform [2]:
-    :param sform [1]:
+    :param qform:
+    :param sform:
     :param axis_direction: [(-1, -,1, 1)] the signs of the diagonal of the affine transformation
     (otherwise providing the positive spatial resolution in the diagonal of the affine transformation. By default
     the affine matrix is a diagonal matrix).
@@ -362,26 +390,7 @@ def write_to_nifti(info,
         print(num_shells)
         print(num_initial_dir_to_skip)
 
-    if correct_shape:
-        # TODO
-        pass
-
     else:
-        if correct_slope:
-            img_data = correct_for_the_slope(img_data, get_slope_from_info(info))
-        # this can be done when needed only after the slope correction,
-        # as the slope has the length given by info['acqp']['NI']
-        if int(info['acqp']['ACQ_n_echo_images']) > 1:
-            last_dim = img_data.shape[-1]
-            eco_dim = int(info['acqp']['ACQ_n_echo_images'])
-            # the last dimension of the image is including the echo dimension. This is how the slope
-            # is encoded. Last dim and echo dim are finally disentagled here (and not before).
-            if last_dim % eco_dim is not 0:
-                raise IOError('Echo dim and last dim are not compatible. Cannot disentangle them.')
-            last_dim_new = int(last_dim / eco_dim)
-            new_shape = list(img_data.shape[:-1]) + [last_dim_new, eco_dim]
-            img_data = img_data.reshape(new_shape)
-            img_data = np.squeeze(img_data)
 
         sp_res = list(get_spatial_resolution_from_info(info))
         sp_res = np.array(sp_res + [1, ] * (3 - len(sp_res)) + [1])
@@ -442,7 +451,7 @@ def convert_a_scan(pfo_input_scan,
                    axis_direction=(-1, -1, 1),
                    save_human_readable=True,
                    normalise_b_vectors_if_dwi=True,
-                   correct_slope=False,
+                   correct_slope=True,
                    verbose=1):
     """
     Put together all the components of the bridge: get_info_and_img_data, write_info and write_to_nifti.
@@ -464,7 +473,7 @@ def convert_a_scan(pfo_input_scan,
     if create_output_folder_if_not_esists:
         os.system('mkdir -p {}'.format(pfo_output))
 
-    info, img_data = get_info_and_img_data(pfo_input_scan)
+    info, img_data = get_info_and_img_data(pfo_input_scan, correct_slope=correct_slope)
 
     if fin_output is None:  # filename output
         fin_output = info['method']['Method'].lower() + \

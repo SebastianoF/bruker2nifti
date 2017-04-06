@@ -65,7 +65,7 @@ def convert_a_study(pfo_study_brukert_input,
                     axis_direction=(-1, -1, 1),
                     save_human_readable=True,
                     normalise_b_vectors_if_dwi=True,
-                    correct_slope=False,
+                    correct_slope=True,
                     verbose=1
                     ):
     """
