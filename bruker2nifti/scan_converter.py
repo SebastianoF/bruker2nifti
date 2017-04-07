@@ -45,7 +45,8 @@ def write_info(info,
                num_shells=3,
                num_initial_dir_to_skip=None,
                normalise_b_vectors_if_dwi=True,
-               verbose=1):
+               verbose=1,
+               save_summary=True):
     """
     write the info data structure (dictionary containing informations from 'acqp', 'method', 'reco' and 'visu_pars')
     in files. It can divide the b-vals and b-vect by shells (if dwi) and store them in individual files.
@@ -84,7 +85,7 @@ def write_info(info,
     # if the modality is a DtiEpi or Dwimage then save the DW directions, b values and b vectors in separate csv .txt.
     modality = get_modality_from_info(info)
 
-    if modality == 'DtiEpi' or 'dw' in modality.lower():
+    if 'dtiepi' in modality.lower():  # For diffusion weighted images
 
         if normalise_b_vectors_if_dwi:
             info['method']['DwGradVec'] = normalise_b_vect(info['method']['DwGradVec'])
@@ -140,6 +141,33 @@ def write_info(info,
         from_dict_to_txt_sorted(info['method'], os.path.join(pfo_output, 'method.txt'))
         from_dict_to_txt_sorted(info['reco'], os.path.join(pfo_output, 'reco.txt'))
         from_dict_to_txt_sorted(info['visu_pars'], os.path.join(pfo_output, 'visu_pars.txt'))
+
+    if save_summary:
+        print info
+
+        summary_info = {"info['acqp']['ACQ_sw_version']"           : info['acqp']['ACQ_sw_version'],
+                        "info['method']['SpatDimEnum']"            : info['method']['SpatDimEnum'],
+                        "info['method']['Matrix']"                 : info['method']['Matrix'],
+                        "info['method']['SpatResol']"              : info['method']['SpatResol'],
+                        "info['reco']['RECO_size']"                : info['reco']['RECO_size'],
+                        "info['reco']['RECO_inp_order']"           : info['reco']['RECO_inp_order'],
+                        "info['visu_pars']['VisuCoreSize']"        : info['visu_pars']['VisuCoreSize'],
+                        "info['visu_pars']['VisuCoreOrientation']" : info['visu_pars']['VisuCoreOrientation'],
+                        "info['visu_pars']['VisuCorePosition']"    : info['visu_pars']['VisuCorePosition'],
+                        "info['acqp']['NR']"                       : info['acqp']['NR'],
+                        "info['acqp']['NI']"                       : info['acqp']['NI'],
+                        "info['acqp']['ACQ_n_echo_images']"        : info['acqp']['ACQ_n_echo_images'],
+                        "info['acqp']['ACQ_slice_thick']"          : info['acqp']['ACQ_slice_thick'],
+                        "info['visu_pars']['VisuCoreDataSlope']"   : info['visu_pars']['VisuCoreDataSlope']
+                        }
+
+        if info['method']['SpatDimEnum'] == '2D':
+            if 'VisuCoreSlicePacksSlices' in info['visu_pars'].keys():
+                summary_info.update({"visu_pars['VisuCoreSlicePacksSlices']":
+                                         info['visu_pars']['VisuCoreSlicePacksSlices']})
+
+        from_dict_to_txt_sorted(summary_info, os.path.join(pfo_output, 'summary.txt'))
+        np.save(os.path.join(pfo_output, 'summary.npy'), summary_info)
 
 
 def write_to_nifti(info,
@@ -210,24 +238,24 @@ def write_to_nifti(info,
         nib_im.update_header()
 
         # sanity check image dimension from header to shape:
-        shape_from_info = list(info['reco']['RECO_size'])
-
-        if info['acqp']['ACQ_sw_version'] == 'PV 5.1' or info['acqp']['ACQ_sw_version'] == '5.1':
-            shape_from_info[1], shape_from_info[0] = shape_from_info[0], shape_from_info[1]
-
-        if info['acqp']['NR'] > 1:
-            shape_from_info = shape_from_info + [info['acqp']['NR'], ]
-
-        if info['method']['SpatDimEnum'] == '3D':
-            if info['method']['Method'] == 'FieldMap' or info['method']['Method'] == 'Bruker:FieldMap':
-                np.testing.assert_array_equal(shape_from_info[:2], nib_im.shape[:2])
-            else:
-                np.testing.assert_array_equal(shape_from_info, nib_im.shape)
-        elif info['method']['SpatDimEnum'] == '2D':
-            np.testing.assert_array_equal(shape_from_info[:2], nib_im.shape[:2])
-        else:
-            print("method['SpatDimEnum'] is " + info['method']['SpatDimEnum'] +
-                  " [not '2D' or '3D']-> no sanity check on dimensions.")
+        # shape_from_info = list(info['reco']['RECO_size'])
+        #
+        # if info['acqp']['ACQ_sw_version'] == 'PV 5.1' or info['acqp']['ACQ_sw_version'] == '5.1':
+        #     shape_from_info[1], shape_from_info[0] = shape_from_info[0], shape_from_info[1]
+        #
+        # if info['acqp']['NR'] > 1:
+        #     shape_from_info = shape_from_info + [info['acqp']['NR'], ]
+        #
+        # if info['method']['SpatDimEnum'] == '3D':
+        #     if info['method']['Method'] == 'FieldMap' or info['method']['Method'] == 'Bruker:FieldMap':
+        #         np.testing.assert_array_equal(shape_from_info[:2], nib_im.shape[:2])
+        #     else:
+        #         np.testing.assert_array_equal(shape_from_info, nib_im.shape)
+        # elif info['method']['SpatDimEnum'] == '2D':
+        #     np.testing.assert_array_equal(shape_from_info[:2], nib_im.shape[:2])
+        # else:
+        #     print("method['SpatDimEnum'] is " + info['method']['SpatDimEnum'] +
+        #           " [not '2D' or '3D']-> no sanity check on dimensions.")
 
         if verbose > 0:
             print('Saving image to nifti (may take a while)...\n')
@@ -275,6 +303,8 @@ def convert_a_scan(pfo_input_scan,
     info, img_data = get_info_and_img_data(pfo_input_scan,
                                            correct_slope=correct_slope,
                                            verbose=verbose)
+    if info is False:
+        return 0  # there are no data in the structure
 
     if fin_output is None:  # filename output
         fin_output = info['method']['Method'].lower() + \

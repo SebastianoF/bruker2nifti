@@ -1,6 +1,7 @@
 import os
 
-from _utils import get_list_scans, bruker_read_files
+from _utils import bruker_read_files
+from _getters import get_list_scans
 from scan_converter import convert_a_scan
 
 

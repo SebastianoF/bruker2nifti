@@ -243,26 +243,15 @@ def correct_for_the_slope(data, slope, num_initial_dir_to_skip=None):
     return data
 
 
-def get_list_scans(start_path):
+def compute_affine(directions, resolution, translations):
 
-    scans_list = []
+    #
+    result = np.eye(4)
+    # rotational part - multiply directions on the left
+    result[0:3, 0:3] = directions.dot(np.diag(resolution))
+    # translational part
+    result[0:3, 3] = translations
 
-    for dirpath, dirnames, filenames in os.walk(start_path):
+    assert abs(np.linalg.det(result) - np.prod(resolution)) < 10e-7
 
-        if dirpath == start_path:
-            scans_list = [d for d in dirnames if d.isdigit()]
-
-        level = dirpath.replace(start_path, '').count(os.sep)
-        indent = (' ' * 4) * level
-        print('{}{}/'.format(indent, os.path.basename(dirpath)))
-
-        sub_indent = (' ' * 4) * (level + 1)
-        for f in filenames:
-            print('{}{}'.format(sub_indent, f))
-
-    if not scans_list:  # if scan_list is []
-        msg = 'Input study does not have scans stored in sub-folders named with progressive positive integers.'
-        msg += '\nIs it a paravision study?'
-        raise IOError(msg)
-
-    return scans_list
+    return result

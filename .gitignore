@@ -2,6 +2,7 @@
 .idea/
 *.pyc
 z_*
+zz_*
 dist
 *.egg-info
 make.bat
