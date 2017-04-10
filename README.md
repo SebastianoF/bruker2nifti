@@ -19,14 +19,15 @@ and usually containing multiple scans.
 It is provided as a folder structure containing the scans produced with paravision (PV) software.
 Patient/subject information are embedded in the study (opposed hierarchy as in the DICOM files). 
 
-**scan**: individual image acquired with various protocols.
+**scan**: individual folder image acquired with various protocols. To a scan can corresponds more than one image
+as sub-scans or sub-volumes (or both).
 
 **header**: header of the nifti format.
 
 **img_data**: data of the nifti format.
 
-**info**: dictionary aimed at collecting the information from the raw Bruker and
-store them to the nifti header and to reshape img_data.
+**struct**: intermediate structure (dictionary) aimed at collecting the information from the raw Bruker and
+and to progressively creating the nifti images.
 
 
 ### Code rationale <a name="rationale"></a>
@@ -69,7 +70,7 @@ A study structure in ParaVision 5 can be:
     ├── AdjStatePerStudy
     └── subject
 ```
-where each folder numbered 1 to 6 is a scan, whose sub-structure can be
+where each folder numbered 1 to 6 is a **scan**, whose sub-structure can be
 ```
 ├── 3
 │   ├── AdjRefgProfiles.dat
@@ -91,6 +92,8 @@ where each folder numbered 1 to 6 is a scan, whose sub-structure can be
 │   ├── spnam23
 │   └── uxnmr.par
 ```
+Under pdata 
+
 The Bruker structure contains more information than the one required to fill a
 nifti header (scanner setting, location, users, sample or subject scanned biometrics
 can appear in the Bruker raw data, if filled when scanning the data).

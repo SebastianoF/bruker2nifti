@@ -257,7 +257,7 @@ def write_struct(struct,
     if not os.path.isdir(pfo_output):
             raise IOError('Output folder does not exists.')
     if fin_scan is None:
-        fin_scan_name = ''
+        fin_scan = ''
     # print ordered dictionaries values to console (logorrheic rather than verbose!)
     if verbose > 2:
         print('\n\n -------------- acqp --------------')
@@ -297,9 +297,9 @@ def write_struct(struct,
             for i in range(num_shells):
                 modality = struct['method']['Method'].split(':')[-1]
                 path_b_vals_shell_i = os.path.join(pfo_output,
-                                                   fin_scan_name + modality + '_DwEffBval_shell' + str(i) + '.txt')
+                                                   fin_scan + modality + '_DwEffBval_shell' + str(i) + '.txt')
                 path_b_vect_shell_i = os.path.join(pfo_output,
-                                                   fin_scan_name + modality + '_DwGradVec_shell' + str(i) + '.txt')
+                                                   fin_scan + modality + '_DwGradVec_shell' + str(i) + '.txt')
 
                 np.savetxt(path_b_vals_shell_i, list_b_vals[i], fmt='%.14f')
                 np.savetxt(path_b_vect_shell_i, list_b_vects[i], fmt='%.14f')
@@ -321,15 +321,15 @@ def write_struct(struct,
                 print('B-values  saved in {}'.format(os.path.join(pfo_output, fin_scan + 'DwGradVec.txt')))
 
     # save the dictionary as numpy array containing the corresponding dictionaries
-    np.save(os.path.join(pfo_output, fin_scan_name + 'acqp.npy'),      struct['acqp'])
-    np.save(os.path.join(pfo_output, fin_scan_name + 'method.npy'),    struct['method'])
-    np.save(os.path.join(pfo_output, fin_scan_name + 'reco.npy'),      struct['reco'])
+    np.save(os.path.join(pfo_output, fin_scan + 'acqp.npy'),      struct['acqp'])
+    np.save(os.path.join(pfo_output, fin_scan + 'method.npy'),    struct['method'])
+    np.save(os.path.join(pfo_output, fin_scan + 'reco.npy'),      struct['reco'])
 
     # save in ordered readable txt files.
     if save_human_readable:
-        from_dict_to_txt_sorted(struct['acqp'],   os.path.join(pfo_output,   fin_scan_name + 'acqp.txt'))
-        from_dict_to_txt_sorted(struct['method'], os.path.join(pfo_output,   fin_scan_name + 'method.txt'))
-        from_dict_to_txt_sorted(struct['reco'],   os.path.join(pfo_output,   fin_scan_name + 'reco.txt'))
+        from_dict_to_txt_sorted(struct['acqp'],   os.path.join(pfo_output,   fin_scan + 'acqp.txt'))
+        from_dict_to_txt_sorted(struct['method'], os.path.join(pfo_output,   fin_scan + 'method.txt'))
+        from_dict_to_txt_sorted(struct['reco'],   os.path.join(pfo_output,   fin_scan + 'reco.txt'))
 
     summary_info = {"info['acqp']['ACQ_sw_version']"    : struct['acqp']['ACQ_sw_version'],
                     "info['method']['SpatDimEnum']"     : struct['method']['SpatDimEnum'],
@@ -352,7 +352,7 @@ def write_struct(struct,
         else:
             i_label = ''
 
-        np.save(os.path.join(pfo_output, str(i) + fin_scan_name + 'reco.npy'),
+        np.save(os.path.join(pfo_output, str(i) + fin_scan + 'reco.npy'),
                 struct['visu_pars_list'][i])
 
         summary_info_i = {i_label + "info['visu_pars']['VisuCoreDataSlope']"   :
@@ -370,13 +370,13 @@ def write_struct(struct,
                                          struct['visu_pars_list'][i]['VisuCoreSlicePacksSlices']})
 
         summary_info.update(summary_info_i)
-        from_dict_to_txt_sorted(summary_info, os.path.join(pfo_output, fin_scan_name + 'summary.txt'))
+        from_dict_to_txt_sorted(summary_info, os.path.join(pfo_output, fin_scan + 'summary.txt'))
 
         # WRITE INFO SUB-SCANNER
 
-        if fin_scan_name == '':
+        if fin_scan == '':
             pfi_scan = os.path.join(pfo_output, 'scan_' + i_label + '.nii.gz')
         else:
-            pfi_scan = os.path.join(pfo_output, fin_scan_name + i_label + '.nii.gz')
+            pfi_scan = os.path.join(pfo_output, fin_scan + i_label + '.nii.gz')
 
         nib.save(struct['nib_scans_list'][i], pfi_scan)
