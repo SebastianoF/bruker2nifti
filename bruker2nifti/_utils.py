@@ -67,7 +67,7 @@ def bruker_read_files(param_file, data_path, sub_scan_num='1'):
     :return: dict_info dictionary with the parsed informations from the input file.
     """
     # reco is only present for the sub_scan number '1'.
-    # Thre is an visu_pars for each sub-scan.
+    # There is an visu_pars for each sub-scan (!!!).
     if param_file.lower() == 'reco':
         if os.path.exists(jph(data_path, 'pdata', '1', 'reco')):
             f = open(jph(data_path, 'pdata', '1', 'reco'), 'r')

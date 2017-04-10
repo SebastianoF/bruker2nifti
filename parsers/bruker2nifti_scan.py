@@ -1,5 +1,5 @@
 import argparse
-from bruker2nifti.scan_converter import convert_a_scan, write_info, write_to_nifti
+from bruker2nifti.scan_converter import convert_a_scan
 
 
 def main():

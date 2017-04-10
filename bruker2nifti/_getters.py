@@ -342,25 +342,6 @@ def get_separate_shells_b_vals_b_vect_from_method(method, num_shells=3, num_init
 
     return [b_vals_per_shell, b_vect_per_shell]
 
-'''
-def get_modality_from_info(info):
-    """
-    From the method file it extracts the modality of the acquisition.
-    :param info: as provided as output from get_img_and_info
-    :return: info['method']['Method']
-    """
-    return info['method']['Method']
-
-
-def get_PV_version_from_info(info):
-    """
-    from the acqp file it extracts the paravision version of the acquisiton.
-    :param info: as provided as output from get_img_and_info
-    :return: info['acqp']['ACQ_sw_version']
-    """
-    return info['acqp']['ACQ_sw_version']
-'''
-
 
 def get_list_scans(start_path):
 
@@ -387,5 +368,31 @@ def get_list_scans(start_path):
     return scans_list
 
 
+def get_info_sj(pfo_study):
+    """
+    :param pfo_study: path to study folder.
+    :return: get the information of the subject as a dictionary.
+    """
+
+    if not os.path.isdir(pfo_study):
+        raise IOError('Input folder does not exists.')
+
+    return bruker_read_files('subject', pfo_study)
 
 
+def get_subject_name(pfo_study):
+    """
+    :param pfo_study: path to study folder.
+    :return: name of the subject in the study. See get_subject_id.
+    """
+    info_sj = get_info_sj(pfo_study)
+    return info_sj['SUBJECT_name']
+
+
+def get_subject_id(pfo_study):
+    """
+    :param pfo_study: path to study folder.
+    :return: id of the subject. See get_subject_name
+    """
+    info_sj = get_info_sj(pfo_study)
+    return info_sj['SUBJECT_id'][0]

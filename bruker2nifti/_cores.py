@@ -19,8 +19,11 @@ def scan2struct(pfo_scan,
                 sform=1
                 ):
     """
+    First part of the bridge. Info required to fill nifti header are entangled in a non-linear way.
+    Therefore it is necessarily to parse them in an intermediate structure, called here struct.
+    Struct has the final product as a nibable image, with the additional informations.
     Parse a scan into a structure called struct, collecting the nifti conversion(s) if more than one
-    sub-scan is included in the same scan, other than the additional informations.
+    sub-scan is included in the same scan, other than the additional information.
 
     Version in progress that takes into account all the information
     :param pfo_scan:
@@ -33,6 +36,7 @@ def scan2struct(pfo_scan,
     :param sform:
     :return: output_data data structure containing the nibabel image(s) {nib, acqp, method, reco, visu_pars}
     """
+    # Note to the programmer: It can be very complicated to divide this function in indepnended sub-functions.
     # num_volumes_per_scan = len(list(visu_pars['VisuCoreSlicePacksSlices']))
     if not os.path.isdir(pfo_scan):
         raise IOError('Input folder does not exists.')
@@ -116,7 +120,8 @@ def scan2struct(pfo_scan,
 
                     tot_dim = int(np.prod(img_data_vol.shape))
                     slope_dim = int(visu_pars['VisuCoreDataSlope'].shape[0])
-                    reminder = int(tot_dim / np.prod(list(method['Matrix'].astype(np.int)) + [slope_dim, ]) )
+                    reminder = int(tot_dim / np.prod(list(method['Matrix'].astype(np.int)) + [slope_dim, ])
+                                   )
 
                     pre_shape_scan = list(method['Matrix'].astype(np.int)) + [slope_dim, reminder]
                     shape_scan = pre_shape_scan[:]
@@ -161,7 +166,7 @@ def scan2struct(pfo_scan,
                 if not pre_shape_scan[3] == num_slopes:
 
                     tot_dim = int(np.prod(img_data_vol.shape))
-                    reminder = int(tot_dim / np.prod(list(method['Matrix'].astype(np.int)) + [num_slopes, ]) )
+                    reminder = int(tot_dim / np.prod(list(method['Matrix'].astype(np.int)) + [num_slopes, ]))
 
                     pre_shape_scan = list(method['Matrix'].astype(np.int)) + [num_slopes, reminder]
                     shape_scan = pre_shape_scan[:]
@@ -241,7 +246,7 @@ def scan2struct(pfo_scan,
 
 def write_struct(struct,
                  pfo_output,
-                 fin_scan_name='',
+                 fin_scan='',
                  save_human_readable=True,
                  separate_shells_if_dwi=False,
                  num_shells=3,
@@ -251,7 +256,7 @@ def write_struct(struct,
 
     if not os.path.isdir(pfo_output):
             raise IOError('Output folder does not exists.')
-    if fin_scan_name is None:
+    if fin_scan is None:
         fin_scan_name = ''
     # print ordered dictionaries values to console (logorrheic rather than verbose!)
     if verbose > 2:
@@ -275,10 +280,10 @@ def write_struct(struct,
         if normalise_b_vectors_if_dwi:
             dw_dir = normalise_b_vect(dw_dir)
 
-        np.savetxt(os.path.join(pfo_output, fin_scan_name + 'DwDir.txt'), dw_dir, fmt='%.14f')
+        np.savetxt(os.path.join(pfo_output, fin_scan + 'DwDir.txt'), dw_dir, fmt='%.14f')
 
         if verbose > 0:
-            msg = 'Diffusion weighted directions saved in ' + os.path.join(pfo_output, fin_scan_name + 'DwDir.txt')
+            msg = 'Diffusion weighted directions saved in ' + os.path.join(pfo_output, fin_scan + 'DwDir.txt')
             print(msg)
 
         # DwEffBval and DwGradVec are divided by shells
@@ -291,8 +296,10 @@ def write_struct(struct,
                 num_initial_dir_to_skip=num_initial_dir_to_skip)
             for i in range(num_shells):
                 modality = struct['method']['Method'].split(':')[-1]
-                path_b_vals_shell_i = os.path.join(pfo_output, fin_scan_name + modality + '_DwEffBval_shell' + str(i) + '.txt')
-                path_b_vect_shell_i = os.path.join(pfo_output, fin_scan_name + modality + '_DwGradVec_shell' + str(i) + '.txt')
+                path_b_vals_shell_i = os.path.join(pfo_output,
+                                                   fin_scan_name + modality + '_DwEffBval_shell' + str(i) + '.txt')
+                path_b_vect_shell_i = os.path.join(pfo_output,
+                                                   fin_scan_name + modality + '_DwGradVec_shell' + str(i) + '.txt')
 
                 np.savetxt(path_b_vals_shell_i, list_b_vals[i], fmt='%.14f')
                 np.savetxt(path_b_vect_shell_i, list_b_vects[i], fmt='%.14f')
@@ -306,12 +313,12 @@ def write_struct(struct,
             b_vals = struct['method']['DwEffBval']
             b_vects = struct['method']['DwGradVec']
 
-            np.savetxt(os.path.join(pfo_output, fin_scan_name + 'DwEffBval.txt'), b_vals, fmt='%.14f')
-            np.savetxt(os.path.join(pfo_output, fin_scan_name + 'DwGradVec.txt'), b_vects, fmt='%.14f')
+            np.savetxt(os.path.join(pfo_output, fin_scan + 'DwEffBval.txt'), b_vals, fmt='%.14f')
+            np.savetxt(os.path.join(pfo_output, fin_scan + 'DwGradVec.txt'), b_vects, fmt='%.14f')
 
             if verbose > 0:
-                print('B-vectors saved in {}'.format(os.path.join(pfo_output, fin_scan_name + 'DwEffBval.txt')))
-                print('B-values  saved in {}'.format(os.path.join(pfo_output, fin_scan_name + 'DwGradVec.txt')))
+                print('B-vectors saved in {}'.format(os.path.join(pfo_output, fin_scan + 'DwEffBval.txt')))
+                print('B-values  saved in {}'.format(os.path.join(pfo_output, fin_scan + 'DwGradVec.txt')))
 
     # save the dictionary as numpy array containing the corresponding dictionaries
     np.save(os.path.join(pfo_output, fin_scan_name + 'acqp.npy'),      struct['acqp'])
@@ -345,12 +352,17 @@ def write_struct(struct,
         else:
             i_label = ''
 
-        np.save(os.path.join(pfo_output, str(i) + fin_scan_name + 'reco.npy'), struct['visu_pars_list'][i])
+        np.save(os.path.join(pfo_output, str(i) + fin_scan_name + 'reco.npy'),
+                struct['visu_pars_list'][i])
 
-        summary_info_i = {i_label + "info['visu_pars']['VisuCoreDataSlope']"   : struct['visu_pars_list'][i]['VisuCoreDataSlope'],
-                          i_label + "info['visu_pars']['VisuCoreSize']"        : struct['visu_pars_list'][i]['VisuCoreSize'],
-                          i_label + "info['visu_pars']['VisuCoreOrientation']" : struct['visu_pars_list'][i]['VisuCoreOrientation'],
-                          i_label + "info['visu_pars']['VisuCorePosition']"    : struct['visu_pars_list'][i]['VisuCorePosition']}
+        summary_info_i = {i_label + "info['visu_pars']['VisuCoreDataSlope']"   :
+                              struct['visu_pars_list'][i]['VisuCoreDataSlope'],
+                          i_label + "info['visu_pars']['VisuCoreSize']"        :
+                              struct['visu_pars_list'][i]['VisuCoreSize'],
+                          i_label + "info['visu_pars']['VisuCoreOrientation']" :
+                              struct['visu_pars_list'][i]['VisuCoreOrientation'],
+                          i_label + "info['visu_pars']['VisuCorePosition']"    :
+                              struct['visu_pars_list'][i]['VisuCorePosition']}
 
         if struct['method']['SpatDimEnum'] == '2D':
             if 'VisuCoreSlicePacksSlices' in struct['visu_pars_list'][i].keys():

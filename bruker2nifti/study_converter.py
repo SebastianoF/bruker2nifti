@@ -1,7 +1,7 @@
 import os
 
 from _utils import bruker_read_files
-from _getters import get_list_scans
+from _getters import get_list_scans, get_subject_name
 from scan_converter import convert_a_scan
 
 
@@ -24,36 +24,6 @@ def show_study_structure(pfo_study):
     print('Version: {}'.format(acqp['ACQ_sw_version'][0]))
 
 
-def get_info_sj(pfo_study):
-    """
-    :param pfo_study: path to study folder.
-    :return: get the information of the subject as a dictionary.
-    """
-
-    if not os.path.isdir(pfo_study):
-        raise IOError('Input folder does not exists.')
-
-    return bruker_read_files('subject', pfo_study)
-
-
-def get_subject_name(pfo_study):
-    """
-    :param pfo_study: path to study folder.
-    :return: name of the subject in the study. See get_subject_id.
-    """
-    info_sj = get_info_sj(pfo_study)
-    return info_sj['SUBJECT_name']
-
-
-def get_subject_id(pfo_study):
-    """
-    :param pfo_study: path to study folder.
-    :return: id of the subject. See get_subject_name
-    """
-    info_sj = get_info_sj(pfo_study)
-    return info_sj['SUBJECT_id'][0]
-
-
 def convert_a_study(pfo_study_brukert_input,
                     pfo_study_nifti_output,
                     study_name=None,
@@ -63,7 +33,6 @@ def convert_a_study(pfo_study_brukert_input,
                     nifti_version=1,
                     qform=2,
                     sform=1,
-                    axis_direction=(-1, -1, 1),
                     save_human_readable=True,
                     normalise_b_vectors_if_dwi=True,
                     correct_slope=True,
@@ -88,7 +57,6 @@ def convert_a_study(pfo_study_brukert_input,
     :param nifti_version: see convert_a_scan.__doc__
     :param qform:
     :param sform:
-    :param axis_direction:
     :param save_human_readable:
     :param normalise_b_vectors_if_dwi:
     :param correct_slope:
