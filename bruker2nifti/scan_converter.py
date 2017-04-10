@@ -3,35 +3,22 @@ import numpy as np
 import nibabel as nib
 import pprint
 
-from _utils import normalise_b_vect
-from _getters import get_modality_from_info, get_separate_shells_b_vals_b_vect_from_info, \
+from _utils import normalise_b_vect, from_dict_to_txt_sorted
+from _getters import get_separate_shells_b_vals_b_vect_from_method, \
     get_spatial_resolution_from_info, get_info_and_img_data
 
 
-def from_dict_to_txt_sorted(dict_input, pfi_output):
-    """
-    Save the information contained in a dictionary into a txt file at the specified path.
-    :param dict_input: input structure dictionary
-    :param pfi_output: path to file.
-    :return:
-    """
-    sorted_keys = sorted(dict_input.keys())
-
-    with open(pfi_output, 'w') as f:
-        f.writelines('{0} = {1} \n'.format(k, dict_input[k]) for k in sorted_keys)
-
-
-def read_info(pfo_input):
+def read_info(pfo_input, scan_name=''):
     """
     From the path to the folder where the info are stored individually, it return the dictionary that
     contains them.
     :param pfo_input: path to folder where  'acqp.npy', 'method.npy', reco.npy', 'visu_pars.npy'
     :return: info data structure where data from 'acqp', 'method', 'reco' and 'visu_pars' of the raw Bruker are stored.
     """
-    acqp      = np.load(os.path.join(pfo_input, 'acqp.npy'))
-    method    = np.load(os.path.join(pfo_input, 'method.npy'))
-    reco      = np.load(os.path.join(pfo_input, 'reco.npy'))
-    visu_pars = np.load(os.path.join(pfo_input, 'visu_pars.npy'))
+    acqp      = np.load(os.path.join(pfo_input, scan_name + 'acqp.npy'))
+    method    = np.load(os.path.join(pfo_input, scan_name + 'method.npy'))
+    reco      = np.load(os.path.join(pfo_input, scan_name + 'reco.npy'))
+    visu_pars = np.load(os.path.join(pfo_input, scan_name + 'visu_pars.npy'))
 
     info = {'acqp': acqp[()], 'method': method[()], 'reco': reco[()], 'visu_pars': visu_pars[()]}
 
@@ -83,7 +70,7 @@ def write_info(info,
         print('\n\n -----------------------------------')
 
     # if the modality is a DtiEpi or Dwimage then save the DW directions, b values and b vectors in separate csv .txt.
-    modality = get_modality_from_info(info)
+    modality = info['method']['Method']
 
     if 'dtiepi' in modality.lower():  # For diffusion weighted images
 
@@ -102,8 +89,8 @@ def write_info(info,
         if separate_shells_if_dwi:
 
             # save DwEffBval DwGradVec
-            [list_b_vals, list_b_vects] = get_separate_shells_b_vals_b_vect_from_info(
-                info,
+            [list_b_vals, list_b_vects] = get_separate_shells_b_vals_b_vect_from_method(
+                info['Method'],
                 num_shells=num_shells,
                 num_initial_dir_to_skip=num_initial_dir_to_skip)
             for i in range(num_shells):

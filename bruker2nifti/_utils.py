@@ -1,5 +1,6 @@
 import numpy as np
 import os
+from os.path import join as jph
 
 from sympy.core.cache import clear_cache
 
@@ -56,26 +57,47 @@ def var_name_clean(line_in):
     return line_out
 
 
-def bruker_read_files(param_file, data_path, reco_num=1):
+def bruker_read_files(param_file, data_path, sub_scan_num='1'):
     """
     Reads parameters files of from Bruckert raw data imaging format.
     It parses the files 'acqp' 'method' and 'reco'
     :param param_file: file parameter.
     :param data_path: path to data.
-    :param reco_num: number of the folder where reco is stored.
+    :param sub_scan_num: number of the sub-scan folder where reco and visu_pars is stored.
     :return: dict_info dictionary with the parsed informations from the input file.
     """
-
+    # reco is only present for the sub_scan number '1'.
+    # Thre is an visu_pars for each sub-scan.
     if param_file.lower() == 'reco':
-        f = open(os.path.join(data_path, 'pdata', str(reco_num), 'reco'), 'r')
+        if os.path.exists(jph(data_path, 'pdata', '1', 'reco')):
+            f = open(jph(data_path, 'pdata', '1', 'reco'), 'r')
+        else:
+            print('File {} does not exists'.format(jph(data_path, 'pdata', '1', 'reco')))
+            return {}
     elif param_file.lower() == 'acqp':
-        f = open(os.path.join(data_path, 'acqp'), 'r')
+        if os.path.exists(jph(data_path, 'acqp')):
+            f = open(jph(data_path, 'acqp'), 'r')
+        else:
+            print('File {} does not exists'.format(jph(data_path, 'acqp')))
+            return {}
     elif param_file.lower() == 'method':
-        f = open(os.path.join(data_path, 'method'), 'r')
+        if os.path.exists(jph(data_path, 'method')):
+            f = open(jph(data_path, 'method'), 'r')
+        else:
+            print('File {} does not exists'.format(jph(data_path, 'method')))
+            return {}
     elif param_file.lower() == 'visu_pars':
-        f = open(os.path.join(data_path, 'pdata', '1', 'visu_pars'), 'r')
+        if os.path.exists(jph(data_path, 'pdata', str(sub_scan_num), 'visu_pars')):
+            f = open(jph(data_path, 'pdata', str(sub_scan_num), 'visu_pars'), 'r')
+        else:
+            print('File {} does not exists'.format(jph(data_path, 'pdata', str(sub_scan_num), 'visu_pars')))
+            return {}
     elif param_file.lower() == 'subject':
-        f = open(os.path.join(data_path, 'subject'), 'r')
+        if os.path.exists(jph(data_path, 'subject')):
+            f = open(jph(data_path, 'subject'), 'r')
+        else:
+            print('File {} does not exists'.format(jph(data_path, 'subject')))
+            return {}
     else:
         raise IOError("param_file input must be the string 'reco', 'acqp', 'method', 'visu_pars' or 'subject'")
 
@@ -212,7 +234,7 @@ def normalise_b_vect(b_vect, remove_nan=True):
     return b_vect_normalised
 
 
-def correct_for_the_slope(data, slope, num_initial_dir_to_skip=None):
+def slope_corrector(data, slope, num_initial_dir_to_skip=None):
 
     if len(data.shape) > 4:
         raise IOError('4d or lower dimensional images allowed. Input data has shape'.format(data.shape))
@@ -255,3 +277,16 @@ def compute_affine(directions, resolution, translations):
     assert abs(np.linalg.det(result) - np.prod(resolution)) < 10e-7
 
     return result
+
+
+def from_dict_to_txt_sorted(dict_input, pfi_output):
+    """
+    Save the information contained in a dictionary into a txt file at the specified path.
+    :param dict_input: input structure dictionary
+    :param pfi_output: path to file.
+    :return:
+    """
+    sorted_keys = sorted(dict_input.keys())
+
+    with open(pfi_output, 'w') as f:
+        f.writelines('{0} = {1} \n'.format(k, dict_input[k]) for k in sorted_keys)
