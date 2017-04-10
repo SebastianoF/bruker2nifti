@@ -1,5 +1,5 @@
 import argparse
-from bruker2nifti.scan_converter import convert_a_scan, write_info, write_to_nifti, get_info_and_img_data
+from bruker2nifti.scan_converter import convert_a_scan, write_info, write_to_nifti
 
 
 def main():
@@ -76,6 +76,8 @@ def main():
 
     args = parser.parse_args()
 
+    ''' # refactor from here:
+
     if not args.info_only and not args.nifti_only:
         convert_a_scan(args.pfo_input,
                        args.pfo_output,
@@ -124,6 +126,6 @@ def main():
                        sform=args.sform,
                        axis_direction=args.axis_direction,
                        verbose=args.verbose)
-
+    '''
 if __name__ == "__main__":
     main()

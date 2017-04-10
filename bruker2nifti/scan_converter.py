@@ -1,11 +1,98 @@
 import os
 import numpy as np
+
 import nibabel as nib
 import pprint
 
 from _utils import normalise_b_vect, from_dict_to_txt_sorted
 from _getters import get_separate_shells_b_vals_b_vect_from_method, \
     get_spatial_resolution_from_info, get_info_and_img_data
+from _cores import scan2struct, write_struct
+
+
+def convert_a_scan(pfo_input_scan,
+                   pfo_output,
+                   create_output_folder_if_not_esists=True,
+                   nifti_version=1,
+                   qform=2,
+                   sform=1,
+                   correct_slope=True,
+                   fin_scan_name=None,
+                   normalise_b_vectors_if_dwi=True,
+                   save_human_readable=True,
+                   separate_shells_if_dwi=False,
+                   num_shells=3,
+                   num_initial_dir_to_skip=None,
+                   verbose=1):
+    """
+    Put together all the components of the bridge: get_info_and_img_data, write_info and write_to_nifti.
+    The bridge goes FROM the path where the bruker scan is stored TO where the output will be saved.
+    :param pfo_input_scan: path to folder containing a scan from Bruker.
+    :param pfo_output: path to folder where the nifti and all the additional informations will be stored.
+    :param create_output_folder_if_not_esists: [True]
+    :param fin_output: [None] filename of the nifti image that will be saved into the pfo_output folder.
+    :param nifti_version: [1]
+    :param qform:
+    :param sform:
+    :param normalise_b_vectors_if_dwi:
+    :param correct_slope:
+    :param verbose: 0 no, 1 yes, 2 yes debug
+    :return: [None] save the data parsed from the raw Bruker scan into a folder, including the nifti image.
+    """
+
+    if create_output_folder_if_not_esists:
+        os.system('mkdir -p {}'.format(pfo_output))
+
+    struct_scan = scan2struct(pfo_input_scan,
+                              correct_slope=correct_slope,
+                              separate_shells_if_dwi=False,
+                              num_shells=3,
+                              num_initial_dir_to_skip=7,
+                              nifti_version=nifti_version,
+                              qform=qform,
+                              sform=sform)
+
+    write_struct(struct_scan,
+                 pfo_output,
+                 fin_scan_name=fin_scan_name,
+                 save_human_readable=save_human_readable,
+                 normalise_b_vectors_if_dwi=normalise_b_vectors_if_dwi,
+                 separate_shells_if_dwi=separate_shells_if_dwi,
+                 num_shells=num_shells,
+                 num_initial_dir_to_skip=num_initial_dir_to_skip,
+                 verbose=verbose)
+
+    '''
+    # old architecture:
+    info, img_data = get_info_and_img_data(pfo_input_scan,
+                                           correct_slope=correct_slope,
+                                           verbose=verbose)
+    if info is False:
+        return 0  # there are no data in the structure
+
+    if fin_output is None:  # filename output
+        fin_output = info['method']['Method'].lower() + \
+                     info['acqp']['ACQ_time'].split(',')[0]
+        fin_output = fin_output.replace(' ', '_').replace(':', '_').replace('T', '_')
+        fin_output += '.nii.gz'
+
+    write_info(info,
+               pfo_output,
+               save_human_readable=save_human_readable,
+               verbose=verbose,
+               normalise_b_vectors_if_dwi=normalise_b_vectors_if_dwi)
+
+    write_to_nifti(info,
+                   img_data,
+                   os.path.join(pfo_output, fin_output),
+                   qform=qform,
+                   sform=sform,
+                   axis_direction=axis_direction,
+                   nifti_version=nifti_version)
+    '''
+
+
+''' OLD stuff to be erased: '''
 
 
 def read_info(pfo_input, scan_name=''):
@@ -13,6 +100,7 @@ def read_info(pfo_input, scan_name=''):
     From the path to the folder where the info are stored individually, it return the dictionary that
     contains them.
     :param pfo_input: path to folder where  'acqp.npy', 'method.npy', reco.npy', 'visu_pars.npy'
+    :param scan_name: additional scan name.
     :return: info data structure where data from 'acqp', 'method', 'reco' and 'visu_pars' of the raw Bruker are stored.
     """
     acqp      = np.load(os.path.join(pfo_input, scan_name + 'acqp.npy'))
@@ -23,6 +111,7 @@ def read_info(pfo_input, scan_name=''):
     info = {'acqp': acqp[()], 'method': method[()], 'reco': reco[()], 'visu_pars': visu_pars[()]}
 
     return info
+
 
 
 def write_info(info,
@@ -253,62 +342,3 @@ def write_to_nifti(info,
         if verbose > 0:
             print('Scan saved in nifti format version {0} at: \n{1}'.format(nifti_version, pfi_output))
             print('Shape : \n {0}\n affine: \n{1}\n'.format(nib_im.shape, nib_im.affine))
-
-
-def convert_a_scan(pfo_input_scan,
-                   pfo_output,
-                   create_output_folder_if_not_esists=True,
-                   fin_output=None,
-                   nifti_version=1,
-                   qform=2,
-                   sform=1,
-                   axis_direction=(-1, -1, 1),
-                   save_human_readable=True,
-                   normalise_b_vectors_if_dwi=True,
-                   correct_slope=True,
-                   verbose=1):
-    """
-    Put together all the components of the bridge: get_info_and_img_data, write_info and write_to_nifti.
-    The bridge goes FROM the path where the bruker scan is stored TO where the output will be saved.
-    :param pfo_input_scan: path to folder containing a scan from Bruker.
-    :param pfo_output: path to folder where the nifti and all the additional informations will be stored.
-    :param create_output_folder_if_not_esists: [True]
-    :param fin_output: [None] filename of the nifti image that will be saved into the pfo_output folder.
-    :param nifti_version: [1]
-    :param qform:
-    :param sform:
-    :param axis_direction: see write_to_nifti.__doc__
-    :param save_human_readable:
-    :param normalise_b_vectors_if_dwi:
-    :param correct_slope:
-    :param verbose: 0 no, 1 yes, 2 yes debug
-    :return: [None] save the data parsed from the raw Bruker scan into a folder, including the nifti image.
-    """
-    if create_output_folder_if_not_esists:
-        os.system('mkdir -p {}'.format(pfo_output))
-
-    info, img_data = get_info_and_img_data(pfo_input_scan,
-                                           correct_slope=correct_slope,
-                                           verbose=verbose)
-    if info is False:
-        return 0  # there are no data in the structure
-
-    if fin_output is None:  # filename output
-        fin_output = info['method']['Method'].lower() + \
-                     info['acqp']['ACQ_time'].split(',')[0]
-        fin_output = fin_output.replace(' ', '_').replace(':', '_').replace('T', '_')
-        fin_output += '.nii.gz'
-
-    write_info(info,
-               pfo_output,
-               save_human_readable=save_human_readable,
-               verbose=verbose,
-               normalise_b_vectors_if_dwi=normalise_b_vectors_if_dwi)
-
-    write_to_nifti(info,
-                   img_data,
-                   os.path.join(pfo_output, fin_output),
-                   qform=qform,
-                   sform=sform,
-                   axis_direction=axis_direction,
-                   nifti_version=nifti_version)

@@ -74,17 +74,23 @@ def scan2struct(pfo_scan,
     for id_sub_scan in list_sub_scans:
 
         if separate_shells_if_dwi:
+            print(num_shells)
+            print(num_initial_dir_to_skip)
             # TODO dvide here in subvolume with a nested for-loop, integrating the 'natural' sub-volumes.
             pass
 
         visu_pars = bruker_read_files('visu_pars', pfo_scan, sub_scan_num=id_sub_scan)
 
-        # -- GET PRE DIMENSION AND DIMENSION
+        # GET IMAGE DATA
+        img_data_vol = np.copy(np.fromfile(os.path.join(pfo_scan, 'pdata', id_sub_scan, '2dseq'), dtype=dt))
+
+        # -- GET PRE DIMENSION, DIMENSION AND RESOLUTION
+        # when 2D
         if method['SpatDimEnum'] == '2D':
 
             if int(acqp['NR']) == 1:
                 pre_shape_scan = list(method['Matrix'].astype(np.int)) + [int(acqp['NI']), ]
-                if int(acqp['ACQ_n_echo_images']) % int(acqp['NI']) != 0:
+                if int(acqp['NI']) % int(acqp['ACQ_n_echo_images']) != 0:
                     raise IOError
                 shape_scan = list(method['Matrix'].astype(np.int)) + \
                              [int(int(acqp['NI'])/int(acqp['ACQ_n_echo_images'])), int(acqp['ACQ_n_echo_images'])]
@@ -96,46 +102,83 @@ def scan2struct(pfo_scan,
             else:
                 raise IOError
 
+            # Another test has to be done, yet.
+            # Check the compatibility with the data slope. If not compatible update, with the
+            # structure (x_dim, ydim, slope_dim, remainder)
+            # where reminder = tot_dim / (x_dim * ydim * slope_dim)
+            if isinstance(visu_pars['VisuCoreDataSlope'], int) or isinstance(visu_pars['VisuCoreDataSlope'], float):
+                num_slopes = 1
+            else:
+                num_slopes = visu_pars['VisuCoreDataSlope'].shape[0]
+
+            if len(pre_shape_scan) > 2:
+                if not pre_shape_scan[2] == num_slopes:
+
+                    tot_dim = int(np.prod(img_data_vol.shape))
+                    slope_dim = int(visu_pars['VisuCoreDataSlope'].shape[0])
+                    reminder = int(tot_dim / np.prod(list(method['Matrix'].astype(np.int)) + [slope_dim, ]) )
+
+                    pre_shape_scan = list(method['Matrix'].astype(np.int)) + [slope_dim, reminder]
+                    shape_scan = pre_shape_scan[:]
+
+            shape_scan = [m for m in shape_scan if m is not 1]
+            pre_shape_scan = [m for m in pre_shape_scan if m is not 1]
+
+            # -- GET RESOLUTION WHEN 2D
+            sp_resolution = list(method['SpatResol'])
+            assert len(sp_resolution) == 2
+            slice_thick = acqp['ACQ_slice_thick']
+            if slice_thick > 0:
+                sp_resolution += [slice_thick, ]
+
+        # when 3D
         elif method['SpatDimEnum'] == '3D':
 
             assert int(acqp['ACQ_n_echo_images']) == int(acqp['NI'])
 
             if int(acqp['NI']) > 1:
                 pre_shape_scan = list(method['Matrix'].astype(np.int)) + [int(acqp['NI']), ]
-                shape_scan = pre_shape_scan
+                shape_scan = pre_shape_scan[:]
 
             elif int(acqp['NR']) > 1:
                 pre_shape_scan = list(method['Matrix'].astype(np.int)) + [int(acqp['NR']), ]
-                shape_scan = pre_shape_scan
+                shape_scan = pre_shape_scan[:]
 
+            elif int(acqp['NI']) == 1 and int(acqp['NR']) == 1:
+                pre_shape_scan = list(method['Matrix'].astype(np.int))
+                shape_scan = pre_shape_scan[:]
             else:
                 raise IOError
+
+            # Check the compatiblity with the dataSlope as in the previous case.
+
+            if isinstance(visu_pars['VisuCoreDataSlope'], int) or isinstance(visu_pars['VisuCoreDataSlope'], float):
+                num_slopes = 1
+            else:
+                num_slopes = int(visu_pars['VisuCoreDataSlope'].shape[0])
+
+            if len(pre_shape_scan) > 3:
+                if not pre_shape_scan[3] == num_slopes:
+
+                    tot_dim = int(np.prod(img_data_vol.shape))
+                    reminder = int(tot_dim / np.prod(list(method['Matrix'].astype(np.int)) + [num_slopes, ]) )
+
+                    pre_shape_scan = list(method['Matrix'].astype(np.int)) + [num_slopes, reminder]
+                    shape_scan = pre_shape_scan[:]
+
+            shape_scan = [m for m in shape_scan if m is not 1]
+            pre_shape_scan = [m for m in pre_shape_scan if m is not 1]
+
+            # -- GET RESOLUTION WHEN 3D
+            sp_resolution = list(method['SpatResol'])
+            assert len(sp_resolution) == 3
+
         else:
             raise IOError("method['SpatDimEnum'] known are '2D' or '3D' ")
 
         if reco['RECO_inp_order'] == 'NO_REORDERING':
             pre_shape_scan[0], pre_shape_scan[1] = pre_shape_scan[1], pre_shape_scan[0]
             shape_scan[0], shape_scan[1] = shape_scan[1], shape_scan[0]
-
-        # -- GET RESOLUTION
-        sp_resolution = list(method['SpatResol'])
-
-        if method['SpatDimEnum'] == '2D':
-
-            assert len(sp_resolution) == 2
-
-            slice_thick = acqp['ACQ_slice_thick']
-            if slice_thick > 0:
-                sp_resolution += [slice_thick, ]
-
-        elif method['SpatDimEnum'] == '3D':
-
-            assert len(sp_resolution) == 3
-
-        else:
-            raise IOError
-
-        if reco['RECO_inp_order'] == 'NO_REORDERING':
             sp_resolution[0], sp_resolution[1] = sp_resolution[1], sp_resolution[0]
 
         # -- GET ORIENTATION DIRECTIONS:
@@ -145,15 +188,13 @@ def scan2struct(pfo_scan,
 
         # -- GET TRANSLATIONS:
 
-        translations = visu_pars['VisuCorePosition']
+        translations = visu_pars['VisuCorePosition'][0]
 
         # -- GET AFFINE
 
         affine_transf = compute_affine(affine_directions, sp_resolution, translations)
 
-        # -- GET IMG_DATA
-
-        img_data_vol = np.copy(np.fromfile(os.path.join(pfo_scan, 'pdata', id_sub_scan, '2dseq'), dtype=dt))
+        # -- PROCESS IMG_DATA
 
         if not data_endian_ness == system_endian_nes:
             img_data_vol.byteswap(True)
@@ -200,22 +241,18 @@ def scan2struct(pfo_scan,
 
 def write_struct(struct,
                  pfo_output,
-                 create_pfo_output_if_not_exists=True,
-                 scan_name='',
+                 fin_scan_name='',
                  save_human_readable=True,
                  separate_shells_if_dwi=False,
                  num_shells=3,
                  num_initial_dir_to_skip=None,
                  normalise_b_vectors_if_dwi=True,
-                 verbose=1,
-                 save_summary=True):
+                 verbose=1):
 
-    if create_pfo_output_if_not_exists:
-        os.system('mkdir -p {}'.format(pfo_output))
-    else:
-        if not os.path.isdir(pfo_output):
+    if not os.path.isdir(pfo_output):
             raise IOError('Output folder does not exists.')
-
+    if fin_scan_name is None:
+        fin_scan_name = ''
     # print ordered dictionaries values to console (logorrheic rather than verbose!)
     if verbose > 2:
         print('\n\n -------------- acqp --------------')
@@ -226,7 +263,7 @@ def write_struct(struct,
         print(pprint.pprint(struct['reco']))
         print('\n\n -----------------------------------')
 
-    if not len(struct['nib_scans_list']) == len(struct['visu_pars']):
+    if not len(struct['nib_scans_list']) == len(struct['visu_pars_list']):
         raise IOError
 
     # -- WRITE Additional data shared by all the sub-scans:
@@ -238,10 +275,10 @@ def write_struct(struct,
         if normalise_b_vectors_if_dwi:
             dw_dir = normalise_b_vect(dw_dir)
 
-        np.savetxt(os.path.join(pfo_output, scan_name + 'DwDir.txt'), dw_dir, fmt='%.14f')
+        np.savetxt(os.path.join(pfo_output, fin_scan_name + 'DwDir.txt'), dw_dir, fmt='%.14f')
 
         if verbose > 0:
-            msg = 'Diffusion weighted directions saved in ' + os.path.join(pfo_output, scan_name + 'DwDir.txt')
+            msg = 'Diffusion weighted directions saved in ' + os.path.join(pfo_output, fin_scan_name + 'DwDir.txt')
             print(msg)
 
         # DwEffBval and DwGradVec are divided by shells
@@ -254,8 +291,8 @@ def write_struct(struct,
                 num_initial_dir_to_skip=num_initial_dir_to_skip)
             for i in range(num_shells):
                 modality = struct['method']['Method'].split(':')[-1]
-                path_b_vals_shell_i = os.path.join(pfo_output, scan_name + modality + '_DwEffBval_shell' + str(i) + '.txt')
-                path_b_vect_shell_i = os.path.join(pfo_output, scan_name + modality + '_DwGradVec_shell' + str(i) + '.txt')
+                path_b_vals_shell_i = os.path.join(pfo_output, fin_scan_name + modality + '_DwEffBval_shell' + str(i) + '.txt')
+                path_b_vect_shell_i = os.path.join(pfo_output, fin_scan_name + modality + '_DwGradVec_shell' + str(i) + '.txt')
 
                 np.savetxt(path_b_vals_shell_i, list_b_vals[i], fmt='%.14f')
                 np.savetxt(path_b_vect_shell_i, list_b_vects[i], fmt='%.14f')
@@ -269,65 +306,65 @@ def write_struct(struct,
             b_vals = struct['method']['DwEffBval']
             b_vects = struct['method']['DwGradVec']
 
-            np.savetxt(os.path.join(pfo_output, scan_name + 'DwEffBval.txt'), b_vals, fmt='%.14f')
-            np.savetxt(os.path.join(pfo_output, scan_name + 'DwGradVec.txt'), b_vects, fmt='%.14f')
+            np.savetxt(os.path.join(pfo_output, fin_scan_name + 'DwEffBval.txt'), b_vals, fmt='%.14f')
+            np.savetxt(os.path.join(pfo_output, fin_scan_name + 'DwGradVec.txt'), b_vects, fmt='%.14f')
 
             if verbose > 0:
-                print('B-vectors saved in {}'.format(os.path.join(pfo_output, scan_name + 'DwEffBval.txt')))
-                print('B-values  saved in {}'.format(os.path.join(pfo_output, scan_name + 'DwGradVec.txt')))
+                print('B-vectors saved in {}'.format(os.path.join(pfo_output, fin_scan_name + 'DwEffBval.txt')))
+                print('B-values  saved in {}'.format(os.path.join(pfo_output, fin_scan_name + 'DwGradVec.txt')))
 
     # save the dictionary as numpy array containing the corresponding dictionaries
-    np.save(os.path.join(pfo_output, scan_name + 'acqp.npy'),      struct['acqp'])
-    np.save(os.path.join(pfo_output, scan_name + 'method.npy'),    struct['method'])
-    np.save(os.path.join(pfo_output, scan_name + 'reco.npy'),      struct['reco'])
+    np.save(os.path.join(pfo_output, fin_scan_name + 'acqp.npy'),      struct['acqp'])
+    np.save(os.path.join(pfo_output, fin_scan_name + 'method.npy'),    struct['method'])
+    np.save(os.path.join(pfo_output, fin_scan_name + 'reco.npy'),      struct['reco'])
 
     # save in ordered readable txt files.
     if save_human_readable:
-        from_dict_to_txt_sorted(struct['acqp'],   os.path.join(pfo_output,   scan_name + 'acqp.txt'))
-        from_dict_to_txt_sorted(struct['method'], os.path.join(pfo_output, scan_name + 'method.txt'))
-        from_dict_to_txt_sorted(struct['reco'],   os.path.join(pfo_output,   scan_name + 'reco.txt'))
+        from_dict_to_txt_sorted(struct['acqp'],   os.path.join(pfo_output,   fin_scan_name + 'acqp.txt'))
+        from_dict_to_txt_sorted(struct['method'], os.path.join(pfo_output,   fin_scan_name + 'method.txt'))
+        from_dict_to_txt_sorted(struct['reco'],   os.path.join(pfo_output,   fin_scan_name + 'reco.txt'))
 
-    summary_info = {"info['acqp']['ACQ_sw_version']": struct['acqp']['ACQ_sw_version'],
-                    "info['method']['SpatDimEnum']": struct['method']['SpatDimEnum'],
-                    "info['method']['Matrix']": struct['method']['Matrix'],
-                    "info['method']['SpatResol']": struct['method']['SpatResol'],
-                    "info['reco']['RECO_size']": struct['reco']['RECO_size'],
-                    "info['reco']['RECO_inp_order']": struct['reco']['RECO_inp_order'],
-                    "info['acqp']['NR']": struct['acqp']['NR'],
-                    "info['acqp']['NI']": struct['acqp']['NI'],
-                    "info['acqp']['ACQ_n_echo_images']": struct['acqp']['ACQ_n_echo_images'],
-                    "info['acqp']['ACQ_slice_thick']": struct['acqp']['ACQ_slice_thick']
+    summary_info = {"info['acqp']['ACQ_sw_version']"    : struct['acqp']['ACQ_sw_version'],
+                    "info['method']['SpatDimEnum']"     : struct['method']['SpatDimEnum'],
+                    "info['method']['Matrix']"          : struct['method']['Matrix'],
+                    "info['method']['SpatResol']"       : struct['method']['SpatResol'],
+                    "info['reco']['RECO_size']"         : struct['reco']['RECO_size'],
+                    "info['reco']['RECO_inp_order']"    : struct['reco']['RECO_inp_order'],
+                    "info['acqp']['NR']"                : struct['acqp']['NR'],
+                    "info['acqp']['NI']"                : struct['acqp']['NI'],
+                    "info['acqp']['ACQ_n_echo_images']" : struct['acqp']['ACQ_n_echo_images'],
+                    "info['acqp']['ACQ_slice_thick']"   : struct['acqp']['ACQ_slice_thick']
                     }
 
     # WRITE DATA SPECIFIC FOR EACH Sub-scan:
 
     for i in range(len(struct['nib_scans_list'])):
 
-        if not len(struct['nib_scans_list']) > 1:
+        if len(struct['nib_scans_list']) > 1:
             i_label = str(i)
         else:
             i_label = ''
 
-        np.save(os.path.join(pfo_output, str(i) + scan_name + 'reco.npy'), struct['visu_pars'][i])
+        np.save(os.path.join(pfo_output, str(i) + fin_scan_name + 'reco.npy'), struct['visu_pars_list'][i])
 
         summary_info_i = {i_label + "info['visu_pars']['VisuCoreDataSlope']"   : struct['visu_pars_list'][i]['VisuCoreDataSlope'],
                           i_label + "info['visu_pars']['VisuCoreSize']"        : struct['visu_pars_list'][i]['VisuCoreSize'],
-                          i_label + "info['visu_pars']['VisuCoreOrientation']" : struct['vivisu_pars_listsu_pars'][i]['VisuCoreOrientation'],
+                          i_label + "info['visu_pars']['VisuCoreOrientation']" : struct['visu_pars_list'][i]['VisuCoreOrientation'],
                           i_label + "info['visu_pars']['VisuCorePosition']"    : struct['visu_pars_list'][i]['VisuCorePosition']}
 
         if struct['method']['SpatDimEnum'] == '2D':
-            if 'VisuCoreSlicePacksSlices' in struct['visu_pars'][i].keys():
+            if 'VisuCoreSlicePacksSlices' in struct['visu_pars_list'][i].keys():
                 summary_info_i.update({i_label + "visu_pars['VisuCoreSlicePacksSlices']":
                                          struct['visu_pars_list'][i]['VisuCoreSlicePacksSlices']})
 
         summary_info.update(summary_info_i)
-        from_dict_to_txt_sorted(summary_info, os.path.join(pfo_output, scan_name + 'summary.txt'))
+        from_dict_to_txt_sorted(summary_info, os.path.join(pfo_output, fin_scan_name + 'summary.txt'))
 
         # WRITE INFO SUB-SCANNER
 
-        if scan_name == '':
+        if fin_scan_name == '':
             pfi_scan = os.path.join(pfo_output, 'scan_' + i_label + '.nii.gz')
         else:
-            pfi_scan = os.path.join(pfo_output, scan_name + i_label + '.nii.gz')
+            pfi_scan = os.path.join(pfo_output, fin_scan_name + i_label + '.nii.gz')
 
         nib.save(struct['nib_scans_list'][i], pfi_scan)
