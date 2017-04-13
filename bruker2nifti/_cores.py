@@ -86,7 +86,11 @@ def scan2struct(pfo_scan,
         visu_pars = bruker_read_files('visu_pars', pfo_scan, sub_scan_num=id_sub_scan)
 
         # GET IMAGE DATA
-        img_data_vol = np.copy(np.fromfile(os.path.join(pfo_scan, 'pdata', id_sub_scan, '2dseq'), dtype=dt))
+
+        if os.path.exists(os.path.join(pfo_scan, 'pdata', id_sub_scan, '2dseq')):
+            img_data_vol = np.copy(np.fromfile(os.path.join(pfo_scan, 'pdata', id_sub_scan, '2dseq'), dtype=dt))
+        else:
+            return 'no data'
 
         # -- GET PRE DIMENSION, DIMENSION AND RESOLUTION
         # when 2D
@@ -352,8 +356,9 @@ def write_struct(struct,
         else:
             i_label = ''
 
-        np.save(os.path.join(pfo_output, str(i) + fin_scan + 'reco.npy'),
-                struct['visu_pars_list'][i])
+        np.save(os.path.join(pfo_output, i_label + fin_scan + 'reco.npy'), struct['visu_pars_list'][i])
+        if save_human_readable:
+            from_dict_to_txt_sorted(struct['reco'], os.path.join(pfo_output, i_label + fin_scan + 'reco.txt'))
 
         summary_info_i = {i_label + "info['visu_pars']['VisuCoreDataSlope']"   :
                               struct['visu_pars_list'][i]['VisuCoreDataSlope'],

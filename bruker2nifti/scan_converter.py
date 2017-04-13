@@ -49,12 +49,13 @@ def convert_a_scan(pfo_input_scan,
                               qform=qform,
                               sform=sform)
 
-    write_struct(struct_scan,
-                 pfo_output,
-                 fin_scan=fin_scan,
-                 save_human_readable=save_human_readable,
-                 normalise_b_vectors_if_dwi=normalise_b_vectors_if_dwi,
-                 separate_shells_if_dwi=separate_shells_if_dwi,
-                 num_shells=num_shells,
-                 num_initial_dir_to_skip=num_initial_dir_to_skip,
-                 verbose=verbose)
+    if not struct_scan == 'no data':
+        write_struct(struct_scan,
+                     pfo_output,
+                     fin_scan=fin_scan,
+                     save_human_readable=save_human_readable,
+                     normalise_b_vectors_if_dwi=normalise_b_vectors_if_dwi,
+                     separate_shells_if_dwi=separate_shells_if_dwi,
+                     num_shells=num_shells,
+                     num_initial_dir_to_skip=num_initial_dir_to_skip,
+                     verbose=verbose)

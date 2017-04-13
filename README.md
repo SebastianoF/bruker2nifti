@@ -9,7 +9,7 @@ Python 2.7 and Python 3 compatible.
 + [Instructions](#instructions)
 + [Utilities](#utilities)
 + [Thanks](#thanks)
-
++ [Wip](#wip)
 
 
 ### Glossary <a name="glossary"></a>
@@ -154,6 +154,10 @@ method, acqp, reco and visu_pars. The img_data is stored in the file 2dseq.
 
 ## Code structure:
 
++ **bruker2nifti._cores.py** contains the core of the parser. It is not possible to disentangle the information of some
+of the raw Brukert files and parse them individually with individual parsers to create the nifti. Data useful to 
+build the nifti are stored in an intermediate structure, called struct (yes, I know...), that is than used to
+create and save the nifti image(s) and the file.
 + **bruker2nifti._utils.py** contains the utils, whose core is the method indian_file_parser component of the bridge 
 parsing the text contained in the main raw bruker structure into dictionaries.
 + **bruker2nifti.scan_converter.py** contains the code to convert a single scan.
@@ -262,3 +266,8 @@ paravision 6:
 
 
 --->
+
+
+## WIP <a name="wip"></a>
+Parsers missing, good testing framework, individual shells DWI saving options, affine directions parsing 
+(Bruker convention still to explore).   
