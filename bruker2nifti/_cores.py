@@ -289,10 +289,13 @@ def write_struct(struct,
         if normalise_b_vectors_if_dwi:
             dw_dir = normalise_b_vect(dw_dir)
 
-        np.savetxt(jph(pfo_output, fin_scan + 'DwDir.txt'), dw_dir, fmt='%.14f')
+        np.save(jph(pfo_output, fin_scan + '_DwDir.npy'), dw_dir)
+
+        if save_human_readable:
+            np.savetxt(jph(pfo_output, fin_scan + '_DwDir.txt'), dw_dir, fmt='%.14f')
 
         if verbose > 0:
-            msg = 'Diffusion weighted directions saved in ' + jph(pfo_output, fin_scan + '_DwDir.txt')
+            msg = 'Diffusion weighted directions saved in ' + jph(pfo_output, fin_scan + '_DwDir.npy')
             print(msg)
 
         # DwEffBval and DwGradVec are divided by shells
@@ -300,34 +303,47 @@ def write_struct(struct,
 
             # save DwEffBval DwGradVec
             [list_b_vals, list_b_vects] = get_separate_shells_b_vals_b_vect_from_method(
-                struct['method'],
-                num_shells=num_shells,
-                num_initial_dir_to_skip=num_initial_dir_to_skip)
+                                                            struct['method'],
+                                                            num_shells=num_shells,
+                                                            num_initial_dir_to_skip=num_initial_dir_to_skip)
             for i in range(num_shells):
                 modality = struct['method']['Method'].split(':')[-1]
-                path_b_vals_shell_i = jph(pfo_output,
-                                                   fin_scan + modality + '_DwEffBval_shell' + str(i) + '.txt')
-                path_b_vect_shell_i = jph(pfo_output,
-                                                   fin_scan + modality + '_DwGradVec_shell' + str(i) + '.txt')
+                path_b_vals_shell_i_npy = jph(pfo_output,
+                                                   fin_scan + modality + '_DwEffBval_shell' + str(i) + '.npy')
+                path_b_vect_shell_i_npy = jph(pfo_output,
+                                                   fin_scan + modality + '_DwGradVec_shell' + str(i) + '.npy')
 
-                np.savetxt(path_b_vals_shell_i, list_b_vals[i], fmt='%.14f')
-                np.savetxt(path_b_vect_shell_i, list_b_vects[i], fmt='%.14f')
+                np.save(path_b_vals_shell_i_npy, list_b_vals[i])
+                np.save(path_b_vect_shell_i_npy, list_b_vects[i])
+
+                if save_human_readable:
+
+                    path_b_vals_shell_i_txt = jph(pfo_output,
+                                                  fin_scan + modality + '_DwEffBval_shell' + str(i) + '.txt')
+                    path_b_vect_shell_i_txt = jph(pfo_output,
+                                                  fin_scan + modality + '_DwGradVec_shell' + str(i) + '.txt')
+                    np.savetxt(path_b_vals_shell_i_txt, list_b_vals[i], fmt='%.14f')
+                    np.savetxt(path_b_vect_shell_i_txt, list_b_vects[i], fmt='%.14f')
 
                 if verbose > 0:
-                    print('B-vectors for shell {0} saved in {1}'.format(str(i), path_b_vals_shell_i))
-                    print('B-values for shell {0} saved in {1}'.format(str(i), path_b_vect_shell_i))
+                    print('B-vectors for shell {0} saved in {1}'.format(str(i), path_b_vals_shell_i_npy))
+                    print('B-values for shell {0} saved in {1}'.format(str(i), path_b_vect_shell_i_npy))
 
         else:
 
             b_vals = struct['method']['DwEffBval']
             b_vects = struct['method']['DwGradVec']
 
-            np.savetxt(jph(pfo_output, fin_scan + '_DwEffBval.txt'), b_vals, fmt='%.14f')
-            np.savetxt(jph(pfo_output, fin_scan + '_DwGradVec.txt'), b_vects, fmt='%.14f')
+            np.save(jph(pfo_output, fin_scan + '_DwEffBval.npy'), b_vals)
+            np.save(jph(pfo_output, fin_scan + '_DwGradVec.npy'), b_vects)
+
+            if save_human_readable:
+                np.savetxt(jph(pfo_output, fin_scan + '_DwEffBval.txt'), b_vals, fmt='%.14f')
+                np.savetxt(jph(pfo_output, fin_scan + '_DwGradVec.txt'), b_vects, fmt='%.14f')
 
             if verbose > 0:
-                print('B-vectors saved in {}'.format(jph(pfo_output, fin_scan + '_DwEffBval.txt')))
-                print('B-values  saved in {}'.format(jph(pfo_output, fin_scan + '_DwGradVec.txt')))
+                print('B-vectors saved in {}'.format(jph(pfo_output, fin_scan + '_DwEffBval.npy')))
+                print('B-values  saved in {}'.format(jph(pfo_output, fin_scan + '_DwGradVec.npy')))
 
     # save the dictionary as numpy array containing the corresponding dictionaries
     np.save(jph(pfo_output, fin_scan + '_acqp.npy'),      struct['acqp'])
@@ -357,29 +373,33 @@ def write_struct(struct,
     for i in range(len(struct['nib_scans_list'])):
 
         if len(struct['nib_scans_list']) > 1:
-            i_label = '_subscan_' + str(i)
+            i_label = '_subscan_' + str(i) + '_'
         else:
             i_label = ''
 
         # A) Save visu_pars for each sub-scan:
-        np.save(jph(pfo_output, fin_scan + i_label + '_visu_pars.npy'), struct['visu_pars_list'][i])
+        np.save(jph(pfo_output, fin_scan + i_label + 'visu_pars.npy'), struct['visu_pars_list'][i])
 
         # B) Save single slope data for each sub-scan (from visu_pars):
-        np.save(jph(pfo_output, fin_scan + i_label + '_slope.npy'), struct['visu_pars_list'][i]['VisuCoreDataSlope'])
+        np.save(jph(pfo_output, fin_scan + i_label + 'slope.npy'), struct['visu_pars_list'][i]['VisuCoreDataSlope'])
 
         # A and B) save them both in .txt if human readable version of data is required.
         if save_human_readable:
-            from_dict_to_txt_sorted(struct['visu_pars_list'][i], jph(pfo_output, fin_scan + i_label + '_visu_pars.txt'))
-            np.savetxt(jph(pfo_output, fin_scan + i_label + '_slope.txt'), struct['visu_pars_list'][i]['VisuCoreDataSlope'])
+            from_dict_to_txt_sorted(struct['visu_pars_list'][i], jph(pfo_output, fin_scan + i_label + 'visu_pars.txt'))
+
+            slope = struct['visu_pars_list'][i]['VisuCoreDataSlope']
+            if not isinstance(slope, np.ndarray):
+                slope = np.atleast_2d(slope)
+            np.savetxt(jph(pfo_output, fin_scan + i_label + 'slope.txt'), slope, fmt='%.14f')
 
         # Update dictionary for the summary:
-        summary_info_i = {i_label[1:] + "_info['visu_pars']['VisuCoreDataSlope']"   :
+        summary_info_i = {i_label[1:] + "info['visu_pars']['VisuCoreDataSlope']"   :
                               struct['visu_pars_list'][i]['VisuCoreDataSlope'],
-                          i_label[1:] + "_info['visu_pars']['VisuCoreSize']"        :
+                          i_label[1:] + "info['visu_pars']['VisuCoreSize']"        :
                               struct['visu_pars_list'][i]['VisuCoreSize'],
-                          i_label[1:] + "_info['visu_pars']['VisuCoreOrientation']" :
+                          i_label[1:] + "info['visu_pars']['VisuCoreOrientation']" :
                               struct['visu_pars_list'][i]['VisuCoreOrientation'],
-                          i_label[1:] + "_info['visu_pars']['VisuCorePosition']"    :
+                          i_label[1:] + "info['visu_pars']['VisuCorePosition']"    :
                               struct['visu_pars_list'][i]['VisuCorePosition']}
 
         if struct['method']['SpatDimEnum'] == '2D':
@@ -389,13 +409,13 @@ def write_struct(struct,
 
         summary_info.update(summary_info_i)
         # C) Save the summary info with the updated information.
-        from_dict_to_txt_sorted(summary_info, jph(pfo_output, fin_scan + 'summary.txt'))
+        from_dict_to_txt_sorted(summary_info, jph(pfo_output, fin_scan + '_summary.txt'))
 
         # WRITE INFO SUB-SCANNER
 
         if fin_scan == '':
-            pfi_scan = jph(pfo_output, 'scan' + i_label + '.nii.gz')
+            pfi_scan = jph(pfo_output, 'scan' + i_label[:-1] + '.nii.gz')
         else:
-            pfi_scan = jph(pfo_output, fin_scan + i_label + '.nii.gz')
+            pfi_scan = jph(pfo_output, fin_scan + i_label[:-1] + '.nii.gz')
 
         nib.save(struct['nib_scans_list'][i], pfi_scan)
