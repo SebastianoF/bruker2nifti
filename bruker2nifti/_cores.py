@@ -38,7 +38,10 @@ def scan2struct(pfo_scan,
     :param sform:
     :return: output_data data structure containing the nibabel image(s) {nib, acqp, method, reco, visu_pars}
     """
-    # Note to the programmer: It can be very complicated to divide this function in indepnended sub-functions.
+    # Note to the programmer: It can be certainly more elegant to divide this function in independent sub-functions;
+    # please BEWARE that every attempt made so far in this direction has failed, as the intricate mutual dependency
+    # of the data can make this path very complicated!
+
     # num_volumes_per_scan = len(list(visu_pars['VisuCoreSlicePacksSlices']))
     if not os.path.isdir(pfo_scan):
         raise IOError('Input folder does not exists.')
@@ -194,7 +197,7 @@ def scan2struct(pfo_scan,
 
         # -- GET ORIENTATION DIRECTIONS:
 
-        # TODO: look at visu_pars['VisuCoreOrientation'] as a 3x3 matrix with some meaning to be established.
+        # TODO: look at visu_pars['VisuCoreOrientation'] as a 3x3 matrix with some meaning yet to be understood.
         affine_directions = np.eye(3).dot(np.diag([-1, -1, 1]))
 
         # -- GET TRANSLATIONS:
@@ -289,7 +292,7 @@ def write_struct(struct,
         np.savetxt(jph(pfo_output, fin_scan + 'DwDir.txt'), dw_dir, fmt='%.14f')
 
         if verbose > 0:
-            msg = 'Diffusion weighted directions saved in ' + jph(pfo_output, fin_scan + 'DwDir.txt')
+            msg = 'Diffusion weighted directions saved in ' + jph(pfo_output, fin_scan + '_DwDir.txt')
             print(msg)
 
         # DwEffBval and DwGradVec are divided by shells
@@ -319,12 +322,12 @@ def write_struct(struct,
             b_vals = struct['method']['DwEffBval']
             b_vects = struct['method']['DwGradVec']
 
-            np.savetxt(jph(pfo_output, fin_scan + 'DwEffBval.txt'), b_vals, fmt='%.14f')
-            np.savetxt(jph(pfo_output, fin_scan + 'DwGradVec.txt'), b_vects, fmt='%.14f')
+            np.savetxt(jph(pfo_output, fin_scan + '_DwEffBval.txt'), b_vals, fmt='%.14f')
+            np.savetxt(jph(pfo_output, fin_scan + '_DwGradVec.txt'), b_vects, fmt='%.14f')
 
             if verbose > 0:
-                print('B-vectors saved in {}'.format(jph(pfo_output, fin_scan + 'DwEffBval.txt')))
-                print('B-values  saved in {}'.format(jph(pfo_output, fin_scan + 'DwGradVec.txt')))
+                print('B-vectors saved in {}'.format(jph(pfo_output, fin_scan + '_DwEffBval.txt')))
+                print('B-values  saved in {}'.format(jph(pfo_output, fin_scan + '_DwGradVec.txt')))
 
     # save the dictionary as numpy array containing the corresponding dictionaries
     np.save(jph(pfo_output, fin_scan + '_acqp.npy'),      struct['acqp'])
@@ -354,35 +357,44 @@ def write_struct(struct,
     for i in range(len(struct['nib_scans_list'])):
 
         if len(struct['nib_scans_list']) > 1:
-            i_label = str(i)
+            i_label = '_subscan_' + str(i)
         else:
-            i_label = '0'
+            i_label = ''
 
-        np.save(jph(pfo_output, fin_scan + '_subscan_' + i_label + '_reco.npy'), struct['visu_pars_list'][i])
+        # A) Save visu_pars for each sub-scan:
+        np.save(jph(pfo_output, fin_scan + i_label + '_visu_pars.npy'), struct['visu_pars_list'][i])
+
+        # B) Save single slope data for each sub-scan (from visu_pars):
+        np.save(jph(pfo_output, fin_scan + i_label + '_slope.npy'), struct['visu_pars_list'][i]['VisuCoreDataSlope'])
+
+        # A and B) save them both in .txt if human readable version of data is required.
         if save_human_readable:
-            from_dict_to_txt_sorted(struct['reco'], jph(pfo_output, fin_scan + '_subscan_' + i_label + '_reco.txt'))
+            from_dict_to_txt_sorted(struct['visu_pars_list'][i], jph(pfo_output, fin_scan + i_label + '_visu_pars.txt'))
+            np.savetxt(struct['visu_pars_list'][i]['VisuCoreDataSlope'], jph(pfo_output, fin_scan + i_label + '_slope.txt'))
 
-        summary_info_i = {i_label + "_info['visu_pars']['VisuCoreDataSlope']"   :
+        # Update dictionary for the summary:
+        summary_info_i = {i_label[1:] + "_info['visu_pars']['VisuCoreDataSlope']"   :
                               struct['visu_pars_list'][i]['VisuCoreDataSlope'],
-                          i_label + "_info['visu_pars']['VisuCoreSize']"        :
+                          i_label[1:] + "_info['visu_pars']['VisuCoreSize']"        :
                               struct['visu_pars_list'][i]['VisuCoreSize'],
-                          i_label + "_info['visu_pars']['VisuCoreOrientation']" :
+                          i_label[1:] + "_info['visu_pars']['VisuCoreOrientation']" :
                               struct['visu_pars_list'][i]['VisuCoreOrientation'],
-                          i_label + "_info['visu_pars']['VisuCorePosition']"    :
+                          i_label[1:] + "_info['visu_pars']['VisuCorePosition']"    :
                               struct['visu_pars_list'][i]['VisuCorePosition']}
 
         if struct['method']['SpatDimEnum'] == '2D':
             if 'VisuCoreSlicePacksSlices' in struct['visu_pars_list'][i].keys():
-                summary_info_i.update({i_label + "visu_pars['VisuCoreSlicePacksSlices']":
+                summary_info_i.update({i_label[1:] + "visu_pars['VisuCoreSlicePacksSlices']":
                                          struct['visu_pars_list'][i]['VisuCoreSlicePacksSlices']})
 
         summary_info.update(summary_info_i)
+        # C) Save the summary info with the updated information.
         from_dict_to_txt_sorted(summary_info, jph(pfo_output, fin_scan + 'summary.txt'))
 
         # WRITE INFO SUB-SCANNER
 
         if fin_scan == '':
-            pfi_scan = jph(pfo_output, 'scan_' + i_label + '.nii.gz')
+            pfi_scan = jph(pfo_output, 'scan' + i_label + '.nii.gz')
         else:
             pfi_scan = jph(pfo_output, fin_scan + i_label + '.nii.gz')
 
