@@ -370,7 +370,7 @@ def write_struct(struct,
         # A and B) save them both in .txt if human readable version of data is required.
         if save_human_readable:
             from_dict_to_txt_sorted(struct['visu_pars_list'][i], jph(pfo_output, fin_scan + i_label + '_visu_pars.txt'))
-            np.savetxt(struct['visu_pars_list'][i]['VisuCoreDataSlope'], jph(pfo_output, fin_scan + i_label + '_slope.txt'))
+            np.savetxt(jph(pfo_output, fin_scan + i_label + '_slope.txt'), struct['visu_pars_list'][i]['VisuCoreDataSlope'])
 
         # Update dictionary for the summary:
         summary_info_i = {i_label[1:] + "_info['visu_pars']['VisuCoreDataSlope']"   :
