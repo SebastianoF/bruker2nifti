@@ -269,6 +269,6 @@ paravision 6:
 
 
 ## WIP <a name="wip"></a>
-Expose Slope as single file.
-Parsers missing, good testing framework, individual shells DWI saving options, affine directions parsing 
-(Bruker convention still to explore).   
+
+Parsers for a single scan only drafted. Missing good testing framework. Individual shells DWI saving options, 
+understanding of the affine directions for Bruker data (Bruker convention still to be explored).   

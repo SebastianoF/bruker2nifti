@@ -28,19 +28,21 @@ def main():
     # study_name = None,
     parser.add_argument('-study_name',
                         dest='study_name',
-                        type=str,
                         default=None)
 
     # scans_list = None
     parser.add_argument('-scans_list',
                         dest='scans_list',
-                        type=list,
                         default=None)
 
     # list_new_name_each_scan = None,
     parser.add_argument('-list_new_name_each_scan',
                         dest='list_new_name_each_scan',
-                        type=list,
+                        default=None)
+
+    # list_new_nifti_file_names = None,
+    parser.add_argument('-list_new_nifti_file_names',
+                        dest='list_new_nifti_file_names',
                         default=None)
 
     # nifti_version = 1,
@@ -82,8 +84,8 @@ def main():
                         dest='correct_slope',
                         action='store_false')
     # verbose = 1
-    parser.add_argument('-scans_list',
-                        dest='scans_list',
+    parser.add_argument('-verbose', '-v',
+                        dest='verbose',
                         action='store_true')
 
     # Parse the input arguments
@@ -95,10 +97,10 @@ def main():
                     study_name=args.study_name,
                     scans_list=args.scans_list,
                     list_new_name_each_scan=args.list_new_name_each_scan,
+                    list_new_nifti_file_names=args.list_new_nifti_file_names,
                     nifti_version=args.nifti_version,
                     qform=args.qform,
                     sform=args.sform,
-                    axis_direction=args.axis_direction,
                     save_human_readable=args.save_human_readable,
                     normalise_b_vectors_if_dwi=args.normalise_b_vectors_if_dwi,
                     correct_slope=args.correct_slope,
