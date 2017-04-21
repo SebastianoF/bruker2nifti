@@ -35,7 +35,7 @@ def convert_a_study(pfo_study_brukert_input,
                     sform=1,
                     save_human_readable=True,
                     normalise_b_vectors_if_dwi=True,
-                    correct_slope=True,
+                    correct_slope=False,
                     verbose=1
                     ):
     """
@@ -43,23 +43,26 @@ def convert_a_study(pfo_study_brukert_input,
      all the scans in nifti format and the additional information as python dictionaries and readable and ordered .txt
      files.
     :param pfo_study_brukert_input: path to folder Bruker study.
-    :param pfo_study_nifti_output: path to folder where the converted study will be stored.
+    :param pfo_study_nifti_output: path to folder where the converted study will be stored (as a sub-folder).
     :param study_name: [None] study name, that will be the name of the main output folder with the new structure.
     :param scans_list: [None] scans of the study that will be converted.
         E.g. scans_list=('3', '4')
     If default None, all the study will be converted
-    :param list_new_name_each_scan: [None] list of the filename of the folder corresponding to each acquisition in the
+    :param list_new_name_each_scan: [None] list of the name of the folder corresponding to each acquisition in the
      same order of the parameter scan_list
         E.g, list_new_name_each_scan=('Patient supine', 'Patient prone')
         -> the scan '3' will be stored in the folder 'Patient supine' once converted and
          the scan '4' will be stored in the folder 'Patient prone'.
-    :param list_new_nifti_file_names:
+    :param list_new_nifti_file_names: [None] list of the name of the files inside each acquisition.
+        E.g. list_new_nifti_file_names=('pat123_sup', 'pat123_pro')
+        -> in the folder 'Patient supine' the nifti scan(s) will be (or start with) 'pat123_sup'.
+         in the folder 'Patient prone' the nifti scan(s) will be (or start with) 'pat123_pro'.
     :param nifti_version: see convert_a_scan.__doc__
-    :param qform:
-    :param sform:
-    :param save_human_readable:
-    :param normalise_b_vectors_if_dwi:
-    :param correct_slope:
+    :param qform: [2] qform of the header
+    :param sform: [1] sform of the ehader
+    :param save_human_readable: [True] other than .pyc, additional .txt will be saved.
+    :param normalise_b_vectors_if_dwi: [True]
+    :param correct_slope: [False] there is no correction for the slope parameters
     :param verbose: 0 no, 1 yes, 2 yes for debug
     :return: [None]
     """

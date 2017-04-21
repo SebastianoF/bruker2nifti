@@ -4,6 +4,8 @@ import sys
 import numpy as np
 import pprint
 
+from os.path import join as jph
+
 from _getters import get_list_scans, get_separate_shells_b_vals_b_vect_from_method
 from _utils import compute_affine, bruker_read_files, slope_corrector, normalise_b_vect, \
     from_dict_to_txt_sorted
@@ -70,7 +72,7 @@ def scan2struct(pfo_scan,
     system_endian_nes = sys.byteorder
 
     # Get sub-scans series in the same scan. Typically there is only one.
-    list_sub_scans = get_list_scans(os.path.join(pfo_scan, 'pdata'))
+    list_sub_scans = get_list_scans(jph(pfo_scan, 'pdata'))
 
     nib_scans_list = []
     visu_pars_list = []
@@ -87,8 +89,8 @@ def scan2struct(pfo_scan,
 
         # GET IMAGE DATA
 
-        if os.path.exists(os.path.join(pfo_scan, 'pdata', id_sub_scan, '2dseq')):
-            img_data_vol = np.copy(np.fromfile(os.path.join(pfo_scan, 'pdata', id_sub_scan, '2dseq'), dtype=dt))
+        if os.path.exists(jph(pfo_scan, 'pdata', id_sub_scan, '2dseq')):
+            img_data_vol = np.copy(np.fromfile(jph(pfo_scan, 'pdata', id_sub_scan, '2dseq'), dtype=dt))
         else:
             return 'no data'
 
@@ -278,16 +280,16 @@ def write_struct(struct,
     # -- WRITE Additional data shared by all the sub-scans:
 
     # if the modality is a DtiEpi or Dwimage then save the DW directions, b values and b vectors in separate csv .txt.
-    if 'dtiepi' in struct['method']['Method']:  # modality information
+    if 'dtiepi' in struct['method']['Method'].lower() or 'dwi' in struct['method']['Method'].lower():  # modality information
 
         dw_dir = struct['method']['DwDir']
         if normalise_b_vectors_if_dwi:
             dw_dir = normalise_b_vect(dw_dir)
 
-        np.savetxt(os.path.join(pfo_output, fin_scan + 'DwDir.txt'), dw_dir, fmt='%.14f')
+        np.savetxt(jph(pfo_output, fin_scan + 'DwDir.txt'), dw_dir, fmt='%.14f')
 
         if verbose > 0:
-            msg = 'Diffusion weighted directions saved in ' + os.path.join(pfo_output, fin_scan + 'DwDir.txt')
+            msg = 'Diffusion weighted directions saved in ' + jph(pfo_output, fin_scan + 'DwDir.txt')
             print(msg)
 
         # DwEffBval and DwGradVec are divided by shells
@@ -300,9 +302,9 @@ def write_struct(struct,
                 num_initial_dir_to_skip=num_initial_dir_to_skip)
             for i in range(num_shells):
                 modality = struct['method']['Method'].split(':')[-1]
-                path_b_vals_shell_i = os.path.join(pfo_output,
+                path_b_vals_shell_i = jph(pfo_output,
                                                    fin_scan + modality + '_DwEffBval_shell' + str(i) + '.txt')
-                path_b_vect_shell_i = os.path.join(pfo_output,
+                path_b_vect_shell_i = jph(pfo_output,
                                                    fin_scan + modality + '_DwGradVec_shell' + str(i) + '.txt')
 
                 np.savetxt(path_b_vals_shell_i, list_b_vals[i], fmt='%.14f')
@@ -317,23 +319,23 @@ def write_struct(struct,
             b_vals = struct['method']['DwEffBval']
             b_vects = struct['method']['DwGradVec']
 
-            np.savetxt(os.path.join(pfo_output, fin_scan + 'DwEffBval.txt'), b_vals, fmt='%.14f')
-            np.savetxt(os.path.join(pfo_output, fin_scan + 'DwGradVec.txt'), b_vects, fmt='%.14f')
+            np.savetxt(jph(pfo_output, fin_scan + 'DwEffBval.txt'), b_vals, fmt='%.14f')
+            np.savetxt(jph(pfo_output, fin_scan + 'DwGradVec.txt'), b_vects, fmt='%.14f')
 
             if verbose > 0:
-                print('B-vectors saved in {}'.format(os.path.join(pfo_output, fin_scan + 'DwEffBval.txt')))
-                print('B-values  saved in {}'.format(os.path.join(pfo_output, fin_scan + 'DwGradVec.txt')))
+                print('B-vectors saved in {}'.format(jph(pfo_output, fin_scan + 'DwEffBval.txt')))
+                print('B-values  saved in {}'.format(jph(pfo_output, fin_scan + 'DwGradVec.txt')))
 
     # save the dictionary as numpy array containing the corresponding dictionaries
-    np.save(os.path.join(pfo_output, fin_scan + 'acqp.npy'),      struct['acqp'])
-    np.save(os.path.join(pfo_output, fin_scan + 'method.npy'),    struct['method'])
-    np.save(os.path.join(pfo_output, fin_scan + 'reco.npy'),      struct['reco'])
+    np.save(jph(pfo_output, fin_scan + '_acqp.npy'),      struct['acqp'])
+    np.save(jph(pfo_output, fin_scan + '_method.npy'),    struct['method'])
+    np.save(jph(pfo_output, fin_scan + '_reco.npy'),      struct['reco'])
 
     # save in ordered readable txt files.
     if save_human_readable:
-        from_dict_to_txt_sorted(struct['acqp'],   os.path.join(pfo_output,   fin_scan + 'acqp.txt'))
-        from_dict_to_txt_sorted(struct['method'], os.path.join(pfo_output,   fin_scan + 'method.txt'))
-        from_dict_to_txt_sorted(struct['reco'],   os.path.join(pfo_output,   fin_scan + 'reco.txt'))
+        from_dict_to_txt_sorted(struct['acqp'],   jph(pfo_output,   fin_scan + '_acqp.txt'))
+        from_dict_to_txt_sorted(struct['method'], jph(pfo_output,   fin_scan + '_method.txt'))
+        from_dict_to_txt_sorted(struct['reco'],   jph(pfo_output,   fin_scan + '_reco.txt'))
 
     summary_info = {"info['acqp']['ACQ_sw_version']"    : struct['acqp']['ACQ_sw_version'],
                     "info['method']['SpatDimEnum']"     : struct['method']['SpatDimEnum'],
@@ -354,19 +356,19 @@ def write_struct(struct,
         if len(struct['nib_scans_list']) > 1:
             i_label = str(i)
         else:
-            i_label = ''
+            i_label = '0'
 
-        np.save(os.path.join(pfo_output, i_label + fin_scan + 'reco.npy'), struct['visu_pars_list'][i])
+        np.save(jph(pfo_output, fin_scan + '_subscan_' + i_label + '_reco.npy'), struct['visu_pars_list'][i])
         if save_human_readable:
-            from_dict_to_txt_sorted(struct['reco'], os.path.join(pfo_output, i_label + fin_scan + 'reco.txt'))
+            from_dict_to_txt_sorted(struct['reco'], jph(pfo_output, fin_scan + '_subscan_' + i_label + '_reco.txt'))
 
-        summary_info_i = {i_label + "info['visu_pars']['VisuCoreDataSlope']"   :
+        summary_info_i = {i_label + "_info['visu_pars']['VisuCoreDataSlope']"   :
                               struct['visu_pars_list'][i]['VisuCoreDataSlope'],
-                          i_label + "info['visu_pars']['VisuCoreSize']"        :
+                          i_label + "_info['visu_pars']['VisuCoreSize']"        :
                               struct['visu_pars_list'][i]['VisuCoreSize'],
-                          i_label + "info['visu_pars']['VisuCoreOrientation']" :
+                          i_label + "_info['visu_pars']['VisuCoreOrientation']" :
                               struct['visu_pars_list'][i]['VisuCoreOrientation'],
-                          i_label + "info['visu_pars']['VisuCorePosition']"    :
+                          i_label + "_info['visu_pars']['VisuCorePosition']"    :
                               struct['visu_pars_list'][i]['VisuCorePosition']}
 
         if struct['method']['SpatDimEnum'] == '2D':
@@ -375,13 +377,13 @@ def write_struct(struct,
                                          struct['visu_pars_list'][i]['VisuCoreSlicePacksSlices']})
 
         summary_info.update(summary_info_i)
-        from_dict_to_txt_sorted(summary_info, os.path.join(pfo_output, fin_scan + 'summary.txt'))
+        from_dict_to_txt_sorted(summary_info, jph(pfo_output, fin_scan + 'summary.txt'))
 
         # WRITE INFO SUB-SCANNER
 
         if fin_scan == '':
-            pfi_scan = os.path.join(pfo_output, 'scan_' + i_label + '.nii.gz')
+            pfi_scan = jph(pfo_output, 'scan_' + i_label + '.nii.gz')
         else:
-            pfi_scan = os.path.join(pfo_output, fin_scan + i_label + '.nii.gz')
+            pfi_scan = jph(pfo_output, fin_scan + i_label + '.nii.gz')
 
         nib.save(struct['nib_scans_list'][i], pfi_scan)

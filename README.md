@@ -269,5 +269,6 @@ paravision 6:
 
 
 ## WIP <a name="wip"></a>
+Expose Slope as single file.
 Parsers missing, good testing framework, individual shells DWI saving options, affine directions parsing 
 (Bruker convention still to explore).   
