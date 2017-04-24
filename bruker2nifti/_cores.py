@@ -39,10 +39,9 @@ def scan2struct(pfo_scan,
     :return: output_data data structure containing the nibabel image(s) {nib, acqp, method, reco, visu_pars}
     """
     # Note to the programmer: It can be certainly more elegant to divide this function in independent sub-functions;
-    # please BEWARE that every attempt made so far in this direction has failed, as the intricate mutual dependency
+    # please BEWARE that every attempt made so far in this direction has failed: the intricate mutual dependency
     # of the data can make this path very complicated!
 
-    # num_volumes_per_scan = len(list(visu_pars['VisuCoreSlicePacksSlices']))
     if not os.path.isdir(pfo_scan):
         raise IOError('Input folder does not exists.')
 
@@ -82,22 +81,22 @@ def scan2struct(pfo_scan,
 
     for id_sub_scan in list_sub_scans:
 
-        if separate_shells_if_dwi:
-            print(num_shells)
-            print(num_initial_dir_to_skip)
-            # TODO dvide here in subvolume with a nested for-loop, integrating the 'natural' sub-volumes.
-            pass
-
         visu_pars = bruker_read_files('visu_pars', pfo_scan, sub_scan_num=id_sub_scan)
 
-        # GET IMAGE DATA
+        # each sub-scan may have sub-volumes. All the sub-volumes have the same visu-pars.
+        if 'VisuCoreSlicePacksSlices' in visu_pars.keys():
+            num_sub_volumes_per_scan = len(list(visu_pars['VisuCoreSlicePacksSlices']))
+        else:
+            num_sub_volumes_per_scan =0
 
+        # GET IMAGE DATA
         if os.path.exists(jph(pfo_scan, 'pdata', id_sub_scan, '2dseq')):
             img_data_vol = np.copy(np.fromfile(jph(pfo_scan, 'pdata', id_sub_scan, '2dseq'), dtype=dt))
         else:
             return 'no data'
 
-        # -- GET PRE DIMENSION, DIMENSION AND RESOLUTION
+        # -- GET PRE DIMENSION (dimension compatible with the slope),
+        # DIMENSION (the one that we want to visualise) AND RESOLUTION
         # when 2D
         if method['SpatDimEnum'] == '2D':
 
@@ -195,20 +194,6 @@ def scan2struct(pfo_scan,
             shape_scan[0], shape_scan[1] = shape_scan[1], shape_scan[0]
             sp_resolution[0], sp_resolution[1] = sp_resolution[1], sp_resolution[0]
 
-        # -- GET ORIENTATION DIRECTIONS:
-
-        # TODO: look at visu_pars['VisuCoreOrientation'] as a 3x3 matrix with some meaning yet to be understood.
-        affine_directions = np.eye(3).dot(np.diag([-1, -1, 1]))
-        #affine_directions = visu_pars['VisuCoreOrientation'].reshape([3, 3], order='F')
-
-        # -- GET TRANSLATIONS:
-
-        translations = visu_pars['VisuCorePosition'][0]
-
-        # -- GET AFFINE
-
-        affine_transf = compute_affine(affine_directions, sp_resolution, translations)
-
         # -- PROCESS IMG_DATA
 
         if not data_endian_ness == system_endian_nes:
@@ -224,24 +209,102 @@ def scan2struct(pfo_scan,
         else:
             img_data_vol = img_data_vol.reshape(shape_scan, order='F')
 
-        # -- BUILD NIB IMAGE
+        if separate_shells_if_dwi:
+            # if it is a DWI we have only 1 subvolume as input data. If we want to divide for shells we consider
+            # the sub-volumes as the
+            assert num_sub_volumes_per_scan == 1
+            num_sub_volumes_per_scan = num_shells
+            print(num_shells)
 
-        if nifti_version == 1:
-            nib_im = nib.Nifti1Image(img_data_vol, affine=affine_transf)
-        elif nifti_version == 2:
-            nib_im = nib.Nifti2Image(img_data_vol, affine=affine_transf)
-        else:
-            raise IOError('Nifti versions allowed are 1 or 2.')
+            print(num_initial_dir_to_skip)
+            # TODO integrate the shells division as artificial sub-volumes.
 
-        hdr = nib_im.header
-        hdr.set_qform(affine_transf, qform)
-        hdr.set_sform(affine_transf, sform)
-        nib_im.update_header()
+        # -- SUB VOLUMES:
+        if num_sub_volumes_per_scan > 1 and method['SpatDimEnum'] == '2D' and 'flash' in method['Method'].lower():
+            # sub volumes have been only encoded in 2D SpatDimEnum images for the elements seen so far.
 
-        # UPDATE VARIABLES:
+            # the shape of the 3D scan must be a multiple integer of the name of the sub-volumes.
+            assert shape_scan[2] % num_sub_volumes_per_scan == 0
 
+            # -- GET SHAPE
+            vol_shape = shape_scan[0], shape_scan[1], int(shape_scan[2] / num_sub_volumes_per_scan)
+
+            nib_sub_vol_list = []
+
+            for id_sub_vol in range(num_sub_volumes_per_scan):
+
+                # -- GET ORIENTATION DIRECTIONS:
+                # col major?
+                affine_directions = visu_pars['VisuCoreOrientation'][id_sub_vol * vol_shape[2]].reshape([3, 3],
+                                                                                                        order='F')
+                # nifti is voxel to world. Is VisuCoreOrientation world to voxel?
+                affine_directions = np.linalg.inv(affine_directions)
+
+                # -- GET TRANSLATIONS:
+                translations = visu_pars['VisuCorePosition'][id_sub_vol * vol_shape[2]]
+
+                # -- GET AFFINE
+
+                affine_transf = compute_affine(affine_directions, sp_resolution, translations)
+
+                # -- EXTRACT VOLUME
+                img_data_sub_vol = img_data_vol[..., id_sub_vol * vol_shape[2] :
+                                                     (id_sub_vol + 1) * vol_shape[2]]
+
+                # -- BUILD NIB IMAGE
+
+                if nifti_version == 1:
+                    nib_im_sub_vol = nib.Nifti1Image(img_data_sub_vol, affine=affine_transf)
+                elif nifti_version == 2:
+                    nib_im_sub_vol = nib.Nifti2Image(img_data_sub_vol, affine=affine_transf)
+                else:
+                    raise IOError('Nifti versions allowed are 1 or 2.')
+
+                hdr_sub_vol = nib_im_sub_vol.header
+                hdr_sub_vol.set_qform(affine_transf, qform)
+                hdr_sub_vol.set_sform(affine_transf, sform)
+                nib_im_sub_vol.update_header()
+
+                # UPDATE VARIABLES:
+                nib_sub_vol_list.append(nib_im_sub_vol)
+
+            nib_scans_list.append(nib_sub_vol_list)
+
+        else:  # only one sub-volume:
+
+            # -- GET ORIENTATION DIRECTIONS:
+
+            # TODO: temporary solution. Orientation issue needs to be addressed:
+            affine_directions = np.eye(3).dot(np.diag([-1, -1, 1]))
+            #affine_directions = visu_pars['VisuCoreOrientation'].reshape([3, 3], order='F')
+
+            # -- GET TRANSLATIONS:
+
+            translations = visu_pars['VisuCorePosition'][0]
+
+            # -- GET AFFINE
+
+            affine_transf = compute_affine(affine_directions, sp_resolution, translations)
+
+            # -- BUILD NIB IMAGE
+
+            if nifti_version == 1:
+                nib_im = nib.Nifti1Image(img_data_vol, affine=affine_transf)
+            elif nifti_version == 2:
+                nib_im = nib.Nifti2Image(img_data_vol, affine=affine_transf)
+            else:
+                raise IOError('Nifti versions allowed are 1 or 2.')
+
+            hdr = nib_im.header
+            hdr.set_qform(affine_transf, qform)
+            hdr.set_sform(affine_transf, sform)
+            nib_im.update_header()
+
+            # UPDATE VARIABLES:
+
+            nib_scans_list.append(nib_im)
+        # append the visu pars both if there are sub-volumes or not.
         visu_pars_list.append(visu_pars)
-        nib_scans_list.append(nib_im)
 
     # -- RETURN DATA STRUCTURE
 
@@ -265,7 +328,11 @@ def write_struct(struct,
                  verbose=1):
 
     if not os.path.isdir(pfo_output):
-            raise IOError('Output folder does not exists.')
+        raise IOError('Output folder does not exists.')
+
+    if not len(struct['visu_pars_list']) == len(struct['nib_scans_list']):
+        raise IOError('Visu pars list and scans list have a different number of elements.')
+
     if fin_scan is None:
         fin_scan = ''
     # print ordered dictionaries values to console (logorrheic rather than verbose!)
@@ -277,9 +344,6 @@ def write_struct(struct,
         print('\n\n -------------- reco --------------')
         print(pprint.pprint(struct['reco']))
         print('\n\n -----------------------------------')
-
-    if not len(struct['nib_scans_list']) == len(struct['visu_pars_list']):
-        raise IOError
 
     # -- WRITE Additional data shared by all the sub-scans:
 
@@ -371,7 +435,7 @@ def write_struct(struct,
 
     # WRITE DATA SPECIFIC FOR EACH Sub-scan:
 
-    for i in range(len(struct['nib_scans_list'])):
+    for i in range(len(struct['visu_pars_list'])):
 
         if len(struct['nib_scans_list']) > 1:
             i_label = '_subscan_' + str(i) + '_'
@@ -413,10 +477,24 @@ def write_struct(struct,
         # C) Save the summary info with the updated information.
         from_dict_to_txt_sorted(summary_info, jph(pfo_output, fin_scan + '_summary.txt'))
 
-        # WRITE INFO SUB-SCANNER
-        if fin_scan == '':
-            pfi_scan = jph(pfo_output, 'scan' + i_label[:-1] + '.nii.gz')
-        else:
-            pfi_scan = jph(pfo_output, fin_scan + i_label[:-1] + '.nii.gz')
+        # WRITE NIFTI IMAGES:
 
-        nib.save(struct['nib_scans_list'][i], pfi_scan)
+        if isinstance(struct['nib_scans_list'][i], list):
+
+            # the scan had sub-volumes embedded. they are saved separately
+            for sub_vol_id, subvol in enumerate(struct['nib_scans_list'][i]):
+
+                if fin_scan == '':
+                    pfi_scan = jph(pfo_output, 'scan' + i_label[:-1] + '_subvol_' + str(sub_vol_id) + '.nii.gz')
+                else:
+                    pfi_scan = jph(pfo_output, fin_scan + i_label[:-1] + '_subvol_' + str(sub_vol_id) + '.nii.gz')
+
+                nib.save(subvol, pfi_scan)
+
+        else:
+            if fin_scan == '':
+                pfi_scan = jph(pfo_output, 'scan' + i_label[:-1] + '.nii.gz')
+            else:
+                pfi_scan = jph(pfo_output, fin_scan + i_label[:-1] + '.nii.gz')
+
+            nib.save(struct['nib_scans_list'][i], pfi_scan)

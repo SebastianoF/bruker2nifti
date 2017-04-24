@@ -1,18 +1,19 @@
 ## bruker2nifti: conversion from Bruker raw format to nifti
 
-Python 2.7 and Python 3 compatible.
+Python 2.7 and Python 3 compatible. Most of the time, Pep-8 convention.
 
 ### Table of Contents
 + [Glossary](#glossary)
 + [Code rationale](#rationale)
 + [Common file structure](#file_structure)
++ [Example](#example)
 + [Instructions](#instructions)
 + [Utilities](#utilities)
 + [Thanks](#thanks)
 + [Wip](#wip)
 
 
-### Glossary <a name="glossary"></a>
+### Definitions <a name="glossary"></a>
 
 **study**: a series of acquisition related to the same subject, acquired in the same scanning session
 and usually containing multiple scans.
@@ -46,7 +47,6 @@ according to your needs.
 Further versions may sacrifice readability for the sake of efficiency only
 when the standards will be established and tested.
 
-In the range of my possibilities PEP-8 convention is followed.
 
 The code is written an runs in python 2.7 (cross compatibility with python 3 is implemented when possible).
 The choice of Python programming language is after personal preferences, the availability of nibabel library,
@@ -92,14 +92,15 @@ where each folder numbered 1 to 6 is a **scan**, whose sub-structure can be
 │   ├── spnam23
 │   └── uxnmr.par
 ```
-Under pdata 
+Under pdata the (unzipped) file **2dseq** contains the information of the image volume. **d3proc** contains a summary of 
+the relevant information relate to the volume (lacking of orientation and resolution, among others). 
 
 The Bruker structure contains more information than the one required to fill a
 nifti header (scanner setting, location, users, sample or subject scanned biometrics
 can appear in the Bruker raw data, if filled when scanning the data).
 To obtain relevant information to fill the nifti header (and b-values and b-vectors if any) 
 we can restrict our attention towards
-**method**, **acqp**, **reco** and **visu_pars**. The img_data is stored in the file **2dseq**.
+**method**, **acqp**, **reco** and **visu_pars**.
 
 
 A study structure in paravision 6 can be:
@@ -151,32 +152,21 @@ again in the files
 method, acqp, reco and visu_pars. The img_data is stored in the file 2dseq.
 
 
+## Example <a name="example"></a>
 
-## Code structure:
+You can convert a study from the parsers without any installation, with 
+```
+python parsers/bruker2nii -i path/to/bruker/study -o path/to/output/folder
+```
+To convert a scan, to modify the code or to call the code with an import within other python module it is recommended to
+install the library following the next instructions.
 
-+ **bruker2nifti._cores.py** contains the core of the parser. It is not possible to disentangle the information of some
-of the raw Brukert files and parse them individually with individual parsers to create the nifti. Data useful to 
-build the nifti are stored in an intermediate structure, called struct (yes, I know...), that is than used to
-create and save the nifti image(s) and the file.
-+ **bruker2nifti._utils.py** contains the utils, whose core is the method indian_file_parser component of the bridge 
-parsing the text contained in the main raw bruker structure into dictionaries.
-+ **bruker2nifti.scan_converter.py** contains the code to convert a single scan.
-The main method convert_a_scan put togheter the main components get_info_and_img_data, write_info and write_to_nifti.
-+ **bruker2nifti.study_converter.py** contains the code to convert a study.
-The main method convert_a_study browse the study folder and apply convert_a_scan to all the scans contained.
-Results are saved in a folder structure homologous to bruker study with the files converted to nifti.
-+ The folder **parsers** contains some parsers that can be used to access the method directly
-from command line.
-
-<!---
-## Examples:
---->
 
 ### Instructions <a name="instructions"></a>
 
 + Install python requirements in requirements.txt with
 ```
-pip install -r requirements.txt
+pip install -r requirements.txt 
 ```
 
 in a [virtualenv](http://docs.python-guide.org/en/latest/dev/virtualenvs/).
@@ -226,6 +216,23 @@ To delete the library in the virtualenv in case something really wrong happen an
 ```
 sudo rm -rf /path_to_site_packages_in_virtualenv/site-packages/bruker2nifti*
 ```
+
+## Code structure:
+
++ **bruker2nifti._cores.py** contains the core of the parser. It is not possible to disentangle the information of some
+of the raw Brukert files and parse them individually with individual parsers to create the nifti. Data useful to 
+build the nifti are stored in an intermediate structure, called struct (yes, I know...), that is than used to
+create and save the nifti image(s) and the file.
++ **bruker2nifti._utils.py** contains the utils, whose core is the method indian_file_parser component of the bridge 
+parsing the text contained in the main raw bruker structure into dictionaries.
++ **bruker2nifti.scan_converter.py** contains the code to convert a single scan.
+The main method convert_a_scan put togheter the main components get_info_and_img_data, write_info and write_to_nifti.
++ **bruker2nifti.study_converter.py** contains the code to convert a study.
+The main method convert_a_study browse the study folder and apply convert_a_scan to all the scans contained.
+Results are saved in a folder structure homologous to bruker study with the files converted to nifti.
++ The folder **parsers** contains some parsers that can be used to access the method directly
+from command line.
+
 
 ### Utilities <a name="utilities"></a>
 
