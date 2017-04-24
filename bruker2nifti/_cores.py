@@ -199,6 +199,7 @@ def scan2struct(pfo_scan,
 
         # TODO: look at visu_pars['VisuCoreOrientation'] as a 3x3 matrix with some meaning yet to be understood.
         affine_directions = np.eye(3).dot(np.diag([-1, -1, 1]))
+        #affine_directions = visu_pars['VisuCoreOrientation'].reshape([3, 3], order='F')
 
         # -- GET TRANSLATIONS:
 
@@ -408,11 +409,11 @@ def write_struct(struct,
                                          struct['visu_pars_list'][i]['VisuCoreSlicePacksSlices']})
 
         summary_info.update(summary_info_i)
+
         # C) Save the summary info with the updated information.
         from_dict_to_txt_sorted(summary_info, jph(pfo_output, fin_scan + '_summary.txt'))
 
         # WRITE INFO SUB-SCANNER
-
         if fin_scan == '':
             pfi_scan = jph(pfo_output, 'scan' + i_label[:-1] + '.nii.gz')
         else:
