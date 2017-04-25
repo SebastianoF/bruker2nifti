@@ -285,12 +285,14 @@ def slope_corrector(data, slope, num_initial_dir_to_skip=None):
     return data
 
 
-def compute_affine(directions, resolution, translations):
+def compute_affine(visu_core_orientation, resolution, translations):
 
-    #
-    result = np.eye(4)
+    # nifti is voxel to world. Is VisuCoreOrientation world to voxel? Seems yes.
+    visu_core_orientation = np.linalg.inv(visu_core_orientation).astype(np.float64)
+
+    result = np.zeros(4)
     # rotational part - multiply directions on the left
-    result[0:3, 0:3] = directions.dot(np.diag(resolution))
+    result[0:3, 0:3] = visu_core_orientation.dot(np.diag(resolution))
     # translational part
     result[0:3, 3] = translations
 

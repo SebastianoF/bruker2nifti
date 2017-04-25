@@ -235,17 +235,15 @@ def scan2struct(pfo_scan,
 
                 # -- GET ORIENTATION DIRECTIONS:
                 # col major?
-                affine_directions = visu_pars['VisuCoreOrientation'][id_sub_vol * vol_shape[2]].reshape([3, 3],
+                visu_core_orientation = visu_pars['VisuCoreOrientation'][id_sub_vol * vol_shape[2]].reshape([3, 3],
                                                                                                         order='F')
-                # nifti is voxel to world. Is VisuCoreOrientation world to voxel?
-                affine_directions = np.linalg.inv(affine_directions)
 
                 # -- GET TRANSLATIONS:
                 translations = visu_pars['VisuCorePosition'][id_sub_vol * vol_shape[2]]
 
                 # -- GET AFFINE
 
-                affine_transf = compute_affine(affine_directions, sp_resolution, translations)
+                affine_transf = compute_affine(visu_core_orientation, sp_resolution, translations)
 
                 # -- EXTRACT VOLUME
                 img_data_sub_vol = img_data_vol[..., id_sub_vol * vol_shape[2] :
@@ -274,9 +272,9 @@ def scan2struct(pfo_scan,
 
             # -- GET ORIENTATION DIRECTIONS:
 
-            # TODO: temporary solution. Orientation issue needs to be addressed:
-            affine_directions = np.eye(3).dot(np.diag([-1, -1, 1]))
-            #affine_directions = visu_pars['VisuCoreOrientation'].reshape([3, 3], order='F')
+            # TODO: temporary solution.  issue needs to be addressed:
+            #affine_directions = np.eye(3).dot(np.diag([-1, -1, 1]))
+            affine_directions = visu_pars['VisuCoreOrientation'][0].reshape([3, 3], order='F')
 
             # -- GET TRANSLATIONS:
 

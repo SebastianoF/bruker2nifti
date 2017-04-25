@@ -239,6 +239,11 @@ from command line.
 + [official documentation nifti format](https://nifti.nimh.nih.gov/nifti-1)
 + [non-official documentation nifti format](https://brainder.org/2012/09/23/the-nifti-file-format/)
 + [nibabel python library](http://nipy.org/nibabel/)
++ [bruker format info](http://imaging.mrc-cbu.cam.ac.uk/imaging/FormatBruker) one of the few places where to find 
+information about Bruker format. 
++ [pvconv](https://github.com/matthew-brett/pvconv) from Bruker to Analyze, Perl.
++ [Bru2Nii](https://github.com/neurolabusc/Bru2Nii) from Bruker to Nifti, Pascal.
++ [mpi](https://github.com/francopestilli/mpi) from Bruker to Vistasoft in Matlab.
 
 ## Thanks <a name="thanks"></a>
 
@@ -274,8 +279,8 @@ paravision 6:
 
 --->
 
-
+ 
 ## WIP <a name="wip"></a>
 
-Parsers for a single scan only drafted. Missing good testing framework. Individual shells DWI saving options, 
-understanding of the affine directions for Bruker data (Bruker convention still to be explored).   
+Parsers for a single scan only drafted. Missing good testing framework. Individual shells DWI saving options. 
+Affine directions for Bruker data (Bruker convention still to be explored) to nifti to be understand.   
