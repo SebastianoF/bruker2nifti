@@ -8,7 +8,7 @@ from os.path import join as jph
 
 from _getters import get_list_scans, get_separate_shells_b_vals_b_vect_from_method
 from _utils import compute_affine, bruker_read_files, slope_corrector, normalise_b_vect, \
-    from_dict_to_txt_sorted
+    from_dict_to_txt_sorted, set_new_data
 
 
 def scan2struct(pfo_scan,
@@ -84,9 +84,13 @@ def scan2struct(pfo_scan,
         visu_pars = bruker_read_files('visu_pars', pfo_scan, sub_scan_num=id_sub_scan)
 
         # each sub-scan may have sub-volumes. All the sub-volumes have the same visu-pars.
-        # Number of sub-volumes is recovered from
-        slice_orient_list = method['SPackArrSliceOrient'].strip().split(' ')
-        num_sub_volumes_per_scan = len(slice_orient_list)
+        # Number of sub-volumes is recovered from 'SPackArrSliceOrient'
+        if 'SPackArrSliceOrient' in method.keys():
+            slice_orient_list = method['SPackArrSliceOrient'].strip().split(' ')
+            num_sub_volumes_per_scan = len(slice_orient_list)
+        else:
+            slice_orient_list = 'Axial'
+            num_sub_volumes_per_scan = 0
 
         # if 'VisuCoreSlicePacksSlices' in visu_pars.keys():
         #     num_sub_volumes_per_scan = len(slice_orient_list)
@@ -248,7 +252,8 @@ def scan2struct(pfo_scan,
                 translations = visu_pars['VisuCorePosition'][id_sub_vol * vol_shape[2]]
 
                 # -- GET AFFINE
-                affine_transf = compute_affine(visu_core_orientation, method_slice_orient, sp_resolution, translations)
+                affine_transf = compute_affine(visu_core_orientation, method_slice_orient, method['Method'],
+                                               sp_resolution, translations)
 
                 # -- EXTRACT VOLUME
                 img_data_sub_vol = img_data_vol[..., id_sub_vol * vol_shape[2] :
@@ -290,7 +295,8 @@ def scan2struct(pfo_scan,
 
             # -- GET AFFINE
 
-            affine_transf = compute_affine(affine_directions, method_slice_orient, sp_resolution, translations)
+            affine_transf = compute_affine(affine_directions, method_slice_orient, method['Method'], sp_resolution,
+                                           translations)
 
             # -- BUILD NIB IMAGE
 
@@ -433,6 +439,7 @@ def write_struct(struct,
                     "method['SpatDimEnum']"             : struct['method']['SpatDimEnum'],
                     "method['Matrix']"                  : struct['method']['Matrix'],
                     "method['SpatResol']"               : struct['method']['SpatResol'],
+                    "method['Method']"                  : struct['method']['Method'],
                     "method['SPackArrSliceOrient']"     : struct['method']['SPackArrSliceOrient'],
                     "reco['RECO_size']"                 : struct['reco']['RECO_size'],
                     "reco['RECO_inp_order']"            : struct['reco']['RECO_inp_order'],
@@ -514,9 +521,8 @@ def write_struct(struct,
                     pfi_scan = jph(pfo_output, 'b0_scan' + i_label[:-1] + '.nii.gz')
                 else:
                     pfi_scan = jph(pfo_output, 'b0_' + fin_scan + i_label[:-1] + '.nii.gz')
-
-                nib.save(struct['nib_scans_list'][i][..., 0], pfi_scan)
-
+                nib.save(set_new_data(struct['nib_scans_list'][i], struct['nib_scans_list'][i].get_data()[..., 0]),
+                         pfi_scan)
                 if verbose > 0:
                     msg = 'b0 scan saved alone in ' + pfi_scan
                     print(msg)

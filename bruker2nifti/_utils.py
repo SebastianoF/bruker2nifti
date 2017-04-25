@@ -1,5 +1,6 @@
 import numpy as np
 import os
+import nibabel as nib
 from os.path import join as jph
 
 from sympy.core.cache import clear_cache
@@ -285,7 +286,7 @@ def slope_corrector(data, slope, num_initial_dir_to_skip=None):
     return data
 
 
-def compute_affine(visu_core_orientation, method_slice_orient, resolution, translation):
+def compute_affine(visu_core_orientation, method_slice_orient, method_method, resolution, translation):
     """
     Converts the relevant (or supposed so) information from the Bruker files into the affine transformation
     of the nifti image.
@@ -293,11 +294,13 @@ def compute_affine(visu_core_orientation, method_slice_orient, resolution, trans
     Information that are believed to be relevant are:
      visu_pars['VisuCoreOrientation'] -> visu_core_orientation
      method['SPackArrSliceOrient']    -> method_slice_orient
+     method['Method']                 -> method_method
      visu_pars['VisuCorePosition']    -> translations
      list(method['SpatResol']         ->  resolution  (+ acqp['ACQ_slice_thick'] if 2D)
     ---
     :param visu_core_orientation: 9x1 matrix
     :param method_slice_orient: can be 'axial' 'sagittal' 'coronal'
+    :param method_method: acquisition modality as ''RARE' or 'DtiEpi' or 'MSME'
     :param resolution: 3x1 matrix
     :param translation: 3x1 matrix
     :return:
@@ -309,10 +312,19 @@ def compute_affine(visu_core_orientation, method_slice_orient, resolution, trans
     # nifti is voxel to world. Is VisuCoreOrientation world to voxel? Seems yes.
     visu_core_orientation = np.linalg.inv(visu_core_orientation).astype(np.float64)
 
-    # table based on empirical evaluations - (visu_core_orientation not used in this version).
-    slice_orient_map = {'axial'    : np.array([[-1, 0, 0], [0, 0, -1], [0, -1, 0]]),  # RSA
-                        'sagittal' : np.array([[0, 0, -1], [0, -1, 0], [-1, 0, 0]]),  # SAR
-                        'coronal'  : np.array([[-1, 0, 0], [0, -1, 0], [0, 0, 1]])}   # RAI
+    # tables below are based on empirical evaluations - (visu_core_orientation not used in this version).
+    invert_ap = False
+    if 'dtiepi' in method_method.lower() or 'msme' in method_method.lower():
+        invert_ap = True
+
+    if invert_ap:
+        slice_orient_map = {'axial':    np.array([[-1, 0, 0], [0, 0, 1], [0, -1, 0]]),  # RSP
+                            'sagittal': np.array([[0, 0, -1], [0, 1, 0], [-1, 0, 0]]),  # SPR
+                            'coronal':  np.array([[-1, 0, 0], [0, 1, 0], [0, 0, 1]])}   # RPI
+    else:
+        slice_orient_map = {'axial'    : np.array([[-1, 0, 0], [0, 0, -1], [0, -1, 0]]),  # RSA
+                            'sagittal' : np.array([[0, 0, -1], [0, -1, 0], [-1, 0, 0]]),  # SAR
+                            'coronal'  : np.array([[-1, 0, 0], [0, -1, 0], [0, 0, 1]])}   # RAI
 
     if method_slice_orient not in slice_orient_map.keys():
         raise IOError("Double check the attribute method['SPackArrSliceOrient'].")
@@ -324,7 +336,10 @@ def compute_affine(visu_core_orientation, method_slice_orient, resolution, trans
     result[0:3, 3] = translation
 
     # sanity check
-    assert abs(np.linalg.det(result) - np.prod(resolution)) < 10e-7
+    if invert_ap:
+        assert abs(np.linalg.det(result) + np.prod(resolution)) < 10e-7
+    else:
+        assert abs(np.linalg.det(result) - np.prod(resolution)) < 10e-7
 
     return result
 
@@ -340,3 +355,34 @@ def from_dict_to_txt_sorted(dict_input, pfi_output):
 
     with open(pfi_output, 'w') as f:
         f.writelines('{0} = {1} \n'.format(k, dict_input[k]) for k in sorted_keys)
+
+
+def set_new_data(image, new_data, new_dtype=None, remove_nan=True):
+    """
+    From a nibabel image and a numpy array it creates a new image with
+    the same header of the image and the new_data as its data.
+    :param image: nibabel image
+    :param new_data: numpy array
+    :param new_dtype:
+    :param remove_nan:
+    :return: nibabel image
+    """
+    if remove_nan:
+        new_data = np.nan_to_num(new_data)
+
+    # if nifty1
+    if image.header['sizeof_hdr'] == 348:
+        new_image = nib.Nifti1Image(new_data, image.affine, header=image.header)
+    # if nifty2
+    elif image.header['sizeof_hdr'] == 540:
+        new_image = nib.Nifti2Image(new_data, image.affine, header=image.header)
+    else:
+        raise IOError('Input image header problem')
+
+    # update data type:
+    if new_dtype is None:
+        new_image.set_data_dtype(new_data.dtype)
+    else:
+        new_image.set_data_dtype(new_dtype)
+
+    return new_image
