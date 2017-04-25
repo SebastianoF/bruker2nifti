@@ -286,15 +286,17 @@ def slope_corrector(data, slope, num_initial_dir_to_skip=None):
     return data
 
 
-def compute_affine(visu_core_orientation, method_slice_orient, method_method, resolution, translation):
+def compute_affine(visu_core_orientation, method_slice_orient, method_spack_read_orient, method_method,
+                   resolution, translation):
     """
     Converts the relevant (or supposed so) information from the Bruker files into the affine transformation
     of the nifti image.
     ---
     Information that are believed to be relevant are:
-     visu_pars['VisuCoreOrientation'] -> visu_core_orientation
+     visu_pars['VisuCoreOrientation'] -> visu_core_orientation  (not used yet but believed to be relevant)
      method['SPackArrSliceOrient']    -> method_slice_orient
-     method['Method']                 -> method_method
+     method['SPackArrReadOrient']    -> method_spack_read_orient
+     method['Method']                 -> method_method       (not used yet but may be relevant for debub)
      visu_pars['VisuCorePosition']    -> translations
      list(method['SpatResol']         ->  resolution  (+ acqp['ACQ_slice_thick'] if 2D)
     ---
@@ -307,14 +309,14 @@ def compute_affine(visu_core_orientation, method_slice_orient, method_method, re
     """
     # Not yet clear how to use visu_core_orientation and method_slice_orient to obtain the orientation matrix in
     # a consistent way. Based on empirical experiments for the moment.
-    # TODO orientation requires further examination.
+    # TODO orientation requires further examination and proper testing before cleaning up this part of the code.
 
     # nifti is voxel to world. Is VisuCoreOrientation world to voxel? Seems yes.
     visu_core_orientation = np.linalg.inv(visu_core_orientation).astype(np.float64)
 
     # tables below are based on empirical evaluations - (visu_core_orientation not used in this version).
     invert_ap = False
-    if 'dtiepi' in method_method.lower() or 'msme' in method_method.lower():
+    if method_spack_read_orient == 'A_P':
         invert_ap = True
 
     if invert_ap:

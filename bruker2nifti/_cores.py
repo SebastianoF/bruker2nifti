@@ -92,7 +92,7 @@ def scan2struct(pfo_scan,
             slice_orient_list = 'Axial'
             num_sub_volumes_per_scan = 0
 
-        # if 'VisuCoreSlicePacksSlices' in visu_pars.keys():
+            # if 'VisuCoreSlicePacksSlices' in visu_pars.keys():
         #     num_sub_volumes_per_scan = len(slice_orient_list)
         #     # check as well method['SPackArrSliceOrient'].strip().split(' ')
         # else:
@@ -235,6 +235,8 @@ def scan2struct(pfo_scan,
             # the shape of the 3D scan must be a multiple integer of the name of the sub-volumes.
             assert shape_scan[2] % num_sub_volumes_per_scan == 0
 
+            spack_read_orient_list = method['SPackArrReadOrient'].strip().split(' ')
+
             # -- GET SHAPE
             vol_shape = shape_scan[0], shape_scan[1], int(shape_scan[2] / num_sub_volumes_per_scan)
 
@@ -248,12 +250,16 @@ def scan2struct(pfo_scan,
                 # -- GET SLICE ORIENT
                 method_slice_orient = slice_orient_list[id_sub_vol]
 
+                # -- GET ARR ORIENT - yes some are acquired, and stored in the volume from R to L or P to A or H to F or
+                # vice versa
+                method_spack_read_orient = spack_read_orient_list[id_sub_vol]
+
                 # -- GET TRANSLATIONS:
                 translations = visu_pars['VisuCorePosition'][id_sub_vol * vol_shape[2]]
 
                 # -- GET AFFINE
-                affine_transf = compute_affine(visu_core_orientation, method_slice_orient, method['Method'],
-                                               sp_resolution, translations)
+                affine_transf = compute_affine(visu_core_orientation, method_slice_orient, method_spack_read_orient,
+                                               method['Method'], sp_resolution, translations)
 
                 # -- EXTRACT VOLUME
                 img_data_sub_vol = img_data_vol[..., id_sub_vol * vol_shape[2] :
@@ -289,14 +295,18 @@ def scan2struct(pfo_scan,
             # -- GET SLICE ORIENT
             method_slice_orient = method['SPackArrSliceOrient'].strip()
 
+            # -- GET ARR ORIENT - yes some are acquired, and stored in the volume from R to L or P to A or H to F or
+            # vice versa
+            method_spack_read_orient = method['SPackArrReadOrient']
+
             # -- GET TRANSLATIONS:
 
             translations = visu_pars['VisuCorePosition'][0]
 
             # -- GET AFFINE
 
-            affine_transf = compute_affine(affine_directions, method_slice_orient, method['Method'], sp_resolution,
-                                           translations)
+            affine_transf = compute_affine(affine_directions, method_slice_orient, method_spack_read_orient,
+                                           method['Method'], sp_resolution, translations)
 
             # -- BUILD NIB IMAGE
 
@@ -441,6 +451,7 @@ def write_struct(struct,
                     "method['SpatResol']"               : struct['method']['SpatResol'],
                     "method['Method']"                  : struct['method']['Method'],
                     "method['SPackArrSliceOrient']"     : struct['method']['SPackArrSliceOrient'],
+                    "method['SPackArrReadOrient']"      : struct['method']['SPackArrReadOrient'],
                     "reco['RECO_size']"                 : struct['reco']['RECO_size'],
                     "reco['RECO_inp_order']"            : struct['reco']['RECO_inp_order'],
                     "acqp['NR']"                        : struct['acqp']['NR'],
