@@ -285,17 +285,45 @@ def slope_corrector(data, slope, num_initial_dir_to_skip=None):
     return data
 
 
-def compute_affine(visu_core_orientation, resolution, translations):
+def compute_affine(visu_core_orientation, method_slice_orient, resolution, translation):
+    """
+    Converts the relevant (or supposed so) information from the Bruker files into the affine transformation
+    of the nifti image.
+    ---
+    Information that are believed to be relevant are:
+     visu_pars['VisuCoreOrientation'] -> visu_core_orientation
+     method['SPackArrSliceOrient']    -> method_slice_orient
+     visu_pars['VisuCorePosition']    -> translations
+     list(method['SpatResol']         ->  resolution  (+ acqp['ACQ_slice_thick'] if 2D)
+    ---
+    :param visu_core_orientation: 9x1 matrix
+    :param method_slice_orient: can be 'axial' 'sagittal' 'coronal'
+    :param resolution: 3x1 matrix
+    :param translation: 3x1 matrix
+    :return:
+    """
+    # Not yet clear how to use visu_core_orientation and method_slice_orient to obtain the orientation matrix in
+    # a consistent way. Based on empirical experiments for the moment.
+    # TODO orientation requires further examination.
 
     # nifti is voxel to world. Is VisuCoreOrientation world to voxel? Seems yes.
     visu_core_orientation = np.linalg.inv(visu_core_orientation).astype(np.float64)
 
-    result = np.zeros(4)
-    # rotational part - multiply directions on the left
-    result[0:3, 0:3] = visu_core_orientation.dot(np.diag(resolution))
-    # translational part
-    result[0:3, 3] = translations
+    # table based on empirical evaluations - (visu_core_orientation not used in this version).
+    slice_orient_map = {'axial'    : np.array([[-1, 0, 0], [0, 0, -1], [0, -1, 0]]),  # RSA
+                        'sagittal' : np.array([[0, 0, -1], [0, -1, 0], [-1, 0, 0]]),  # SAR
+                        'coronal'  : np.array([[-1, 0, 0], [0, -1, 0], [0, 0, 1]])}   # RAI
 
+    if method_slice_orient not in slice_orient_map.keys():
+        raise IOError("Double check the attribute method['SPackArrSliceOrient'].")
+
+    result = np.eye(4)
+    # rotational part - multiply directions on the left
+    result[0:3, 0:3] = slice_orient_map[method_slice_orient].dot(np.diag(resolution))
+    # translational part
+    result[0:3, 3] = translation
+
+    # sanity check
     assert abs(np.linalg.det(result) - np.prod(resolution)) < 10e-7
 
     return result

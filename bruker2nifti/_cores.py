@@ -84,10 +84,15 @@ def scan2struct(pfo_scan,
         visu_pars = bruker_read_files('visu_pars', pfo_scan, sub_scan_num=id_sub_scan)
 
         # each sub-scan may have sub-volumes. All the sub-volumes have the same visu-pars.
-        if 'VisuCoreSlicePacksSlices' in visu_pars.keys():
-            num_sub_volumes_per_scan = len(list(visu_pars['VisuCoreSlicePacksSlices']))
-        else:
-            num_sub_volumes_per_scan =0
+        # Number of sub-volumes is recovered from
+        slice_orient_list = method['SPackArrSliceOrient'].strip().split(' ')
+        num_sub_volumes_per_scan = len(slice_orient_list)
+
+        # if 'VisuCoreSlicePacksSlices' in visu_pars.keys():
+        #     num_sub_volumes_per_scan = len(slice_orient_list)
+        #     # check as well method['SPackArrSliceOrient'].strip().split(' ')
+        # else:
+        #     num_sub_volumes_per_scan =0
 
         # GET IMAGE DATA
         if os.path.exists(jph(pfo_scan, 'pdata', id_sub_scan, '2dseq')):
@@ -221,7 +226,7 @@ def scan2struct(pfo_scan,
 
         # -- SUB VOLUMES:
         if num_sub_volumes_per_scan > 1 and method['SpatDimEnum'] == '2D' and 'flash' in method['Method'].lower():
-            # sub volumes have been only encoded in 2D SpatDimEnum images for the elements seen so far.
+            # sub volumes have been only encoded in 2D SpatDimEnum images in flash studies seen so far.
 
             # the shape of the 3D scan must be a multiple integer of the name of the sub-volumes.
             assert shape_scan[2] % num_sub_volumes_per_scan == 0
@@ -233,17 +238,17 @@ def scan2struct(pfo_scan,
 
             for id_sub_vol in range(num_sub_volumes_per_scan):
 
-                # -- GET ORIENTATION DIRECTIONS:
-                # col major?
+                # -- GET ORIENTATION DIRECTIONS (assuming col major)
                 visu_core_orientation = visu_pars['VisuCoreOrientation'][id_sub_vol * vol_shape[2]].reshape([3, 3],
                                                                                                         order='F')
+                # -- GET SLICE ORIENT
+                method_slice_orient = slice_orient_list[id_sub_vol]
 
                 # -- GET TRANSLATIONS:
                 translations = visu_pars['VisuCorePosition'][id_sub_vol * vol_shape[2]]
 
                 # -- GET AFFINE
-
-                affine_transf = compute_affine(visu_core_orientation, sp_resolution, translations)
+                affine_transf = compute_affine(visu_core_orientation, method_slice_orient, sp_resolution, translations)
 
                 # -- EXTRACT VOLUME
                 img_data_sub_vol = img_data_vol[..., id_sub_vol * vol_shape[2] :
@@ -272,9 +277,12 @@ def scan2struct(pfo_scan,
 
             # -- GET ORIENTATION DIRECTIONS:
 
-            # TODO: temporary solution.  issue needs to be addressed:
-            #affine_directions = np.eye(3).dot(np.diag([-1, -1, 1]))
+            # Optional temporary solution:
+            # affine_directions = np.eye(3).dot(np.diag([-1, -1, 1]))
             affine_directions = visu_pars['VisuCoreOrientation'][0].reshape([3, 3], order='F')
+
+            # -- GET SLICE ORIENT
+            method_slice_orient = method['SPackArrSliceOrient'].strip()
 
             # -- GET TRANSLATIONS:
 
@@ -282,7 +290,7 @@ def scan2struct(pfo_scan,
 
             # -- GET AFFINE
 
-            affine_transf = compute_affine(affine_directions, sp_resolution, translations)
+            affine_transf = compute_affine(affine_directions, method_slice_orient, sp_resolution, translations)
 
             # -- BUILD NIB IMAGE
 
@@ -419,16 +427,17 @@ def write_struct(struct,
         from_dict_to_txt_sorted(struct['method'], jph(pfo_output,   fin_scan + '_method.txt'))
         from_dict_to_txt_sorted(struct['reco'],   jph(pfo_output,   fin_scan + '_reco.txt'))
 
-    summary_info = {"info['acqp']['ACQ_sw_version']"    : struct['acqp']['ACQ_sw_version'],
-                    "info['method']['SpatDimEnum']"     : struct['method']['SpatDimEnum'],
-                    "info['method']['Matrix']"          : struct['method']['Matrix'],
-                    "info['method']['SpatResol']"       : struct['method']['SpatResol'],
-                    "info['reco']['RECO_size']"         : struct['reco']['RECO_size'],
-                    "info['reco']['RECO_inp_order']"    : struct['reco']['RECO_inp_order'],
-                    "info['acqp']['NR']"                : struct['acqp']['NR'],
-                    "info['acqp']['NI']"                : struct['acqp']['NI'],
-                    "info['acqp']['ACQ_n_echo_images']" : struct['acqp']['ACQ_n_echo_images'],
-                    "info['acqp']['ACQ_slice_thick']"   : struct['acqp']['ACQ_slice_thick']
+    summary_info = {"acqp['ACQ_sw_version']"            : struct['acqp']['ACQ_sw_version'],
+                    "method['SpatDimEnum']"             : struct['method']['SpatDimEnum'],
+                    "method['Matrix']"                  : struct['method']['Matrix'],
+                    "method['SpatResol']"               : struct['method']['SpatResol'],
+                    "method['SPackArrSliceOrient']"     : struct['method']['SPackArrSliceOrient'],
+                    "reco['RECO_size']"                 : struct['reco']['RECO_size'],
+                    "reco['RECO_inp_order']"            : struct['reco']['RECO_inp_order'],
+                    "acqp['NR']"                        : struct['acqp']['NR'],
+                    "acqp['NI']"                        : struct['acqp']['NI'],
+                    "acqp['ACQ_n_echo_images']"         : struct['acqp']['ACQ_n_echo_images'],
+                    "acqp['ACQ_slice_thick']"           : struct['acqp']['ACQ_slice_thick']
                     }
 
     # WRITE DATA SPECIFIC FOR EACH Sub-scan:
@@ -456,13 +465,13 @@ def write_struct(struct,
             np.savetxt(jph(pfo_output, fin_scan + i_label + 'slope.txt'), slope, fmt='%.14f')
 
         # Update dictionary for the summary:
-        summary_info_i = {i_label[1:] + "info['visu_pars']['VisuCoreDataSlope']"   :
+        summary_info_i = {i_label[1:] + "visu_pars['VisuCoreDataSlope']"   :
                               struct['visu_pars_list'][i]['VisuCoreDataSlope'],
-                          i_label[1:] + "info['visu_pars']['VisuCoreSize']"        :
+                          i_label[1:] + "visu_pars['VisuCoreSize']"        :
                               struct['visu_pars_list'][i]['VisuCoreSize'],
-                          i_label[1:] + "info['visu_pars']['VisuCoreOrientation']" :
+                          i_label[1:] + "visu_pars['VisuCoreOrientation']" :
                               struct['visu_pars_list'][i]['VisuCoreOrientation'],
-                          i_label[1:] + "info['visu_pars']['VisuCorePosition']"    :
+                          i_label[1:] + "visu_pars['VisuCorePosition']"    :
                               struct['visu_pars_list'][i]['VisuCorePosition']}
 
         if struct['method']['SpatDimEnum'] == '2D':
