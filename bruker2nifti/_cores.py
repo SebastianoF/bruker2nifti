@@ -516,3 +516,7 @@ def write_struct(struct,
                     pfi_scan = jph(pfo_output, 'b0_' + fin_scan + i_label[:-1] + '.nii.gz')
 
                 nib.save(struct['nib_scans_list'][i][..., 0], pfi_scan)
+
+                if verbose > 0:
+                    msg = 'b0 scan saved alone in ' + pfi_scan
+                    print(msg)
