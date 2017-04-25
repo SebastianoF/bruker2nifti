@@ -24,7 +24,7 @@ def show_study_structure(pfo_study):
     print('Version: {}'.format(acqp['ACQ_sw_version'][0]))
 
 
-def convert_a_study(pfo_study_brukert_input,
+def convert_a_study(pfo_study_bruker_input,
                     pfo_study_nifti_output,
                     study_name=None,
                     scans_list=None,
@@ -42,7 +42,7 @@ def convert_a_study(pfo_study_brukert_input,
     Core method of the module from a study Bruker folder structure to the homologous folder structure containing
      all the scans in nifti format and the additional information as python dictionaries and readable and ordered .txt
      files.
-    :param pfo_study_brukert_input: path to folder Bruker study.
+    :param pfo_study_bruker_input: path to folder Bruker study.
     :param pfo_study_nifti_output: path to folder where the converted study will be stored (as a sub-folder).
     :param study_name: [None] study name, that will be the name of the main output folder with the new structure.
     :param scans_list: [None] scans of the study that will be converted.
@@ -66,16 +66,16 @@ def convert_a_study(pfo_study_brukert_input,
     :param verbose: 0 no, 1 yes, 2 yes for debug
     :return: [None]
     """
-    if not os.path.isdir(pfo_study_brukert_input):
+    if not os.path.isdir(pfo_study_bruker_input):
         raise IOError('Input folder does not exist.')
     if not os.path.isdir(pfo_study_nifti_output):
         raise IOError('Output folder does not exist.')
 
     if scans_list is None:
-        scans_list = get_list_scans(pfo_study_brukert_input)
+        scans_list = get_list_scans(pfo_study_bruker_input)
 
     if study_name is None:
-        study_name = get_subject_name(pfo_study_brukert_input)
+        study_name = get_subject_name(pfo_study_bruker_input)
     if list_new_name_each_scan is None:
         list_new_name_each_scan = [study_name + '_' + ls for ls in scans_list]
     if list_new_nifti_file_names is None:
@@ -89,10 +89,10 @@ def convert_a_study(pfo_study_brukert_input,
     pfo_nifti_study = os.path.join(pfo_study_nifti_output, study_name)
     os.system('mkdir -p {0}'.format(pfo_nifti_study))
 
-    for brukert_scan_name, scan_name, nifti_file_name in zip(scans_list, list_new_name_each_scan,
+    for bruker_scan_name, scan_name, nifti_file_name in zip(scans_list, list_new_name_each_scan,
                                                              list_new_nifti_file_names):
 
-        pfo_scan_bruker = os.path.join(pfo_study_brukert_input, brukert_scan_name)
+        pfo_scan_bruker = os.path.join(pfo_study_bruker_input, bruker_scan_name)
         pfo_scan_nifti = os.path.join(pfo_nifti_study, scan_name)
 
         convert_a_scan(pfo_scan_bruker,

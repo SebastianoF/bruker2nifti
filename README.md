@@ -220,7 +220,7 @@ sudo rm -rf /path_to_site_packages_in_virtualenv/site-packages/bruker2nifti*
 ## Code structure:
 
 + **bruker2nifti._cores.py** contains the core of the parser. It is not possible to disentangle the information of some
-of the raw Brukert files and parse them individually with individual parsers to create the nifti. Data useful to 
+of the raw Bruker files and parse them individually with individual parsers to create the nifti. Data useful to 
 build the nifti are stored in an intermediate structure, called struct (yes, I know...), that is than used to
 create and save the nifti image(s) and the file.
 + **bruker2nifti._utils.py** contains the utils, whose core is the method indian_file_parser component of the bridge 

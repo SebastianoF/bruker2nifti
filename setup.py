@@ -8,7 +8,7 @@ root_dir = os.path.abspath(os.path.dirname(__file__))
 infos = {
          'name': 'bruker2nifti',
          'version': '0.0.0',
-         'description': 'From raw Brukert to nifti, home-made converter.',
+         'description': 'From raw Bruker to nifti, home-made converter.',
          'web_infos' : '',
          'repository': {
                         'type': 'git',
