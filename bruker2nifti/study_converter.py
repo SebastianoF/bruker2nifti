@@ -35,6 +35,7 @@ def convert_a_study(pfo_study_bruker_input,
                     sform=1,
                     save_human_readable=True,
                     normalise_b_vectors_if_dwi=True,
+                    save_b0_if_dwi=True,
                     correct_slope=False,
                     verbose=1
                     ):
@@ -104,6 +105,7 @@ def convert_a_study(pfo_study_bruker_input,
                        sform=sform,
                        save_human_readable=save_human_readable,
                        normalise_b_vectors_if_dwi=normalise_b_vectors_if_dwi,
+                       save_b0_if_dwi=save_b0_if_dwi,
                        correct_slope=correct_slope,
                        verbose=verbose
                        )

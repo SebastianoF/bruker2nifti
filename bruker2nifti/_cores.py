@@ -38,9 +38,9 @@ def scan2struct(pfo_scan,
     :param sform:
     :return: output_data data structure containing the nibabel image(s) {nib, acqp, method, reco, visu_pars}
     """
-    # Note to the programmer: It can be certainly more elegant to divide this function in independent sub-functions;
-    # please BEWARE that every attempt made so far in this direction has failed: the intricate mutual dependency
-    # of the data can make this path very complicated!
+    # Note to the programmer: It can be certainly more functional to divide this def in independent sub-functions;
+    # please BEWARE that every attempt made so far in this direction has led to more problem: the intricate mutual
+    # inter dependency of the data can make this a difficult road ahead!
 
     if not os.path.isdir(pfo_scan):
         raise IOError('Input folder does not exists.')
@@ -210,7 +210,7 @@ def scan2struct(pfo_scan,
             img_data_vol = slope_corrector(img_data_vol, visu_pars['VisuCoreDataSlope'])
 
         if int(acqp['ACQ_n_echo_images']) > 1:
-            img_data_vol = img_data_vol.reshape(shape_scan)
+            img_data_vol = img_data_vol.reshape(shape_scan)  # order 'C' as default - works with my dataset
         else:
             img_data_vol = img_data_vol.reshape(shape_scan, order='F')
 
@@ -328,6 +328,7 @@ def write_struct(struct,
                  fin_scan='',
                  save_human_readable=True,
                  separate_shells_if_dwi=False,
+                 save_b0_if_dwi=False,
                  num_shells=3,
                  num_initial_dir_to_skip=None,
                  normalise_b_vectors_if_dwi=True,
@@ -354,7 +355,8 @@ def write_struct(struct,
     # -- WRITE Additional data shared by all the sub-scans:
 
     # if the modality is a DtiEpi or Dwimage then save the DW directions, b values and b vectors in separate csv .txt.
-    if 'dtiepi' in struct['method']['Method'].lower() or 'dwi' in struct['method']['Method'].lower():  # modality information
+    is_dwi = 'dtiepi' in struct['method']['Method'].lower() or 'dwi' in struct['method']['Method'].lower()
+    if is_dwi:  # modality information
 
         dw_dir = struct['method']['DwDir']
         if normalise_b_vectors_if_dwi:
@@ -487,7 +489,6 @@ def write_struct(struct,
         # WRITE NIFTI IMAGES:
 
         if isinstance(struct['nib_scans_list'][i], list):
-
             # the scan had sub-volumes embedded. they are saved separately
             for sub_vol_id, subvol in enumerate(struct['nib_scans_list'][i]):
 
@@ -499,9 +500,19 @@ def write_struct(struct,
                 nib.save(subvol, pfi_scan)
 
         else:
+
             if fin_scan == '':
                 pfi_scan = jph(pfo_output, 'scan' + i_label[:-1] + '.nii.gz')
             else:
                 pfi_scan = jph(pfo_output, fin_scan + i_label[:-1] + '.nii.gz')
 
             nib.save(struct['nib_scans_list'][i], pfi_scan)
+
+            if save_b0_if_dwi and is_dwi:
+
+                if fin_scan == '':
+                    pfi_scan = jph(pfo_output, 'b0_scan' + i_label[:-1] + '.nii.gz')
+                else:
+                    pfi_scan = jph(pfo_output, 'b0_' + fin_scan + i_label[:-1] + '.nii.gz')
+
+                nib.save(struct['nib_scans_list'][i][..., 0], pfi_scan)
