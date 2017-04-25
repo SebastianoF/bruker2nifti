@@ -50,6 +50,9 @@ def scan2struct(pfo_scan,
     method = bruker_read_files('method', pfo_scan)
     reco = bruker_read_files('reco', pfo_scan)
 
+    if acqp == {} and method == {} and reco == {}:
+        raise IOError("No 'acqp', 'method' and 'reco' files. \n\nAre you sure the input folder contains a Bruker scan?")
+
     # Get data endian_nes - default big!!
     if reco['RECO_byte_order'] == 'littleEndian':
         data_endian_ness = 'little'
