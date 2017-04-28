@@ -1,10 +1,11 @@
 ## bruker2nifti: conversion from Bruker raw format to nifti
 
-Python 2.7 and Python 3 compatible. Most of the time, Pep-8 convention.
+Python 2.7 and Python 3 compatible. Most of the time [PEP-8](https://www.python.org/dev/peps/pep-0008/) coding convention.
 
 ### Table of Contents
 + [Glossary](#glossary)
 + [Code rationale](#rationale)
++ [Use with caution](#caution)
 + [Common file structure](#file_structure)
 + [Example](#example)
 + [Instructions](#instructions)
@@ -20,44 +21,53 @@ and usually containing multiple scans.
 It is provided as a folder structure containing the scans produced with paravision (PV) software.
 Patient/subject information are embedded in the study (opposed hierarchy as in the DICOM files). 
 
-**scan**: individual folder image acquired with various protocols. To a scan can corresponds more than one image
-as sub-scans or sub-volumes (or both).
+**scan or experiment, sub-scans and sub-volumes**: individual folder image acquired with various protocols. 
+To a scan can belong more than one 
+processed image, or reconstruction. Each processed image can be a single volume or can contain more than one sub-volume 
+embedded in the same processed image.
 
 **header**: header of the nifti format.
 
-**img_data**: data of the nifti format.
+**img_data**: data of the nifti format, stored in a 2d or 3d matrix.
 
-**struct**: intermediate structure (dictionary) aimed at collecting the information from the raw Bruker and
-and to progressively creating the nifti images.
+**struct**: intermediate structure (dictionary), proposed in this code, aimed at collecting the information from 
+the raw Bruker and to progressively creating the nifti images.
 
 
 ### Code rationale <a name="rationale"></a>
 
-Mainly due to lack of information, at the present stage not all the possible
-output of the paravision software are
-covered. The code deals with file structures
-that are assumed as the common one and provided below.
-We do not exclude that different settings of the same scanner
-and the same PV version
-can produce different folder structures.
-Therefore the code is written in the most readable way (readability is always
-preferred to efficiency, at least at this stage) so that it will be easier for you to modify it
-according to your needs.
-
-Further versions may sacrifice readability for the sake of efficiency only
-when the standards will be established and tested.
-
-
-The code is written an runs in python 2.7 (cross compatibility with python 3 is implemented when possible).
+The code is written an runs in python 2.7 (cross compatibility with python 3 is implemented when possible but 
+not always tested).
 The choice of Python programming language is after personal preferences, the availability of nibabel library,
 the availability of dictionaries (mapping) type and numpy arrays, that appears to be
 the best option to parse the textfiles of Paravision into easily accessible structures while 
 keeping the same original name convention.  
 
 
+### Use with caution <a name="caution"></a>
+
+Mainly due to lack of information, at the present stage not all the possible
+output of the paravision software are
+covered. I do not assert that your data can be correctly converted for any scanner settings or ParaVision version combination, your 
+combination. Use it with caution, and to not use it as a black box.
+The code is written in the most readable way, and has a good deal of comments, way so that it will be easier for you to modify it
+according to your needs.
+
+
 ### Common file structure <a name="file_structure"></a>
 
-A study structure in ParaVision 5 can be:
+***root_ParaVision/study_name/experiment_numbers*/pdata/*processed_image_numbers***
+
++ *root_ParaVision*: arbitrary path where the ParaVision data are stored.
++ *study_name*: name of the study, related to the same subject. Information related to the subject are in 
+the root_ParaVision/study_name/file subject
++ *experiment_numbers* (or scan_numbers): set of folders named with '1', '2', ... containing each experiment or scan.
++ pdata: (short for processed data) folder created by ParaVision containing a new hierarchy of folders named with '1', '2', ... called here *sub-scans*
++ *processed_image_numbers*: name of the study, related to the same subject. Information related to the subject are in 
+the *root_ParaVision*/*study_name*/subject.
+
+
+A Study structure in ParaVision can be:
 ```
 └── StudyName
     ├── 1
@@ -70,54 +80,7 @@ A study structure in ParaVision 5 can be:
     ├── AdjStatePerStudy
     └── subject
 ```
-where each folder numbered 1 to 6 is a **scan**, whose sub-structure can be
-```
-├── 3
-│   ├── AdjRefgProfiles.dat
-│   ├── AdjStatePerScan
-│   ├── acqp
-│   ├── fid
-│   ├── method
-│   ├── pdata
-│   │   └── 1
-│   │       ├── 2dseq
-│   │       ├── d3proc
-│   │       ├── id
-│   │       ├── meta
-│   │       ├── procs
-│   │       ├── reco
-│   │       └── visu_pars
-│   ├── pulseprogram
-│   ├── spnam0
-│   ├── spnam23
-│   └── uxnmr.par
-```
-Under pdata the (unzipped) file **2dseq** contains the information of the image volume. **d3proc** contains a summary of 
-the relevant information relate to the volume (lacking of orientation and resolution, among others). 
-
-The Bruker structure contains more information than the one required to fill a
-nifti header (scanner setting, location, users, sample or subject scanned biometrics
-can appear in the Bruker raw data, if filled when scanning the data).
-To obtain relevant information to fill the nifti header (and b-values and b-vectors if any) 
-we can restrict our attention towards
-**method**, **acqp**, **reco** and **visu_pars**.
-
-
-A study structure in paravision 6 can be:
-```
-└── StudyName
-    ├── 1
-    ├── 2
-    ├── 3
-    ├── 4
-    ├── 5
-    ├── AdjResult
-    ├── AdjStatePerStudy
-    ├── ResultState
-    ├── ScanProgram.scanProgram
-    └── subject
-```
-where each folder numbered 1 to 6 is a scan, whose structure can be
+where each folder numbered 1 to 6 is an **experiment** or **scan**, whose sub-structure can be
 ```
 ├── 3
 │   ├── AdjStatePerScan
@@ -147,12 +110,27 @@ where each folder numbered 1 to 6 is a scan, whose structure can be
 │   ├── uxnmr.par
 │   └── visu_pars
 ```
-Information to fill the header (and b-values and b-vectors if any) are
-again in the files
-method, acqp, reco and visu_pars. The img_data is stored in the file 2dseq.
+Under pdata the (unzipped) file **2dseq** contains the information of the image volume. **d3proc** contains a summary of 
+the relevant information relate to the volume (lacking of orientation and resolution, among others, beware some converter uses
+only the d3proc to reconstruct the new image. In ParaVision version 6 some scans have no ). 
 
+The Bruker structure contains more information than the one required to fill a
+nifti header (unique identifier, scanner setting, location, users, sample or subject scanned biometrics
+can appear in the Bruker raw data, if filled when scanning the data).
+To obtain relevant information to fill the nifti header (and b-values and b-vectors if any) 
+we can restrict our attention towards
+**method**, **acqp**, **reco** and **visu_pars**.
+
+When the ParaVision embedded DICOM converter is used, only the **visu_pars** file is considered by the DICOM-converter.
+This does not contains for example the resolution of the scan.
 
 ## Example <a name="example"></a>
+
+Type
+```
+python parsers/bruker2nii -h
+```
+for help and see the options.
 
 You can convert a study from the parsers without any installation, with 
 ```
@@ -236,51 +214,53 @@ from command line.
 
 ### Utilities <a name="utilities"></a>
 
-+ [official documentation nifti format](https://nifti.nimh.nih.gov/nifti-1)
-+ [non-official documentation nifti format](https://brainder.org/2012/09/23/the-nifti-file-format/)
-+ [nibabel python library](http://nipy.org/nibabel/)
-+ [bruker format info](http://imaging.mrc-cbu.cam.ac.uk/imaging/FormatBruker) one of the few places where to find 
-information about Bruker format. 
-+ [pvconv](https://github.com/matthew-brett/pvconv) from Bruker to Analyze, Perl.
-+ [Bru2Nii](https://github.com/neurolabusc/Bru2Nii) from Bruker to Nifti, Pascal.
-+ [mpi](https://github.com/francopestilli/mpi) from Bruker to Vistasoft in Matlab.
++ [official documentation nifti format](https://nifti.nimh.nih.gov/nifti-1).
++ [non-official documentation nifti format](https://brainder.org/2012/09/23/the-nifti-file-format/).
++ [nibabel python library](http://nipy.org/nibabel/).
++ [bruker format info](http://imaging.mrc-cbu.cam.ac.uk/imaging/FormatBruker): one of the few places where to find 
+information about Bruker format, other than the official documentation stored under 
+<PvInstDir>/prog/docu/english/pvman/D/Docs/D02_PvParams.pdf of the ParaVision installation. 
++ [pvconv](https://github.com/matthew-brett/pvconv): from Bruker to Analyze, Perl.
++ [Bru2Nii](https://github.com/neurolabusc/Bru2Nii): from Bruker to Nifti, Pascal.
++ [mpi](https://github.com/francopestilli/mpi): from Bruker to Vistasoft in Matlab.
 
 ## Thanks <a name="thanks"></a>
 
 Thanks to Bernard Siow (Centre for Advanced Biomedical Imaging, UCL) and Willy Gsell (Department of Imaging and Pathology, KU Leuven).
 
 
-<!---
-### Note about the differencies between paravision 5 and 6:
+## ParaVision versions 5 and 6:
 
-Examples of differencies in the text-files:
+Keeping in mind the caution note above, the converter can deal with ParaVision version 5 and 6 in the parsing of the parameters files .
+
+#### Examples of differencies between 5 and 6 in the parameters files are:
 
 Under **methods** the attribute `PVM_SpatDimEnum` in pv5 appears as: 
 
 ```
-## $PVM_SpatDimEnum=3D
+##$PVM_SpatDimEnum=3D
 ```
-
 whereas in pv6:
  
 ```
-## $PVM_SpatDimEnum=<3D>
+##$PVM_SpatDimEnum=<3D>
 
 ```
-$ACQ_time:
-paravision 5: 
+
+Under **methods** the attribute `ACQ_time` in pv5 appears as:
+
+```
 ##$ACQ_time=( 24 )
 <20:19:47  1 Sep 2016>
 
-paravision 6: 
+```
+whereas in pv6 is:
+```
 ##$ACQ_time=<2017-03-07T19:56:48,575+0100>
-
-
-
---->
+```
 
  
 ## WIP <a name="wip"></a>
 
-Parsers for a single scan only drafted. Missing good testing framework. Individual shells DWI saving options. 
-Affine directions for Bruker data (Bruker convention still to be explored) to nifti to be understand.   
+Parsers for a single scan/experiment only drafted. Missing good testing framework. Individual shells DWI saving options. 
+Affine directions for Bruker data (Bruker convention still to be explored) to nifti yet to be understand.   
