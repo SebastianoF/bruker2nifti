@@ -62,6 +62,7 @@ def convert_a_study(pfo_study_bruker_input,
     :param qform: [2] qform of the header
     :param sform: [1] sform of the ehader
     :param save_human_readable: [True] other than .pyc, additional .txt will be saved.
+    :param save_b0_if_dwi: save the first timepoint of the dwi if the scan is acquired with DtiEpi modality
     :param normalise_b_vectors_if_dwi: [True]
     :param correct_slope: [False] there is no correction for the slope parameters
     :param verbose: 0 no, 1 yes, 2 yes for debug

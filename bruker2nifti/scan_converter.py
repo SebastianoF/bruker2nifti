@@ -31,6 +31,7 @@ def convert_a_scan(pfo_input_scan,
     :param correct_slope:
     :param normalise_b_vectors_if_dwi:
     :param save_human_readable:
+    :param save_b0_if_dwi:
     :param separate_shells_if_dwi:
     :param num_shells:
     :param num_initial_dir_to_skip:

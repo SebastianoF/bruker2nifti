@@ -10,11 +10,11 @@ def indian_file_parser(s, sh=None):
     """
     An indian file is a string whose shape needs to be changed, in function of its content and an optional parameter sh
     that defines the shape of the output.
-    This function transform the indian file in an hopefully meaningful data structure,
+    This function transform the indian file in a data structure,
     according to the information that can be parsed in the file:
     A - list of vectors transformed into a np.ndarray.
     B - list of numbers, transformed into a np.ndarray, or single number stored as a single float.
-    C - list of words separated by <>.
+    C - list of strings separated by <>.
     D - everything else becomes a string.
 
     :param s: string indian file
@@ -24,23 +24,23 @@ def indian_file_parser(s, sh=None):
 
     s = s.strip()  # removes initial and final spaces.
 
-    if ('(' in s) and (')' in s):
+    if ('(' in s) and (')' in s):  # A
         s = s[1:-1]  # removes initial and final ( )
         a = ['(' + v + ')' for v in s.split(') (')]
-    elif s.replace('-', '').replace('.', '').replace(' ', '').replace('e', '').isdigit():
+    elif s.replace('-', '').replace('.', '').replace(' ', '').replace('e', '').isdigit():  # B
         if ' ' in s:
             a = np.array([float(x) for x in s.split()])
             if sh is not None:
                 a = a.reshape(sh)
         else:
             a = float(s)
-    elif ('<' in s) and ('>' in s):
+    elif ('<' in s) and ('>' in s):  # C
         s = s[1:-1]  # removes initial and final < >
         a = [v for v in s.split('> <')]
-    else:
+    else:  # D
         a = s[:]
 
-    # added to correct for version paravision 6:
+    # added to work with ParaVision 6:
     if isinstance(a, list):
         if len(a) == 1:
             a = a[0]
@@ -68,7 +68,7 @@ def bruker_read_files(param_file, data_path, sub_scan_num='1'):
     :return: dict_info dictionary with the parsed informations from the input file.
     """
     # reco is only present for the sub_scan number '1'.
-    # There is an visu_pars for each sub-scan (!!!).
+    # There is an visu_pars for each sub-scan.
     if param_file.lower() == 'reco':
         if os.path.exists(jph(data_path, 'pdata', '1', 'reco')):
             f = open(jph(data_path, 'pdata', '1', 'reco'), 'r')
@@ -203,7 +203,7 @@ def bruker_read_files(param_file, data_path, sub_scan_num='1'):
                 var_name = var_name_clean(splitted_line[0])
                 indian_file = splitted_line[1].replace('=', '').strip()
                 dict_info[var_name] = indian_file_parser(indian_file)
-            # General case: take it as a simple and clean.
+            # General case: take it as a simple string.
             else:
                 splitted_line = line_in.split('=')
                 var_name = var_name_clean(splitted_line[0])
