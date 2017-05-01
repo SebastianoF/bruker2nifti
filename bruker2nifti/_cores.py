@@ -6,9 +6,111 @@ import pprint
 
 from os.path import join as jph
 
-from _getters import get_list_scans, get_separate_shells_b_vals_b_vect_from_method
-from _utils import compute_affine, bruker_read_files, slope_corrector, normalise_b_vect, \
-    from_dict_to_txt_sorted, set_new_data
+from _getters import get_list_scans, nifti_getter, get_separate_shells_b_vals_b_vect_from_method
+from _utils import bruker_read_files, normalise_b_vect, from_dict_to_txt_sorted, set_new_data, slope_corrector, compute_affine
+
+
+def scan2struct_test(pfo_scan,
+                     separate_shells_if_dwi=False,
+                     num_shells=3,
+                     num_initial_dir_to_skip=7,
+                     correct_slope=True,
+                     nifti_version=1,
+                     qform=2,
+                     sform=1
+                     ):
+    """
+    First part of the bridge. Info required to fill nifti header are entangled in a non-linear way.
+    Therefore it is necessarily to parse them in an intermediate structure, called here struct.
+    Struct has the final product as a nibable image, with the additional informations.
+    Parse a scan into a structure called struct, collecting the nifti conversion(s) if more than one
+    sub-scan is included in the same scan, other than the additional information.
+
+    Version in progress that takes into account all the information
+    :param pfo_scan:
+    :param correct_slope:
+    :param nifti_version:
+    :param qform:
+    :param sform:
+    :return: output_data data structure containing the nibabel image(s) {nib, acqp, method, reco, visu_pars}
+    """
+    # as scan 2 struct with a different strategy. Will see...!
+
+    if not os.path.isdir(pfo_scan):
+        raise IOError('Input folder does not exists.')
+
+    # Get information from relevant files in the folder structure
+    acqp = bruker_read_files('acqp', pfo_scan)
+    method = bruker_read_files('method', pfo_scan)
+    reco = bruker_read_files('reco', pfo_scan)
+
+    if acqp == {} and method == {} and reco == {}:
+        raise IOError("No 'acqp', 'method' and 'reco' files. \n\nAre you sure the input folder contains a Bruker scan?")
+
+    # Get data endian_nes - default big!!
+    if reco['RECO_byte_order'] == 'littleEndian':
+        data_endian_ness = 'little'
+    elif reco['RECO_byte_order'] == 'bigEndian':
+        data_endian_ness = 'big'
+    else:
+        data_endian_ness = 'big'
+
+    # Get datatype
+    if reco['RECO_wordtype'] == '_32BIT_SGN_INT':
+        dt = np.int32
+    elif reco['RECO_wordtype'] == '_16BIT_SGN_INT':
+        dt = np.int16
+    elif reco['RECO_wordtype'] == '_8BIT_UNSGN_INT':
+        dt = np.uint8
+    elif reco['RECO_wordtype'] == '_32BIT_FLOAT':
+        dt = np.float32
+    else:
+        raise IOError('Unknown data type.')
+
+    # Get system endian_nes
+    system_endian_nes = sys.byteorder
+
+    # Get sub-scans series in the same scan. Typically there is only one.
+    list_sub_scans = get_list_scans(jph(pfo_scan, 'pdata'))
+
+    nib_scans_list = []
+    visu_pars_list = []
+
+    for id_sub_scan in list_sub_scans:
+
+        visu_pars = bruker_read_files('visu_pars', pfo_scan, sub_scan_num=id_sub_scan)
+
+        # GET IMAGE VOLUME
+        if os.path.exists(jph(pfo_scan, 'pdata', id_sub_scan, '2dseq')):
+            img_data_vol = np.copy(np.fromfile(jph(pfo_scan, 'pdata', id_sub_scan, '2dseq'), dtype=dt))
+        else:
+            return 'No data here {}'.format(jph(pfo_scan, 'pdata', id_sub_scan))
+
+        if not data_endian_ness == system_endian_nes:
+            img_data_vol.byteswap(True)
+
+        if 'dtiepi' in method['Method'].lower():
+            correct_slope = False
+
+        # Generate the nifti image using visu_pars.
+        nib_im = nifti_getter(img_data_vol, visu_pars, correct_slope, nifti_version, qform, sform)
+
+        # If DWI orient b-vector using visu-pars in coherence with the nib_im obtained.
+        if 'dtiepi' in method['Method'].lower():
+            pass
+
+        nib_scans_list.append(nib_im)
+        visu_pars_list.append(visu_pars)
+
+    # -- RETURN DATA STRUCTURE
+
+    struct_scan = {'nib_scans_list' : nib_scans_list,
+                   'visu_pars_list' : visu_pars_list,
+                   'acqp'           : acqp,
+                   'reco'           : reco,
+                   'method'         : method}
+
+    return struct_scan
 
 
 def scan2struct(pfo_scan,
@@ -38,9 +140,6 @@ def scan2struct(pfo_scan,
     :param sform:
     :return: output_data data structure containing the nibabel image(s) {nib, acqp, method, reco, visu_pars}
     """
-    # Note to the programmer: It can be certainly more functional to divide this def in independent sub-functions;
-    # please BEWARE that every attempt made so far in this direction has led to more problem: the intricate mutual
-    # inter dependency of the data can make this a difficult road ahead!
 
     if not os.path.isdir(pfo_scan):
         raise IOError('Input folder does not exists.')

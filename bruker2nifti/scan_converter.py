@@ -1,6 +1,6 @@
 import os
 
-from _cores import scan2struct, write_struct
+from _cores import scan2struct, write_struct, scan2struct_test
 
 
 def convert_a_scan(pfo_input_scan,
@@ -14,9 +14,6 @@ def convert_a_scan(pfo_input_scan,
                    normalise_b_vectors_if_dwi=True,
                    save_b0_if_dwi=True,
                    save_human_readable=True,
-                   separate_shells_if_dwi=False,
-                   num_shells=3,
-                   num_initial_dir_to_skip=None,
                    verbose=1):
     """
     Put together all the components of the bridge: scan2struct and write_struct.
@@ -32,9 +29,6 @@ def convert_a_scan(pfo_input_scan,
     :param normalise_b_vectors_if_dwi:
     :param save_human_readable:
     :param save_b0_if_dwi:
-    :param separate_shells_if_dwi:
-    :param num_shells:
-    :param num_initial_dir_to_skip:
     :param verbose: 0 no, 1 yes, 2 yes debug
     :return: [None] save the data parsed from the raw Bruker scan into a folder, including the nifti image.
     """
@@ -42,11 +36,8 @@ def convert_a_scan(pfo_input_scan,
     if create_output_folder_if_not_exists:
         os.system('mkdir -p {}'.format(pfo_output))
 
-    struct_scan = scan2struct(pfo_input_scan,
+    struct_scan = scan2struct_test(pfo_input_scan,
                               correct_slope=correct_slope,
-                              separate_shells_if_dwi=False,
-                              num_shells=3,
-                              num_initial_dir_to_skip=7,
                               nifti_version=nifti_version,
                               qform=qform,
                               sform=sform)
@@ -57,8 +48,5 @@ def convert_a_scan(pfo_input_scan,
                      fin_scan=fin_scan,
                      save_human_readable=save_human_readable,
                      normalise_b_vectors_if_dwi=normalise_b_vectors_if_dwi,
-                     separate_shells_if_dwi=separate_shells_if_dwi,
                      save_b0_if_dwi=save_b0_if_dwi,
-                     num_shells=num_shells,
-                     num_initial_dir_to_skip=num_initial_dir_to_skip,
                      verbose=verbose)

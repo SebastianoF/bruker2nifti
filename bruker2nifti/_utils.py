@@ -388,3 +388,69 @@ def set_new_data(image, new_data, new_dtype=None, remove_nan=True):
         new_image.set_data_dtype(new_dtype)
 
     return new_image
+
+
+def elim_consecutive_duplicates(input_list):
+
+    new_list = [input_list[0]]
+    for k in input_list[1:]:
+        if not list(k) == list(new_list[-1]):
+            new_list.append(k)
+    return new_list
+
+
+def compute_resolution_from_visu_pars(vc_extent, vc_size, vc_frame_tickness, vc_frame_count, vc_order_desc):
+
+    if len(vc_extent) == len(vc_size):
+        resolution = [e / float(s) for e, s in zip(vc_extent, vc_size)]
+    else:
+        raise IOError
+
+    if len(vc_extent) == 2:  # and len(vc_order_desc) == 1
+        resolution += [vc_frame_tickness]
+        return resolution
+    elif len(vc_extent) == 3:
+        return resolution
+    # elif len(vc_order_desc) > 1:  # thre are echoes dimensions to consider! All empirical again!
+    #     num_frames = int(vc_order_desc[-1].replace('(', '').replace(')', '').split(',')[0])
+    #     resolution += [vc_frame_tickness * num_frames]
+    #     return resolution
+    else:
+        raise IOError
+
+
+def compute_affine_from_visu_pars(vc_seq_name, vc_orientation, vc_position, vc_transposition, vc_dim, resolution):
+
+    flag = False
+    if list(vc_orientation) == [0, 1, 0, 0, 0, -1, -1, 0, 0]:
+        flag = True
+
+    vc_orientation = np.linalg.inv(vc_orientation.reshape([3, 3], order='F'))
+
+    if flag:
+        # After empirical evaluations on multiple sub-volumes - no idea why!
+        vc_orientation = vc_orientation.dot(np.array([[-1, 0, 0], [0, 0, 1], [0, -1, 0]]))
+
+    if 'msme' in vc_seq_name.lower():
+        vc_orientation = vc_orientation.dot(np.array([[1, 0, 0], [0, 0, 1], [0, 1, 0]]))
+
+    rotational_part = vc_orientation.dot(np.diag(resolution * np.array([-1, -1, 1])))
+
+    result = np.eye(4)
+    result[0:3, 0:3] = rotational_part
+    result[0:3, 3] = vc_position
+
+    # Following the manual: - not working (!)
+    # trp = int(vc_transposition)
+    # dim = int(vc_dim)
+    #
+    # if 0 < trp < dim:
+    #     # swap dimension int(vc_transposition) with dimension int(vc_transposition) - 1
+    #     result[:, trp], result[:, trp-1] = result[:, trp-1], result[:, trp].copy()
+    #
+    # elif trp == int(vc_dim):
+    #     # swap dimension 0 with dimension dim - 1
+    #     result[:, dim-1], result[:, 0] = result[:, 0], result[:, dim-1].copy()
+
+    return result
+
