@@ -289,6 +289,8 @@ def slope_corrector(data, slope, num_initial_dir_to_skip=None):
 def compute_affine(visu_core_orientation, method_slice_orient, method_spack_read_orient, method_method,
                    resolution, translation):
     """
+    OLD method!
+
     Converts the relevant (or supposed so) information from the Bruker files into the affine transformation
     of the nifti image.
     ---
@@ -399,7 +401,7 @@ def elim_consecutive_duplicates(input_list):
     return new_list
 
 
-def compute_resolution_from_visu_pars(vc_extent, vc_size, vc_frame_tickness, vc_frame_count, vc_order_desc):
+def compute_resolution_from_visu_pars(vc_extent, vc_size, vc_frame_tickness):
 
     if len(vc_extent) == len(vc_size):
         resolution = [e / float(s) for e, s in zip(vc_extent, vc_size)]
@@ -411,32 +413,54 @@ def compute_resolution_from_visu_pars(vc_extent, vc_size, vc_frame_tickness, vc_
         return resolution
     elif len(vc_extent) == 3:
         return resolution
-    # elif len(vc_order_desc) > 1:  # thre are echoes dimensions to consider! All empirical again!
-    #     num_frames = int(vc_order_desc[-1].replace('(', '').replace(')', '').split(',')[0])
-    #     resolution += [vc_frame_tickness * num_frames]
-    #     return resolution
     else:
         raise IOError
 
 
 def compute_affine_from_visu_pars(vc_orientation, vc_position, vc_transposition, vc_dim, resolution,
-                                  apply_standard=True):
+                                  according_to_manual=False):
+    """
+    :param vc_orientation: visu core orientation parameter.
+    :param vc_position: visu core position parameter.
+    :param vc_transposition: visu core transposition parameter (see ParaVision manual D-2-65).
+    :param vc_dim: VisuCoreDim number of dimension of a visu-frame.
+    :param resolution: resoultion of the image, output of compute_resolution_from_visu_pars in the same module.
+    :param according_to_manual: [False] This standard is the standard for me and my dataset. To get the
+    behaviour described in the manual set to False.
+    :return:
+    ----
+    Issue:
 
-    # get column major and invert passing from
+    According to the manual, and assuming I am interpreting it correctly, the vc_transposition should switch last
+    two column if 1 or last colum with first column if 2 or not do anything if 0, being zero as default.
+
+    This was not working for my dataset.
+    After sleepless nights and loosing access to paradise, I found that, to have a correct orientation, the last two
+    columns of the inverted of the orientation matrix should always be switched and that by default the first two
+    columns must always have negative signs while the third must be positive.
+
+    Please BEWARE this works for my data-sets, may not be a general rule and it is not done following any manual
+    descriptions of the parameters. Switch according_to_manual to True to have the manual behaviour and visually check.
+    """
+
+    # get column major and invert the orientation according to manual.
+    # (raw goes from scanner to image coordinates, nifti from image to scanner coordinates)
     vc_orientation = np.linalg.inv(vc_orientation.reshape([3, 3], order='F'))
 
-    # According-to-manual way of getting the transposition:
-    # trp = int(vc_transposition)
-    # dim = int(vc_dim)
-    #
-    # if 0 < trp < dim:
-    #     vc_orientation = vc_orientation.dot(np.array([[1, 0, 0], [0, 0, 1], [0, 1, 0]]))
-    #
-    # elif trp == int(vc_dim):
-    #     vc_orientation = vc_orientation.dot(np.array([[1, 0, 0], [0, 0, 1], [0, 1, 0]]))
+    # A) According-to-manual way of interpreting the transposition parameter:
+    if according_to_manual:
 
-    # this should be governed by the vc_transposition parameter. Apparently can sometimes be wrong in the header
-    if apply_standard:
+        trp = int(vc_transposition)
+        dim = int(vc_dim)
+
+        if 0 < trp < dim:
+            vc_orientation = vc_orientation.dot(np.array([[1, 0, 0], [0, 0, 1], [0, 1, 0]]))
+
+        elif trp == int(vc_dim):
+            vc_orientation = vc_orientation.dot(np.array([[1, 0, 0], [0, 0, 1], [0, 1, 0]]))
+
+    # B) NOT according-to-manual, Alas! working for my dataset.
+    else:
         # switch second and third colum
         vc_orientation = vc_orientation.dot(np.array([[1, 0, 0], [0, 0, 1], [0, 1, 0]]))
         # ensure the fisrt and second rows are negative while the third is positive
