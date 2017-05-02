@@ -286,68 +286,6 @@ def slope_corrector(data, slope, num_initial_dir_to_skip=None):
     return data
 
 
-def compute_affine(visu_core_orientation, method_slice_orient, method_spack_read_orient, method_method,
-                   resolution, translation):
-    """
-    OLD method!
-
-    Converts the relevant (or supposed so) information from the Bruker files into the affine transformation
-    of the nifti image.
-    ---
-    Information that are believed to be relevant are:
-     visu_pars['VisuCoreOrientation'] -> visu_core_orientation  (not used yet but believed to be relevant)
-     method['SPackArrSliceOrient']    -> method_slice_orient
-     method['SPackArrReadOrient']    -> method_spack_read_orient
-     method['Method']                 -> method_method       (not used yet but may be relevant for debub)
-     visu_pars['VisuCorePosition']    -> translations
-     list(method['SpatResol']         ->  resolution  (+ acqp['ACQ_slice_thick'] if 2D)
-    ---
-    :param visu_core_orientation: 9x1 matrix
-    :param method_slice_orient: can be 'axial' 'sagittal' 'coronal'
-    :param method_method: acquisition modality as ''RARE' or 'DtiEpi' or 'MSME'
-    :param resolution: 3x1 matrix
-    :param translation: 3x1 matrix
-    :return:
-    """
-    # Not yet clear how to use visu_core_orientation and method_slice_orient to obtain the orientation matrix in
-    # a consistent way. Based on empirical experiments for the moment.
-    # TODO orientation requires further examination and proper testing before cleaning up this part of the code.
-
-    # nifti is voxel to world. Is VisuCoreOrientation world to voxel? Seems yes.
-    visu_core_orientation = np.linalg.inv(visu_core_orientation).astype(np.float64)
-
-    # tables below are based on empirical evaluations - (visu_core_orientation not used in this version).
-    invert_ap = False
-    if method_spack_read_orient == 'A_P':
-        invert_ap = True
-
-    if invert_ap:
-        slice_orient_map = {'axial':    np.array([[-1, 0, 0], [0, 0, 1], [0, -1, 0]]),  # RSP
-                            'sagittal': np.array([[0, 0, -1], [0, 1, 0], [-1, 0, 0]]),  # SPR
-                            'coronal':  np.array([[-1, 0, 0], [0, 1, 0], [0, 0, 1]])}   # RPI
-    else:
-        slice_orient_map = {'axial'    : np.array([[-1, 0, 0], [0, 0, -1], [0, -1, 0]]),  # RSA
-                            'sagittal' : np.array([[0, 0, -1], [0, -1, 0], [-1, 0, 0]]),  # SAR
-                            'coronal'  : np.array([[-1, 0, 0], [0, -1, 0], [0, 0, 1]])}   # RAI
-
-    if method_slice_orient not in slice_orient_map.keys():
-        raise IOError("Double check the attribute method['SPackArrSliceOrient'].")
-
-    result = np.eye(4)
-    # rotational part - multiply directions on the left
-    result[0:3, 0:3] = slice_orient_map[method_slice_orient].dot(np.diag(resolution))
-    # translational part
-    result[0:3, 3] = translation
-
-    # sanity check
-    if invert_ap:
-        assert abs(np.linalg.det(result) + np.prod(resolution)) < 10e-7
-    else:
-        assert abs(np.linalg.det(result) - np.prod(resolution)) < 10e-7
-
-    return result
-
-
 def from_dict_to_txt_sorted(dict_input, pfi_output):
     """
     Save the information contained in a dictionary into a txt file at the specified path.
@@ -408,6 +346,9 @@ def compute_resolution_from_visu_pars(vc_extent, vc_size, vc_frame_tickness):
     else:
         raise IOError
 
+    if isinstance(vc_frame_tickness, np.ndarray):
+        vc_frame_tickness = vc_frame_tickness[0]
+
     if len(vc_extent) == 2:  # and len(vc_order_desc) == 1
         resolution += [vc_frame_tickness]
         return resolution
@@ -418,7 +359,7 @@ def compute_resolution_from_visu_pars(vc_extent, vc_size, vc_frame_tickness):
 
 
 def compute_affine_from_visu_pars(vc_orientation, vc_position, vc_transposition, vc_dim, resolution,
-                                  according_to_manual=False):
+                                  according_to_manual=True, keep_det_positive=False):
     """
     :param vc_orientation: visu core orientation parameter.
     :param vc_position: visu core position parameter.
@@ -427,6 +368,7 @@ def compute_affine_from_visu_pars(vc_orientation, vc_position, vc_transposition,
     :param resolution: resoultion of the image, output of compute_resolution_from_visu_pars in the same module.
     :param according_to_manual: [False] This standard is the standard for me and my dataset. To get the
     behaviour described in the manual set to False.
+    :param keep_det_positive: in case you want the determinant of the final transformation to be positive.
     :return:
     ----
     Issue:
@@ -476,5 +418,10 @@ def compute_affine_from_visu_pars(vc_orientation, vc_position, vc_transposition,
     result = np.eye(4)
     result[0:3, 0:3] = rotational_part
     result[0:3, 3] = vc_position
+
+    # this is added for consistency with possible wrongly acquired dataset
+    if keep_det_positive and np.linalg.det(result) < 0:
+        # change left-right orientation to keep determinant positive
+        result[0, :] = -1 * result[0, :]
 
     return result

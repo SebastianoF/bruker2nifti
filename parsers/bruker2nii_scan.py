@@ -76,56 +76,16 @@ def main():
 
     args = parser.parse_args()
 
-    ''' # refactor from here:
-
-    if not args.info_only and not args.nifti_only:
-        convert_a_scan(args.pfo_input,
-                       args.pfo_output,
-                       fin_output=args.fin_output,
-                       nifti_version=args.nifti_version,
-                       qform=args.qform,
-                       sform=args.sform,
-                       axis_direction=args.axis_direction,
-                       save_human_readable=args.save_human_readable,
-                       normalise_b_vectors_if_dwi=args.normalise_b_vectors_if_dwi,
-                       correct_slope=args.correct_slope,
-                       verbose=args.verbose)
-
-    if args.info_only:
-        info, img_data = get_info_and_img_data(args.pfo_input)
-        write_info(info,
+    convert_a_scan(args.pfo_input,
                    args.pfo_output,
+                   nifti_version=args.nifti_version,
+                   qform=args.qform,
+                   sform=args.sform,
                    save_human_readable=args.save_human_readable,
-                   separate_shells_if_dwi=False,  # TODO
-                   num_shells=3,
-                   num_initial_dir_to_skip=None,
-                   normalise_b_vectors_if_dwi=True,
+                   normalise_b_vectors_if_dwi=args.normalise_b_vectors_if_dwi,
+                   correct_slope=args.correct_slope,
                    verbose=args.verbose)
 
-    if args.nifti_only:
-        info, img_data = get_info_and_img_data(args.pfo_input)
 
-        if args.fin_output is None:
-            fin_output = info['method']['Method'].lower() + \
-                         str(info['acqp']['ACQ_time'][0][-11:])
-            fin_output = fin_output.replace(' ', '').replace(':', '_')
-            fin_output += '.nii.gz'
-        else:
-            fin_output = args.fin_output
-
-        write_to_nifti(info,
-                       img_data,
-                       fin_output,
-                       correct_slope=args.correct_slope,
-                       correct_shape=False,  # TODO
-                       separate_shells_if_dwi=False,  # TODO
-                       num_shells=3,
-                       num_initial_dir_to_skip=7,
-                       nifti_version=args.nifti_version,
-                       qform=args.qform,
-                       sform=args.sform,
-                       axis_direction=args.axis_direction,
-                       verbose=args.verbose)
-    '''
 if __name__ == "__main__":
     main()

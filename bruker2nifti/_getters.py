@@ -130,17 +130,17 @@ def nifti_getter(img_data_vol, visu_pars, correct_slope, nifti_version, qform, s
     else:
         visu_core_transposition = visu_pars['VisuCoreTransposition']
 
-    if 'VisuAcqSequenceName' in visu_pars.keys():
-        seq_name = visu_pars['VisuAcqSequenceName']
-    elif 'VisuAcquisitionProtocol' in visu_pars.keys():
-        seq_name = visu_pars['VisuAcquisitionProtocol']
-    else:
-        seq_name = ''
-
-    if 'VisuFGOrderDesc' in visu_pars.keys():
-        fgo_order_desc = visu_pars['VisuFGOrderDesc']
-    else:
-        fgo_order_desc = 0
+    # if 'VisuAcqSequenceName' in visu_pars.keys():
+    #     seq_name = visu_pars['VisuAcqSequenceName']
+    # elif 'VisuAcquisitionProtocol' in visu_pars.keys():
+    #     seq_name = visu_pars['VisuAcquisitionProtocol']
+    # else:
+    #     seq_name = ''
+    #
+    # if 'VisuFGOrderDesc' in visu_pars.keys():
+    #     fgo_order_desc = visu_pars['VisuFGOrderDesc']
+    # else:
+    #     fgo_order_desc = 0
 
     if num_vols > 1:
 
