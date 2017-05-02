@@ -36,7 +36,7 @@ def convert_a_scan(pfo_input_scan,
     if create_output_folder_if_not_exists:
         os.system('mkdir -p {}'.format(pfo_output))
 
-    struct_scan = scan2struct_test(pfo_input_scan,
+    struct_scan = scan2struct(pfo_input_scan,
                               correct_slope=correct_slope,
                               nifti_version=nifti_version,
                               qform=qform,

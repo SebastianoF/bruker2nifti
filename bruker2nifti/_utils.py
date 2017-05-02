@@ -419,38 +419,38 @@ def compute_resolution_from_visu_pars(vc_extent, vc_size, vc_frame_tickness, vc_
         raise IOError
 
 
-def compute_affine_from_visu_pars(vc_seq_name, vc_orientation, vc_position, vc_transposition, vc_dim, resolution):
+def compute_affine_from_visu_pars(vc_orientation, vc_position, vc_transposition, vc_dim, resolution,
+                                  apply_standard=True):
 
-    flag = False
-    if list(vc_orientation) == [0, 1, 0, 0, 0, -1, -1, 0, 0]:
-        flag = True
-
+    # get column major and invert passing from
     vc_orientation = np.linalg.inv(vc_orientation.reshape([3, 3], order='F'))
 
-    if flag:
-        # After empirical evaluations on multiple sub-volumes - no idea why!
-        vc_orientation = vc_orientation.dot(np.array([[-1, 0, 0], [0, 0, 1], [0, -1, 0]]))
+    # According-to-manual way of getting the transposition:
+    # trp = int(vc_transposition)
+    # dim = int(vc_dim)
+    #
+    # if 0 < trp < dim:
+    #     vc_orientation = vc_orientation.dot(np.array([[1, 0, 0], [0, 0, 1], [0, 1, 0]]))
+    #
+    # elif trp == int(vc_dim):
+    #     vc_orientation = vc_orientation.dot(np.array([[1, 0, 0], [0, 0, 1], [0, 1, 0]]))
 
-    if 'msme' in vc_seq_name.lower():
+    # this should be governed by the vc_transposition parameter. Apparently can sometimes be wrong in the header
+    if apply_standard:
+        # switch second and third colum
         vc_orientation = vc_orientation.dot(np.array([[1, 0, 0], [0, 0, 1], [0, 1, 0]]))
+        # ensure the fisrt and second rows are negative while the third is positive
+        if -1 not in list(vc_orientation[:, 0]):
+            vc_orientation[:, 0] = -1 * vc_orientation[:, 0]
+        if -1 not in list(vc_orientation[:, 1]):
+            vc_orientation[:, 1] = -1 * vc_orientation[:, 1]
+        if 1 not in list(vc_orientation[:, 2]):
+            vc_orientation[:, 2] = -1 * vc_orientation[:, 2]
 
-    rotational_part = vc_orientation.dot(np.diag(resolution * np.array([-1, -1, 1])))
+    rotational_part = vc_orientation.dot(np.diag(resolution))
 
     result = np.eye(4)
     result[0:3, 0:3] = rotational_part
     result[0:3, 3] = vc_position
 
-    # Following the manual: - not working (!)
-    # trp = int(vc_transposition)
-    # dim = int(vc_dim)
-    #
-    # if 0 < trp < dim:
-    #     # swap dimension int(vc_transposition) with dimension int(vc_transposition) - 1
-    #     result[:, trp], result[:, trp-1] = result[:, trp-1], result[:, trp].copy()
-    #
-    # elif trp == int(vc_dim):
-    #     # swap dimension 0 with dimension dim - 1
-    #     result[:, dim-1], result[:, 0] = result[:, 0], result[:, dim-1].copy()
-
     return result
-

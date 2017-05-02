@@ -10,15 +10,15 @@ from _getters import get_list_scans, nifti_getter, get_separate_shells_b_vals_b_
 from _utils import bruker_read_files, normalise_b_vect, from_dict_to_txt_sorted, set_new_data, slope_corrector, compute_affine
 
 
-def scan2struct_test(pfo_scan,
-                     separate_shells_if_dwi=False,
-                     num_shells=3,
-                     num_initial_dir_to_skip=7,
-                     correct_slope=True,
-                     nifti_version=1,
-                     qform=2,
-                     sform=1
-                     ):
+def scan2struct(pfo_scan,
+                separate_shells_if_dwi=False,
+                num_shells=3,
+                num_initial_dir_to_skip=7,
+                correct_slope=True,
+                nifti_version=1,
+                qform=2,
+                sform=1
+                ):
     """
     First part of the bridge. Info required to fill nifti header are entangled in a non-linear way.
     Therefore it is necessarily to parse them in an intermediate structure, called here struct.
@@ -113,7 +113,7 @@ def scan2struct_test(pfo_scan,
     return struct_scan
 
 
-def scan2struct(pfo_scan,
+def scan2struct_old(pfo_scan,
                 correct_slope=True,
                 separate_shells_if_dwi=False,
                 num_shells=3,
@@ -454,6 +454,10 @@ def write_struct(struct,
 
     if not os.path.isdir(pfo_output):
         raise IOError('Output folder does not exists.')
+
+    if isinstance(struct, str):
+        print struct
+        return
 
     if not len(struct['visu_pars_list']) == len(struct['nib_scans_list']):
         raise IOError('Visu pars list and scans list have a different number of elements.')

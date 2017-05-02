@@ -124,10 +124,23 @@ def nifti_getter(img_data_vol, visu_pars, correct_slope, nifti_version, qform, s
     # get number sub-volumes
     num_vols = len(elim_consecutive_duplicates(list(visu_pars['VisuCoreOrientation'])))
 
+    # get the default parameters when not filled in the parameter files.
     if 'VisuCoreTransposition' not in visu_pars.keys():
         visu_core_transposition = [0, ] * vol_pre_shape[2]
     else:
         visu_core_transposition = visu_pars['VisuCoreTransposition']
+
+    if 'VisuAcqSequenceName' in visu_pars.keys():
+        seq_name = visu_pars['VisuAcqSequenceName']
+    elif 'VisuAcquisitionProtocol' in visu_pars.keys():
+        seq_name = visu_pars['VisuAcquisitionProtocol']
+    else:
+        seq_name = ''
+
+    if 'VisuFGOrderDesc' in visu_pars.keys():
+        fgo_order_desc = visu_pars['VisuFGOrderDesc']
+    else:
+        fgo_order_desc = 0
 
     if num_vols > 1:
 
@@ -140,7 +153,8 @@ def nifti_getter(img_data_vol, visu_pars, correct_slope, nifti_version, qform, s
         resolution = compute_resolution_from_visu_pars(visu_pars['VisuCoreExtent'],
                                                        visu_pars['VisuCoreSize'],
                                                        visu_pars['VisuCoreFrameThickness'],
-                                                       visu_pars['VisuCoreFrameCount'])
+                                                       visu_pars['VisuCoreFrameCount'],
+                                                       visu_pars['VisuFGOrderDesc'])
 
         for id_sub_vol in range(num_vols):
 
@@ -198,21 +212,14 @@ def nifti_getter(img_data_vol, visu_pars, correct_slope, nifti_version, qform, s
                                                        visu_pars['VisuCoreSize'],
                                                        visu_pars['VisuCoreFrameThickness'],
                                                        visu_pars['VisuCoreFrameCount'],
-                                                       visu_pars['VisuFGOrderDesc'])
-
-        if 'VisuAcqSequenceName' in visu_pars.keys():
-            seq_name = visu_pars['VisuAcqSequenceName']
-        else:
-            seq_name = ''
+                                                       fgo_order_desc)
 
         # compute affine
-        affine_transf = compute_affine_from_visu_pars(
-            seq_name,
-            list(visu_pars['VisuCoreOrientation'])[0],
-            list(visu_pars['VisuCorePosition'])[0],
-            visu_core_transposition[0],
-            visu_pars['VisuCoreDim'],
-            resolution)
+        affine_transf = compute_affine_from_visu_pars(list(visu_pars['VisuCoreOrientation'])[0],
+                                                      list(visu_pars['VisuCorePosition'])[0],
+                                                      visu_core_transposition[0],
+                                                      visu_pars['VisuCoreDim'],
+                                                      resolution)
 
         if nifti_version == 1:
             output_nifti = nib.Nifti1Image(vol_data, affine=affine_transf)
