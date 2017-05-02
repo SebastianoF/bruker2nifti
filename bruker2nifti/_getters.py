@@ -152,9 +152,7 @@ def nifti_getter(img_data_vol, visu_pars, correct_slope, nifti_version, qform, s
         # get resolution - same for all sub-volumes.
         resolution = compute_resolution_from_visu_pars(visu_pars['VisuCoreExtent'],
                                                        visu_pars['VisuCoreSize'],
-                                                       visu_pars['VisuCoreFrameThickness'],
-                                                       visu_pars['VisuCoreFrameCount'],
-                                                       visu_pars['VisuFGOrderDesc'])
+                                                       visu_pars['VisuCoreFrameThickness'])
 
         for id_sub_vol in range(num_vols):
 
@@ -210,9 +208,7 @@ def nifti_getter(img_data_vol, visu_pars, correct_slope, nifti_version, qform, s
         # get resolution
         resolution = compute_resolution_from_visu_pars(visu_pars['VisuCoreExtent'],
                                                        visu_pars['VisuCoreSize'],
-                                                       visu_pars['VisuCoreFrameThickness'],
-                                                       visu_pars['VisuCoreFrameCount'],
-                                                       fgo_order_desc)
+                                                       visu_pars['VisuCoreFrameThickness'])
 
         # compute affine
         affine_transf = compute_affine_from_visu_pars(list(visu_pars['VisuCoreOrientation'])[0],
