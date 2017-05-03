@@ -359,7 +359,7 @@ def compute_resolution_from_visu_pars(vc_extent, vc_size, vc_frame_tickness):
 
 
 def compute_affine_from_visu_pars(vc_orientation, vc_position, vc_transposition, vc_dim, resolution,
-                                  according_to_manual=True, keep_det_positive=False):
+                                  according_to_manual=False, keep_det_positive=True):
     """
     :param vc_orientation: visu core orientation parameter.
     :param vc_position: visu core position parameter.
