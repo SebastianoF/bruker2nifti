@@ -110,6 +110,7 @@ def nifti_getter(img_data_vol, visu_pars, correct_slope, nifti_version, qform, s
             affine_transf = compute_affine_from_visu_pars(
                                    list(visu_pars['VisuCoreOrientation'])[id_sub_vol * vol_shape[2]],
                                    list(visu_pars['VisuCorePosition'])[id_sub_vol * vol_shape[2]],
+                                   visu_pars['VisuSubjectPosition'],
                                    resolution)
 
             # get sub volume in the correct shape
@@ -161,6 +162,7 @@ def nifti_getter(img_data_vol, visu_pars, correct_slope, nifti_version, qform, s
         # compute affine
         affine_transf = compute_affine_from_visu_pars(list(visu_pars['VisuCoreOrientation'])[0],
                                                       list(visu_pars['VisuCorePosition'])[0],
+                                                      visu_pars['VisuSubjectPosition'],
                                                       resolution)
 
         if nifti_version == 1:

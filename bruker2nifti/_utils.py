@@ -358,22 +358,28 @@ def compute_resolution_from_visu_pars(vc_extent, vc_size, vc_frame_tickness):
         raise IOError
 
 
-def compute_affine_from_visu_pars(vc_orientation, vc_position, resolution,
-                                  frame_body_as_frame_head=False, keep_same_det=True, consider_translation=False):
+def compute_affine_from_visu_pars(vc_orientation, vc_position, vc_subject_position, resolution,
+                                  frame_body_as_frame_head=False, keep_same_det=True, consider_translation=False,
+                                  consider_subject_position=False):
     """
     :param vc_orientation: visu core orientation parameter.
     :param vc_position: visu core position parameter.
+    :param vc_subject_position: 'Head_Prone' or 'Head_Supine'. If head supine and if consider_subject_position is True
+    it invert the direction of the axis anterior-posterior.
     :param resolution: resoultion of the image, output of compute_resolution_from_visu_pars in the same module.
     :param frame_body_as_frame_head: [False] This standard is the standard for me and my dataset. To get the
     behaviour described in the manual set to False.
     :param keep_same_det: in case you want the determinant to be the same as the input one. Consider it in particular
     if frame_body_as_frame_head is set to False.
     :param consider_translation: if you do not need the translation information for your further studies.
+    :param consider_subject_position: [False] The reason why sometimes this must be considered for a correct
+    orientation and sometimes must not, is that this parameter is tuned to voluntarily switch from radiological
+    to neurological coordinate systems. If the subject is Prone and the technician wants to have the coordinates
+    in neurological it can consciously set the variable vc_subject_position to 'Head_Supine'.
     :return:
     """
-    # TODO prone - supine information encoded in visu_pars not considered now.
 
-    # Cleaning here the input matrix
+    # Cleaning here the input matrix. Problems with the precision of zeros sometimes.
 
     vc_orientation = np.linalg.inv(vc_orientation.reshape([3, 3], order='F'))
     vc_orientation_det = np.linalg.det(vc_orientation)
@@ -394,11 +400,15 @@ def compute_affine_from_visu_pars(vc_orientation, vc_position, resolution,
 
     rotational_part = vc_orientation.dot(np.diag(resolution))
 
-    result = np.eye(4)
+    result = np.eye(4, dtype=np.float64)
     result[0:3, 0:3] = rotational_part
 
     if consider_translation:
         result[0:3, 3] = vc_position
+
+    if consider_subject_position:
+        if vc_subject_position == 'Head_Prone':
+            result[1, :] = -1 * result[1, :]
 
     if keep_same_det:
         if (np.linalg.det(result) < 0 < vc_orientation_det) or (np.linalg.det(result) > 0 > vc_orientation_det):
