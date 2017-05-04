@@ -359,7 +359,7 @@ def compute_resolution_from_visu_pars(vc_extent, vc_size, vc_frame_tickness):
 
 
 def compute_affine_from_visu_pars(vc_orientation, vc_position, resolution,
-                                  frame_body_as_frame_head=False, keep_same_det=True):
+                                  frame_body_as_frame_head=False, keep_same_det=True, consider_translation=False):
     """
     :param vc_orientation: visu core orientation parameter.
     :param vc_position: visu core position parameter.
@@ -368,11 +368,12 @@ def compute_affine_from_visu_pars(vc_orientation, vc_position, resolution,
     behaviour described in the manual set to False.
     :param keep_same_det: in case you want the determinant to be the same as the input one. Consider it in particular
     if frame_body_as_frame_head is set to False.
+    :param consider_translation: if you do not need the translation information for your further studies.
     :return:
     """
     # TODO prone - supine information encoded in visu_pars not considered now.
 
-    # Cleaning here
+    # Cleaning here the input matrix
 
     vc_orientation = np.linalg.inv(vc_orientation.reshape([3, 3], order='F'))
     vc_orientation_det = np.linalg.det(vc_orientation)
@@ -395,7 +396,9 @@ def compute_affine_from_visu_pars(vc_orientation, vc_position, resolution,
 
     result = np.eye(4)
     result[0:3, 0:3] = rotational_part
-    result[0:3, 3] = vc_position
+
+    if consider_translation:
+        result[0:3, 3] = vc_position
 
     if keep_same_det:
         if (np.linalg.det(result) < 0 < vc_orientation_det) or (np.linalg.det(result) > 0 > vc_orientation_det):
