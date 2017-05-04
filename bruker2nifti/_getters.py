@@ -1,46 +1,10 @@
 import os
 import nibabel as nib
 import numpy as np
+import warnings
 
 from _utils import bruker_read_files, elim_consecutive_duplicates, slope_corrector, compute_affine_from_visu_pars, \
     compute_resolution_from_visu_pars
-
-
-def get_separate_shells_b_vals_b_vect_from_method(method, num_shells=3, num_initial_dir_to_skip=None, verbose=0):
-    """
-    From info structure returns the b-vals and b-vect separated by shells.
-    :param method: info structure, output of get_info_and_img_data.
-    :param num_shells: [3] number of shells of the dwi
-    :param num_initial_dir_to_skip: [None] some of the initial directions may be all b0. This information can be
-    inserted manually, or it is automatically. If None the values is estimated from the b-values (all the first
-    b-values lower than 10 are considered to be skipped).
-    :param verbose: 0 no, 1 yes, 2 yes for debug.
-    :return [[bvals splitted per shell], [bvect splitted per shell]]: list of lists of b-values and b-vectors per shell.
-     a different list for each shell for b-vals and b-vect
-    """
-    if num_initial_dir_to_skip is None:
-        num_initial_dir_to_skip = len([b for b in method['DwEffBval'] if b < 10])
-
-    b_vals = method['DwEffBval'][num_initial_dir_to_skip:]
-    b_vects = method['DwGradVec'][num_initial_dir_to_skip:]
-    if verbose > 1:
-        print(b_vals)
-        print(b_vects)
-
-    b_vals_per_shell = []
-    b_vect_per_shell = []
-
-    for k in range(num_shells):
-        b_vals_per_shell.append(b_vals[k::num_shells])
-        b_vect_per_shell.append(b_vects[k::num_shells])
-
-    # sanity check
-    num_directions = len(b_vals_per_shell[0])
-    for k in range(num_shells):
-        if not len(b_vals_per_shell[k]) == len(b_vect_per_shell[k]) == num_directions:
-            raise IOError
-
-    return [b_vals_per_shell, b_vect_per_shell]
 
 
 def get_list_scans(start_path):
@@ -59,11 +23,6 @@ def get_list_scans(start_path):
         sub_indent = (' ' * 4) * (level + 1)
         for f in filenames:
             print('{}{}'.format(sub_indent, f))
-
-    if not scans_list:  # if scan_list is []
-        msg = 'Input study does not have scans stored in sub-folders named with progressive positive integers.'
-        msg += '\nIs it a paravision study?'
-        raise IOError(msg)
 
     return scans_list
 
@@ -87,15 +46,6 @@ def get_subject_name(pfo_study):
     """
     info_sj = get_info_sj(pfo_study)
     return info_sj['SUBJECT_name']
-
-
-def get_subject_id(pfo_study):
-    """
-    :param pfo_study: path to study folder.
-    :return: id of the subject. See get_subject_name
-    """
-    info_sj = get_info_sj(pfo_study)
-    return info_sj['SUBJECT_id'][0]
 
 
 def nifti_getter(img_data_vol, visu_pars, correct_slope, nifti_version, qform, sform):
@@ -160,8 +110,6 @@ def nifti_getter(img_data_vol, visu_pars, correct_slope, nifti_version, qform, s
             affine_transf = compute_affine_from_visu_pars(
                                    list(visu_pars['VisuCoreOrientation'])[id_sub_vol * vol_shape[2]],
                                    list(visu_pars['VisuCorePosition'])[id_sub_vol * vol_shape[2]],
-                                   visu_core_transposition[id_sub_vol * vol_shape[2]],
-                                   visu_pars['VisuCoreDim'],
                                    resolution)
 
             # get sub volume in the correct shape

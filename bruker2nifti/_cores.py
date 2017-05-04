@@ -2,22 +2,22 @@ import os
 import nibabel as nib
 import sys
 import numpy as np
-import pprint
+import warnings
 
 from os.path import join as jph
 
-from _getters import get_list_scans, nifti_getter, get_separate_shells_b_vals_b_vect_from_method
+from _getters import get_list_scans, nifti_getter
 from _utils import bruker_read_files, normalise_b_vect, from_dict_to_txt_sorted, set_new_data
 
 
 def scan2struct(pfo_scan,
-                separate_shells_if_dwi=False,
-                num_shells=3,
-                num_initial_dir_to_skip=7,
                 correct_slope=True,
                 nifti_version=1,
                 qform=2,
-                sform=1
+                sform=1,
+                get_acqp=True,
+                get_method=True,
+                get_reco=True
                 ):
     """
     First part of the bridge. Info required to fill nifti header are entangled in a non-linear way.
@@ -26,12 +26,14 @@ def scan2struct(pfo_scan,
     Parse a scan into a structure called struct, collecting the nifti conversion(s) if more than one
     sub-scan is included in the same scan, other than the additional information.
 
-    Version in progress that takes into account all the information
     :param pfo_scan:
     :param correct_slope:
     :param nifti_version:
     :param qform:
     :param sform:
+    :param get_acqp:
+    :param get_method:
+    :param get_reco:
     :return: output_data data structure containing the nibabel image(s) {nib, acqp, method, reco, visu_pars}
     """
     # as scan 2 struct with a different strategy. Will see...!
@@ -39,39 +41,17 @@ def scan2struct(pfo_scan,
     if not os.path.isdir(pfo_scan):
         raise IOError('Input folder does not exists.')
 
-    # Get information from relevant files in the folder structure
-    acqp = bruker_read_files('acqp', pfo_scan)
-    method = bruker_read_files('method', pfo_scan)
-    reco = bruker_read_files('reco', pfo_scan)
-
-    if acqp == {} and method == {} and reco == {}:
-        raise IOError("No 'acqp', 'method' and 'reco' files. \n\nAre you sure the input folder contains a Bruker scan?")
-
-    # Get data endian_nes - default big!!
-    if reco['RECO_byte_order'] == 'littleEndian':
-        data_endian_ness = 'little'
-    elif reco['RECO_byte_order'] == 'bigEndian':
-        data_endian_ness = 'big'
-    else:
-        data_endian_ness = 'big'
-
-    # Get datatype
-    if reco['RECO_wordtype'] == '_32BIT_SGN_INT':
-        dt = np.int32
-    elif reco['RECO_wordtype'] == '_16BIT_SGN_INT':
-        dt = np.int16
-    elif reco['RECO_wordtype'] == '_8BIT_UNSGN_INT':
-        dt = np.uint8
-    elif reco['RECO_wordtype'] == '_32BIT_FLOAT':
-        dt = np.float32
-    else:
-        raise IOError('Unknown data type.')
-
     # Get system endian_nes
     system_endian_nes = sys.byteorder
 
     # Get sub-scans series in the same scan. Typically there is only one.
     list_sub_scans = get_list_scans(jph(pfo_scan, 'pdata'))
+
+    if not list_sub_scans:
+        warn_msg = "\nNo sub scan in the folder structure: \n{}. \nAre you sure the input folder contains a " \
+                   "proper Bruker scan?\n".format(jph(pfo_scan, 'pdata'))
+        warnings.warn(warn_msg)
+        return None
 
     nib_scans_list = []
     visu_pars_list = []
@@ -80,29 +60,91 @@ def scan2struct(pfo_scan,
 
         visu_pars = bruker_read_files('visu_pars', pfo_scan, sub_scan_num=id_sub_scan)
 
+        if visu_pars == {}:
+            warn_msg = "\nNo 'visu_pars' data found here: \n{}. \nAre you sure the input folder contains a " \
+                       "proper Bruker scan?\n".format(jph(pfo_scan, 'pdata', id_sub_scan))
+            warnings.warn(warn_msg)
+            return None
+
+        # Get data endian_nes - default big!!  TODO get it from visu_pars
+        if visu_pars['VisuCoreByteOrder'] == 'littleEndian':
+            data_endian_ness = 'little'
+        elif visu_pars['VisuCoreByteOrder'] == 'bigEndian':
+            data_endian_ness = 'big'
+        else:
+            data_endian_ness = 'big'
+
+        # Get datatype
+        if visu_pars['VisuCoreWordType'] == '_32BIT_SGN_INT':
+            dt = np.int32
+        elif visu_pars['VisuCoreWordType'] == '_16BIT_SGN_INT':
+            dt = np.int16
+        elif visu_pars['VisuCoreWordType'] == '_8BIT_UNSGN_INT':
+            dt = np.uint8
+        elif visu_pars['VisuCoreWordType'] == '_32BIT_FLOAT':
+            dt = np.float32
+        else:
+            raise IOError('Unknown data type.')
+
         # GET IMAGE VOLUME
         if os.path.exists(jph(pfo_scan, 'pdata', id_sub_scan, '2dseq')):
             img_data_vol = np.copy(np.fromfile(jph(pfo_scan, 'pdata', id_sub_scan, '2dseq'), dtype=dt))
         else:
-            return 'No data here {}'.format(jph(pfo_scan, 'pdata', id_sub_scan))
+            warn_msg = "\nNo '2dseq' data found here: \n{}. \nAre you sure the input folder contains a " \
+                       "proper Bruker scan?\n".format(jph(pfo_scan, 'pdata', id_sub_scan))
+            warnings.warn(warn_msg)
+            return None
 
         if not data_endian_ness == system_endian_nes:
             img_data_vol.byteswap(True)
 
-        if 'dtiepi' in method['Method'].lower():
+        if 'VisuAcqSequenceName' in visu_pars.keys():
+            visu_pars_acq_sequence_name = visu_pars['VisuAcqSequenceName']
+        else:
+            visu_pars_acq_sequence_name = ''
+
+        is_dwi = 'dtiepi' in visu_pars_acq_sequence_name.lower()
+
+        if is_dwi:
+            # Force to not correcting the slope
             correct_slope = False
+            # Force method to be parsed, no matter the user choice:
+            get_method = True
 
         # Generate the nifti image using visu_pars.
         nib_im = nifti_getter(img_data_vol, visu_pars, correct_slope, nifti_version, qform, sform)
 
-        # If DWI orient b-vector using visu-pars in coherence with the nib_im obtained.
-        if 'dtiepi' in method['Method'].lower():
+        if is_dwi:
             pass
+            # If DWI orient b-vector using visu-pars in coherence with the nib_im obtained.
+            # TODO
 
         nib_scans_list.append(nib_im)
         visu_pars_list.append(visu_pars)
 
-    # -- RETURN DATA STRUCTURE
+    # -- Get additional data
+
+    # Get information from acqp, method, reco, if they exists.
+    acqp   = {}
+    method = {}
+    reco   = {}
+
+    if get_acqp:
+        acqp = bruker_read_files('acqp', pfo_scan)
+        if acqp == {}:
+            print("Warning: No 'acqp' file to parse.")
+
+    if get_method:
+        method = bruker_read_files('method', pfo_scan)
+        if method == {}:
+            print("Warning: No 'method' file to parse.")
+
+    if get_reco:
+        reco = bruker_read_files('reco', pfo_scan)
+        if reco == {}:
+            print("Warning: No 'method' file to parse.")
+
+    # -- Return data structure
 
     struct_scan = {'nib_scans_list' : nib_scans_list,
                    'visu_pars_list' : visu_pars_list,
@@ -117,18 +159,31 @@ def write_struct(struct,
                  pfo_output,
                  fin_scan='',
                  save_human_readable=True,
-                 separate_shells_if_dwi=False,
-                 save_b0_if_dwi=False,
-                 num_shells=3,
-                 num_initial_dir_to_skip=None,
+                 save_b0_if_dwi=True,
                  normalise_b_vectors_if_dwi=True,
+                 get_acqp=True,
+                 get_method=True,
+                 get_reco=True,
                  verbose=1):
+    """
+
+    :param struct:
+    :param pfo_output:
+    :param fin_scan:
+    :param save_human_readable:
+    :param save_b0_if_dwi:
+    :param normalise_b_vectors_if_dwi:
+    :param get_acqp:
+    :param get_method:
+    :param get_reco:
+    :param verbose:
+    :return:
+    """
 
     if not os.path.isdir(pfo_output):
         raise IOError('Output folder does not exists.')
 
-    if isinstance(struct, str):
-        print struct
+    if struct is None:
         return
 
     if not len(struct['visu_pars_list']) == len(struct['nib_scans_list']):
@@ -136,21 +191,18 @@ def write_struct(struct,
 
     if fin_scan is None:
         fin_scan = ''
-    # print ordered dictionaries values to console (logorrheic rather than verbose!)
-    if verbose > 2:
-        print('\n\n -------------- acqp --------------')
-        print(pprint.pprint(struct['acqp']))
-        print('\n\n -------------- method --------------')
-        print(pprint.pprint(struct['method']))
-        print('\n\n -------------- reco --------------')
-        print(pprint.pprint(struct['reco']))
-        print('\n\n -----------------------------------')
 
     # -- WRITE Additional data shared by all the sub-scans:
 
     # if the modality is a DtiEpi or Dwimage then save the DW directions, b values and b vectors in separate csv .txt.
-    is_dwi = 'dtiepi' in struct['method']['Method'].lower() or 'dwi' in struct['method']['Method'].lower()
+
+    is_dwi = 'dtiepi' in struct['visu_pars_list'][0]['VisuAcqSequenceName'].lower() or \
+                  'dwi' in struct['visu_pars_list'][0]['VisuAcqSequenceName'].lower()
+
     if is_dwi:  # modality information
+
+        # Impose to get the method paramter file saved. Method file is not optional for this modality.
+        get_method = True
 
         dw_dir = struct['method']['DwDir']
         if normalise_b_vectors_if_dwi:
@@ -165,80 +217,37 @@ def write_struct(struct,
             msg = 'Diffusion weighted directions saved in ' + jph(pfo_output, fin_scan + '_DwDir.npy')
             print(msg)
 
-        # DwEffBval and DwGradVec are divided by shells
-        if separate_shells_if_dwi:
+        b_vals = struct['method']['DwEffBval']
+        b_vects = struct['method']['DwGradVec']
 
-            # save DwEffBval DwGradVec
-            [list_b_vals, list_b_vects] = get_separate_shells_b_vals_b_vect_from_method(
-                                                            struct['method'],
-                                                            num_shells=num_shells,
-                                                            num_initial_dir_to_skip=num_initial_dir_to_skip)
-            for i in range(num_shells):
-                modality = struct['method']['Method'].split(':')[-1]
-                path_b_vals_shell_i_npy = jph(pfo_output,
-                                                   fin_scan + modality + '_DwEffBval_shell' + str(i) + '.npy')
-                path_b_vect_shell_i_npy = jph(pfo_output,
-                                                   fin_scan + modality + '_DwGradVec_shell' + str(i) + '.npy')
+        np.save(jph(pfo_output, fin_scan + '_DwEffBval.npy'), b_vals)
+        np.save(jph(pfo_output, fin_scan + '_DwGradVec.npy'), b_vects)
 
-                np.save(path_b_vals_shell_i_npy, list_b_vals[i])
-                np.save(path_b_vect_shell_i_npy, list_b_vects[i])
+        if save_human_readable:
+            np.savetxt(jph(pfo_output, fin_scan + '_DwEffBval.txt'), b_vals, fmt='%.14f')
+            np.savetxt(jph(pfo_output, fin_scan + '_DwGradVec.txt'), b_vects, fmt='%.14f')
 
-                if save_human_readable:
-
-                    path_b_vals_shell_i_txt = jph(pfo_output,
-                                                  fin_scan + modality + '_DwEffBval_shell' + str(i) + '.txt')
-                    path_b_vect_shell_i_txt = jph(pfo_output,
-                                                  fin_scan + modality + '_DwGradVec_shell' + str(i) + '.txt')
-                    np.savetxt(path_b_vals_shell_i_txt, list_b_vals[i], fmt='%.14f')
-                    np.savetxt(path_b_vect_shell_i_txt, list_b_vects[i], fmt='%.14f')
-
-                if verbose > 0:
-                    print('B-vectors for shell {0} saved in {1}'.format(str(i), path_b_vals_shell_i_npy))
-                    print('B-values for shell {0} saved in {1}'.format(str(i), path_b_vect_shell_i_npy))
-
-        else:
-
-            b_vals = struct['method']['DwEffBval']
-            b_vects = struct['method']['DwGradVec']
-
-            np.save(jph(pfo_output, fin_scan + '_DwEffBval.npy'), b_vals)
-            np.save(jph(pfo_output, fin_scan + '_DwGradVec.npy'), b_vects)
-
-            if save_human_readable:
-                np.savetxt(jph(pfo_output, fin_scan + '_DwEffBval.txt'), b_vals, fmt='%.14f')
-                np.savetxt(jph(pfo_output, fin_scan + '_DwGradVec.txt'), b_vects, fmt='%.14f')
-
-            if verbose > 0:
-                print('B-vectors saved in {}'.format(jph(pfo_output, fin_scan + '_DwEffBval.npy')))
-                print('B-values  saved in {}'.format(jph(pfo_output, fin_scan + '_DwGradVec.npy')))
+        if verbose > 0:
+            print('B-vectors saved in {}'.format(jph(pfo_output, fin_scan + '_DwEffBval.npy')))
+            print('B-values  saved in {}'.format(jph(pfo_output, fin_scan + '_DwGradVec.npy')))
 
     # save the dictionary as numpy array containing the corresponding dictionaries
-    np.save(jph(pfo_output, fin_scan + '_acqp.npy'),      struct['acqp'])
-    np.save(jph(pfo_output, fin_scan + '_method.npy'),    struct['method'])
-    np.save(jph(pfo_output, fin_scan + '_reco.npy'),      struct['reco'])
 
-    # save in ordered readable txt files.
-    if save_human_readable:
-        from_dict_to_txt_sorted(struct['acqp'],   jph(pfo_output,   fin_scan + '_acqp.txt'))
-        from_dict_to_txt_sorted(struct['method'], jph(pfo_output,   fin_scan + '_method.txt'))
-        from_dict_to_txt_sorted(struct['reco'],   jph(pfo_output,   fin_scan + '_reco.txt'))
+    if get_acqp and struct['acqp'] is not {}:
+        np.save(jph(pfo_output, fin_scan + '_acqp.npy'), struct['acqp'])
+        if save_human_readable:
+            from_dict_to_txt_sorted(struct['acqp'], jph(pfo_output, fin_scan + '_acqp.txt'))
+    if get_method and struct['method'] is not {}:
+        np.save(jph(pfo_output, fin_scan + '_method.npy'), struct['method'])
+        if save_human_readable:
+            from_dict_to_txt_sorted(struct['method'], jph(pfo_output, fin_scan + '_method.txt'))
+    if get_reco and struct['reco'] is not {}:
+        np.save(jph(pfo_output, fin_scan + '_reco.npy'), struct['reco'])
+        if save_human_readable:
+            from_dict_to_txt_sorted(struct['reco'], jph(pfo_output, fin_scan + '_reco.txt'))
 
-    summary_info = {"acqp['ACQ_sw_version']"            : struct['acqp']['ACQ_sw_version'],
-                    "method['SpatDimEnum']"             : struct['method']['SpatDimEnum'],
-                    "method['Matrix']"                  : struct['method']['Matrix'],
-                    "method['SpatResol']"               : struct['method']['SpatResol'],
-                    "method['Method']"                  : struct['method']['Method'],
-                    "method['SPackArrSliceOrient']"     : struct['method']['SPackArrSliceOrient'],
-                    "method['SPackArrReadOrient']"      : struct['method']['SPackArrReadOrient'],
-                    "reco['RECO_size']"                 : struct['reco']['RECO_size'],
-                    "reco['RECO_inp_order']"            : struct['reco']['RECO_inp_order'],
-                    "acqp['NR']"                        : struct['acqp']['NR'],
-                    "acqp['NI']"                        : struct['acqp']['NI'],
-                    "acqp['ACQ_n_echo_images']"         : struct['acqp']['ACQ_n_echo_images'],
-                    "acqp['ACQ_slice_thick']"           : struct['acqp']['ACQ_slice_thick']
-                    }
-
-    # WRITE DATA SPECIFIC FOR EACH Sub-scan:
+    # Visu_pars and summary info for each sub-scan:
+    summary_info = {}
 
     for i in range(len(struct['visu_pars_list'])):
 
@@ -262,8 +271,10 @@ def write_struct(struct,
                 slope = np.atleast_2d(slope)
             np.savetxt(jph(pfo_output, fin_scan + i_label + 'slope.txt'), slope, fmt='%.14f')
 
-        # Update dictionary for the summary:
-        summary_info_i = {i_label[1:] + "visu_pars['VisuCoreDataSlope']"   :
+        # Update summary dictionary:
+        summary_info_i = {i_label[1:] + "visu_pars['VisuUid']"   :
+                              struct['visu_pars_list'][i]['VisuUid'],
+                          i_label[1:] + "visu_pars['VisuCoreDataSlope']"   :
                               struct['visu_pars_list'][i]['VisuCoreDataSlope'],
                           i_label[1:] + "visu_pars['VisuCoreSize']"        :
                               struct['visu_pars_list'][i]['VisuCoreSize'],
@@ -272,15 +283,23 @@ def write_struct(struct,
                           i_label[1:] + "visu_pars['VisuCorePosition']"    :
                               struct['visu_pars_list'][i]['VisuCorePosition']}
 
-        if struct['method']['SpatDimEnum'] == '2D':
+        if len(list(struct['visu_pars_list'][i]['VisuCoreExtent'])) == 2:
+            # equivalent to struct['method']['SpatDimEnum'] == '2D':
             if 'VisuCoreSlicePacksSlices' in struct['visu_pars_list'][i].keys():
                 summary_info_i.update({i_label[1:] + "visu_pars['VisuCoreSlicePacksSlices']":
                                          struct['visu_pars_list'][i]['VisuCoreSlicePacksSlices']})
 
-        summary_info.update(summary_info_i)
+        if len(list(struct['visu_pars_list'][i]['VisuCoreExtent'])) == 3 and \
+                        'VisuCoreDiskSliceOrder' in struct['visu_pars_list'][i].keys():
+            # first part equivalent to struct['method']['SpatDimEnum'] == '3D':
+            summary_info_i.update({i_label[1:] + "visu_pars['VisuCoreDiskSliceOrder']"    :
+                                      struct['visu_pars_list'][i]['VisuCoreDiskSliceOrder']})
 
-        # C) Save the summary info with the updated information.
-        from_dict_to_txt_sorted(summary_info, jph(pfo_output, fin_scan + '_summary.txt'))
+        if 'VisuCreatorVersion' in struct['visu_pars_list'][i].keys():
+            summary_info_i.update({i_label[1:] + "visu_pars['VisuCreatorVersion']":
+                                       struct['visu_pars_list'][i]['VisuCreatorVersion']})
+
+        summary_info.update(summary_info_i)
 
         # WRITE NIFTI IMAGES:
 
@@ -315,3 +334,33 @@ def write_struct(struct,
                 if verbose > 0:
                     msg = 'b0 scan saved alone in ' + pfi_scan
                     print(msg)
+
+    # complete the summary info with additional informations from other parameter files, if required:
+
+    if get_acqp and struct['acqp'] is not {}:
+
+        summary_info_acqp = {"acqp['ACQ_sw_version']": struct['acqp']['ACQ_sw_version'],
+                             "acqp['NR']": struct['acqp']['NR'],
+                             "acqp['NI']": struct['acqp']['NI'],
+                             "acqp['ACQ_n_echo_images']": struct['acqp']['ACQ_n_echo_images'],
+                             "acqp['ACQ_slice_thick']": struct['acqp']['ACQ_slice_thick']}
+        summary_info.update(summary_info_acqp)
+
+    if get_method and struct['method'] is not {}:
+
+        summary_info_method = {"method['SpatDimEnum']": struct['method']['SpatDimEnum'],
+                               "method['Matrix']": struct['method']['Matrix'],
+                               "method['SpatResol']": struct['method']['SpatResol'],
+                               "method['Method']": struct['method']['Method'],
+                               "method['SPackArrSliceOrient']": struct['method']['SPackArrSliceOrient'],
+                               "method['SPackArrReadOrient']": struct['method']['SPackArrReadOrient']}
+        summary_info.update(summary_info_method)
+
+    if get_reco and struct['reco'] is not {}:
+
+        summary_info_reco = {"reco['RECO_size']": struct['reco']['RECO_size'],
+                        "reco['RECO_inp_order']": struct['reco']['RECO_inp_order']}
+        summary_info.update(summary_info_reco)
+
+    # Finally summary info with the updated information.
+    from_dict_to_txt_sorted(summary_info, jph(pfo_output, fin_scan + '_summary.txt'))

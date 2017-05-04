@@ -265,7 +265,7 @@ def slope_corrector(data, slope, num_initial_dir_to_skip=None):
                 for t in range(slope.size):
                     data[..., t, k] = data[..., t, k] * slope[t]
         else:
-            raise IOError('Spam, consider your case debugging from here.')
+            raise IOError('If you are here, your case cannot be converted from this tool. Debug from here.')
 
     elif len(data.shape) == 5 and len(slope.shape) == 1 and data.shape[3] == slope.shape[0]:
 
@@ -274,7 +274,7 @@ def slope_corrector(data, slope, num_initial_dir_to_skip=None):
                 for t in range(slope.size):
                     data[..., t, k] = data[..., t, k] * slope[t]
         else:
-            raise IOError('Spam, consider your case debugging from here.')
+            raise IOError('If you are here, your case cannot be converted from this tool. Debug from here.')
 
     else:
         if slope.size == data.shape[3]:
@@ -349,7 +349,7 @@ def compute_resolution_from_visu_pars(vc_extent, vc_size, vc_frame_tickness):
     if isinstance(vc_frame_tickness, np.ndarray):
         vc_frame_tickness = vc_frame_tickness[0]
 
-    if len(vc_extent) == 2:  # and len(vc_order_desc) == 1
+    if len(vc_extent) == 2:
         resolution += [vc_frame_tickness]
         return resolution
     elif len(vc_extent) == 3:
@@ -358,60 +358,38 @@ def compute_resolution_from_visu_pars(vc_extent, vc_size, vc_frame_tickness):
         raise IOError
 
 
-def compute_affine_from_visu_pars(vc_orientation, vc_position, vc_transposition, vc_dim, resolution,
-                                  according_to_manual=False, keep_det_positive=True):
+def compute_affine_from_visu_pars(vc_orientation, vc_position, resolution,
+                                  frame_body_as_frame_head=False, keep_same_det=True):
     """
     :param vc_orientation: visu core orientation parameter.
     :param vc_position: visu core position parameter.
-    :param vc_transposition: visu core transposition parameter (see ParaVision manual D-2-65).
-    :param vc_dim: VisuCoreDim number of dimension of a visu-frame.
     :param resolution: resoultion of the image, output of compute_resolution_from_visu_pars in the same module.
-    :param according_to_manual: [False] This standard is the standard for me and my dataset. To get the
+    :param frame_body_as_frame_head: [False] This standard is the standard for me and my dataset. To get the
     behaviour described in the manual set to False.
-    :param keep_det_positive: in case you want the determinant of the final transformation to be positive.
+    :param keep_same_det: in case you want the determinant to be the same as the input one. Consider it in particular
+    if frame_body_as_frame_head is set to False.
     :return:
-    ----
-    Issue:
-
-    According to the manual, and assuming I am interpreting it correctly, the vc_transposition should switch last
-    two column if 1 or last colum with first column if 2 or not do anything if 0, being zero as default.
-
-    This was not working for my dataset.
-    After sleepless nights and loosing access to paradise, I found that, to have a correct orientation, the last two
-    columns of the inverted of the orientation matrix should always be switched and that by default the first two
-    columns must always have negative signs while the third must be positive.
-
-    Please BEWARE this works for my data-sets, may not be a general rule and it is not done following any manual
-    descriptions of the parameters. Switch according_to_manual to True to have the manual behaviour and visually check.
     """
+    # TODO prone - supine information encoded in visu_pars not considered now.
 
-    # get column major and invert the orientation according to manual.
-    # (raw goes from scanner to image coordinates, nifti from image to scanner coordinates)
+    # Cleaning here
+
     vc_orientation = np.linalg.inv(vc_orientation.reshape([3, 3], order='F'))
+    vc_orientation_det = np.linalg.det(vc_orientation)
 
-    # A) According-to-manual way of interpreting the transposition parameter:
-    if according_to_manual:
+    if vc_orientation_det == 0:
+        raise IOError('Orientation determinant is 0. Cannot interpret this dataset.')
 
-        trp = int(vc_transposition)
-        dim = int(vc_dim)
+    if not frame_body_as_frame_head:
 
-        if 0 < trp < dim:
-            vc_orientation = vc_orientation.dot(np.array([[1, 0, 0], [0, 0, 1], [0, 1, 0]]))
-
-        elif trp == int(vc_dim):
-            vc_orientation = vc_orientation.dot(np.array([[1, 0, 0], [0, 0, 1], [0, 1, 0]]))
-
-    # B) NOT according-to-manual, Alas! working for my dataset.
-    else:
-        # switch second and third colum
         vc_orientation = vc_orientation.dot(np.array([[1, 0, 0], [0, 0, 1], [0, 1, 0]]))
-        # ensure the fisrt and second rows are negative while the third is positive
-        if -1 not in list(vc_orientation[:, 0]):
-            vc_orientation[:, 0] = -1 * vc_orientation[:, 0]
-        if -1 not in list(vc_orientation[:, 1]):
-            vc_orientation[:, 1] = -1 * vc_orientation[:, 1]
-        if 1 not in list(vc_orientation[:, 2]):
-            vc_orientation[:, 2] = -1 * vc_orientation[:, 2]
+
+    if -1 not in list(vc_orientation[:, 0]):
+        vc_orientation[:, 0] = -1 * vc_orientation[:, 0]
+    if -1 not in list(vc_orientation[:, 1]):
+        vc_orientation[:, 1] = -1 * vc_orientation[:, 1]
+    if 1 not in list(vc_orientation[:, 2]):
+        vc_orientation[:, 2] = -1 * vc_orientation[:, 2]
 
     rotational_part = vc_orientation.dot(np.diag(resolution))
 
@@ -419,9 +397,8 @@ def compute_affine_from_visu_pars(vc_orientation, vc_position, vc_transposition,
     result[0:3, 0:3] = rotational_part
     result[0:3, 3] = vc_position
 
-    # this is added for consistency with possible wrongly acquired dataset
-    if keep_det_positive and np.linalg.det(result) < 0:
-        # change left-right orientation to keep determinant positive
-        result[0, :] = -1 * result[0, :]
+    if keep_same_det:
+        if (np.linalg.det(result) < 0 < vc_orientation_det) or (np.linalg.det(result) > 0 > vc_orientation_det):
+            result[0, :] = -1 * result[0, :]
 
     return result

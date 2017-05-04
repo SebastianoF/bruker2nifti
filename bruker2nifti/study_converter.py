@@ -91,11 +91,15 @@ def convert_a_study(pfo_study_bruker_input,
     pfo_nifti_study = os.path.join(pfo_study_nifti_output, study_name)
     os.system('mkdir -p {0}'.format(pfo_nifti_study))
 
+    print('\nStudy conversion \n{}\nstarted:\n'.format(pfo_study_bruker_input))
+
     for bruker_scan_name, scan_name, nifti_file_name in zip(scans_list, list_new_name_each_scan,
                                                              list_new_nifti_file_names):
 
         pfo_scan_bruker = os.path.join(pfo_study_bruker_input, bruker_scan_name)
         pfo_scan_nifti = os.path.join(pfo_nifti_study, scan_name)
+
+        print('\nConverting experiment {}:\n'.format(bruker_scan_name))
 
         convert_a_scan(pfo_scan_bruker,
                        pfo_scan_nifti,
@@ -110,3 +114,5 @@ def convert_a_study(pfo_study_bruker_input,
                        correct_slope=correct_slope,
                        verbose=verbose
                        )
+
+    print('\nStudy converted and saved in \n{}'.format(pfo_study_nifti_output))

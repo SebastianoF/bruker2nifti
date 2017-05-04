@@ -33,6 +33,9 @@ embedded in the same processed image.
 the raw Bruker and to progressively creating the nifti images.
 
 
+
+
+
 ### Code rationale <a name="rationale"></a>
 
 The code is written an runs in python 2.7 (cross compatibility with python 3 is implemented when possible but 
@@ -111,17 +114,18 @@ where each folder numbered 1 to 6 is an **experiment** or **scan**, whose sub-st
 ```
 Under pdata the (unzipped) file **2dseq** contains the information of the image volume. **d3proc** contains a summary of 
 the relevant information relate to the volume (lacking of orientation and resolution, among others; beware some converter uses
-only the d3proc to reconstruct the new image. In ParaVision version 6 some sub-scans may not have the d3proc file, as in the structure example below). 
+only the d3proc to reconstruct the new image. In ParaVision version 6 some sub-scans may not have the d3proc file, as in the structure example below
+moreover the d3proc is deprecated and will be entirely removed from the next ParaVision version software). 
 
 The Bruker structure contains more information than the one required to fill a
 nifti header (unique identifier, scanner setting, location, users, sample or subject scanned biometrics
 can appear in the Bruker raw data, if filled when scanning the data).
-To obtain relevant information to fill the nifti header (and b-values and b-vectors if any) 
-we can restrict our attention towards only some parameter files other than the 2dseq. These are:
-**method**, **acqp**, **reco** and **visu_pars**.
+To obtain relevant information to fill the nifti header (and b-values and b-vectors if any) only 
+the information from **visu_pars** should be considered, as when the ParaVision embedded DICOM converter is used, 
+only the **visu_pars** file is considered by the DICOM-converter..
+For completeness we will parse into numpy dictionaries (and human readable .txt files if required) also the parameters 
+in **method**, **acqp** and **reco**.
 
-When the ParaVision embedded DICOM converter is used, only the **visu_pars** file is considered by the DICOM-converter.
-For some scanner configuration, this may not contain the resolution of the scan.
 
 ## How to use the converter - Example <a name="example"></a>
 
@@ -279,9 +283,11 @@ from command line.
 information about Bruker format, other than the official documentation stored under 
 <PvInstDir>/prog/docu/english/pvman/D/Docs/D02_PvParams.pdf of the ParaVision installation. 
 + [pvconv](https://github.com/matthew-brett/pvconv): from Bruker to Analyze, Perl.
-+ [Bru2Nii](https://github.com/neurolabusc/Bru2Nii): from Bruker to Nifti, Pascal.
-+ [mpi](https://github.com/francopestilli/mpi): from Bruker to Vistasoft in Matlab.
-
++ [Bru2Nii](https://github.com/neurolabusc/Bru2Nii): from Bruker to Nifti, Pascal. Conversion is based on the parameters contained in the **reco** parameter file. This
+parameter file exists only if the image was created using ParaVision reconstruction.
++ [mpi](https://github.com/francopestilli/mpi): from Bruker to Vistasoft or Analyze in Matlab. As Bru2nii the conversion 
+is based on the parameters contained in the **reco** parameter file.
++ [Bruker2nifti](https://github.com/CristinaChavarrias/Bruker2nifti) from Bruker to Nifti, Matlab.
 ## Note about ParaVision versions 5 and 6 <a pv56="wip"></a>:
 
 Keeping in mind the caution note above, the converter can deal with ParaVision version 5 and 6 in the parsing of the parameters files .

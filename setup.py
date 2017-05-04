@@ -1,9 +1,7 @@
 #!/usr/bin/env python
-import os
 from setuptools import setup, find_packages
+from definitions import root_dir
 
-
-root_dir = os.path.abspath(os.path.dirname(__file__))
 
 infos = {
          'name': 'bruker2nifti',

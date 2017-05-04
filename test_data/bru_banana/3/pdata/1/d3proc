@@ -1,0 +1,34 @@
+##TITLE=Parameter List
+##JCAMPDX=4.24
+##DATATYPE=Parameter Values
+##ORIGIN=Bruker BioSpin MRI GmbH
+##OWNER=nmrsu
+$$ Wed Nov 30 12:21:00 2011 EST (UT-5h)  nmrsu
+$$ /opt/PV5.1/data/nmrsu/nmr/APMFruits_20111130.bh1/18/pdata/1/d3proc
+##$SEQTYPE=slices
+##$DATTYPE=ip_short
+##$IM_SIX=80
+##$IM_SIY=64
+##$IM_SIZ=5
+##$IM_SIT=1
+##$SIM_SIX=80
+##$SIM_SIY=64
+##$SIM_SIZ=5
+##$SIM_SIT=1
+$$ @vis= SEQTYPE DATTYPE IM_SIX IM_SIY IM_SIZ IM_SIT SIM_SIX SIM_SIY SIM_SIZ
+##$SIM_X0=0
+##$SIM_Y0=0
+##$SIM_Z0=0
+##$SIM_T0=0
+##$CEN_SLC=3
+##$THRESH=( 16 )
+60 255 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+##$D3_DESC=( 128 )
+<>
+##$PR_STA=( 16 )
+1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0
+##$PR_STP=( 16 )
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 8 32
+$$ @vis= SIM_SIT SIM_X0 SIM_Y0 SIM_Z0 SIM_T0 CEN_SLC THRESH D3_DESC PR_STA
+$$ @vis= PR_STP
+##END=
