@@ -327,5 +327,9 @@ Affine directions for Bruker data (Bruker convention still to be explored) to ni
 
 ## Thanks <a name="thanks"></a>
 
-Thanks to Bernard Siow (Centre for Advanced Biomedical Imaging, UCL) and Willy Gsell (Department of Imaging and Pathology, KU Leuven).
+Thanks to 
+Bernard Siow (Centre for Advanced Biomedical Imaging, UCL), 
+Willy Gsell (Department of Imaging and Pathology, KU Leuven) 
+and 
+Mattew Brett (Berkeley Brain Imaging Center).
 

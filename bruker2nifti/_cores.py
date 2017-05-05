@@ -7,7 +7,8 @@ import warnings
 from os.path import join as jph
 
 from _getters import get_list_scans, nifti_getter
-from _utils import bruker_read_files, normalise_b_vect, from_dict_to_txt_sorted, set_new_data
+from _utils import bruker_read_files, normalise_b_vect, from_dict_to_txt_sorted, set_new_data, \
+    apply_reorientation_to_b_vectors, compute_reorientation_b_vectors_matrix
 
 
 def scan2struct(pfo_scan,
@@ -15,28 +16,30 @@ def scan2struct(pfo_scan,
                 nifti_version=1,
                 qform=2,
                 sform=1,
-                get_acqp=True,
-                get_method=True,
-                get_reco=True
+                get_acqp=False,
+                get_method=False,
+                get_reco=False,
+                frame_body_as_frame_head=False,
+                keep_same_det=True,
+                consider_translation=False,
+                consider_subject_position=False
                 ):
     """
-    First part of the bridge. Info required to fill nifti header are entangled in a non-linear way.
-    Therefore it is necessarily to parse them in an intermediate structure, called here struct.
-    Struct has the final product as a nibable image, with the additional informations.
-    Parse a scan into a structure called struct, collecting the nifti conversion(s) if more than one
-    sub-scan is included in the same scan, other than the additional information.
-
-    :param pfo_scan:
-    :param correct_slope:
-    :param nifti_version:
-    :param qform:
-    :param sform:
-    :param get_acqp:
-    :param get_method:
-    :param get_reco:
-    :return: output_data data structure containing the nibabel image(s) {nib, acqp, method, reco, visu_pars}
+    First part of the bridge. Info required to fill nifti header are in the visu_pars file.
+    The user may want to parse as well acqp, method (must when EpiDti) and reco parameter files.
+    Data are parsed in the intermediate dictionary struct containing the final scan(s) converted in nibabel
+    image, with additional infos.
+    :param pfo_scan: path to folder containing the scan
+    :param correct_slope: [True] if you want to correct the slope of the values.
+    :param nifti_version: [1] output nifti version can be version 1 or version 2
+    :param qform: [2] qform of the final nifti image
+    :param sform: [1] sform of the final nifti image
+    :param get_acqp: [False] if you want to parse the information in the acqp parameter file of the bruker raw data
+    :param get_method: [False] if you want to parse the information in the method file. Forced to True when
+    dealing with diffusion weighted images.
+    :param get_reco: [False] if you want to parse the information in the reco parameter file.
+    :return: output_data data structure containing the nibabel image(s) {nib_list, visu_pars_list, acqp, method, reco}
     """
-    # as scan 2 struct with a different strategy. Will see...!
 
     if not os.path.isdir(pfo_scan):
         raise IOError('Input folder does not exists.')
@@ -112,12 +115,17 @@ def scan2struct(pfo_scan,
             get_method = True
 
         # Generate the nifti image using visu_pars.
-        nib_im = nifti_getter(img_data_vol, visu_pars, correct_slope, nifti_version, qform, sform)
-
-        if is_dwi:
-            pass
-            # If DWI orient b-vector using visu-pars in coherence with the nib_im obtained.
-            # TODO
+        nib_im = nifti_getter(img_data_vol,
+                              visu_pars,
+                              correct_slope,
+                              nifti_version,
+                              qform,
+                              sform,
+                              frame_body_as_frame_head=frame_body_as_frame_head,
+                              keep_same_det=keep_same_det,
+                              consider_translation=consider_translation,
+                              consider_subject_position=consider_subject_position
+                              )
 
         nib_scans_list.append(nib_im)
         visu_pars_list.append(visu_pars)
@@ -160,11 +168,14 @@ def write_struct(struct,
                  fin_scan='',
                  save_human_readable=True,
                  save_b0_if_dwi=True,
-                 normalise_b_vectors_if_dwi=True,
-                 get_acqp=True,
-                 get_method=True,
-                 get_reco=True,
-                 verbose=1):
+                 get_acqp=False,
+                 get_method=False,
+                 get_reco=False,
+                 verbose=1,
+                 frame_body_as_frame_head=False,
+                 keep_same_det=True,
+                 consider_subject_position=False
+                 ):
     """
 
     :param struct:
@@ -172,7 +183,6 @@ def write_struct(struct,
     :param fin_scan:
     :param save_human_readable:
     :param save_b0_if_dwi:
-    :param normalise_b_vectors_if_dwi:
     :param get_acqp:
     :param get_method:
     :param get_reco:
@@ -199,14 +209,25 @@ def write_struct(struct,
     is_dwi = 'dtiepi' in struct['visu_pars_list'][0]['VisuAcqSequenceName'].lower() or \
                   'dwi' in struct['visu_pars_list'][0]['VisuAcqSequenceName'].lower()
 
-    if is_dwi:  # modality information
+    if is_dwi:  # modality information - -TODO embed this in the next for cycle
 
         # Impose to get the method paramter file saved. Method file is not optional for this modality.
         get_method = True
 
+        # -- Deals with b-vector: normalise, reorient and save in external .npy/txt.
         dw_dir = struct['method']['DwDir']
-        if normalise_b_vectors_if_dwi:
-            dw_dir = normalise_b_vect(dw_dir)
+
+        # get b-vectors re-orientation matrix from visu-pars
+        reorientation_matrix = compute_reorientation_b_vectors_matrix(struct['visu_pars_list'][0]['VisuCoreOrientation'],
+                                                                      struct['visu_pars_list'][0]['VisuSubjectPosition'],
+                                                                      frame_body_as_frame_head=frame_body_as_frame_head,
+                                                                      keep_same_det=keep_same_det,
+                                                                      consider_subject_position=consider_subject_position)
+
+        # apply reorientation
+        dw_dir = apply_reorientation_to_b_vectors(reorientation_matrix, dw_dir)
+        # normalise:
+        dw_dir = normalise_b_vect(dw_dir)
 
         np.save(jph(pfo_output, fin_scan + '_DwDir.npy'), dw_dir)
 

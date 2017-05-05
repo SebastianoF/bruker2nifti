@@ -1,9 +1,8 @@
 import os
 import nibabel as nib
 import numpy as np
-import warnings
 
-from _utils import bruker_read_files, elim_consecutive_duplicates, slope_corrector, compute_affine_from_visu_pars, \
+from _utils import bruker_read_files, eliminate_consecutive_duplicates, slope_corrector, compute_affine_from_visu_pars, \
     compute_resolution_from_visu_pars
 
 
@@ -48,7 +47,17 @@ def get_subject_name(pfo_study):
     return info_sj['SUBJECT_name']
 
 
-def nifti_getter(img_data_vol, visu_pars, correct_slope, nifti_version, qform, sform):
+def nifti_getter(img_data_vol,
+                 visu_pars,
+                 correct_slope,
+                 nifti_version,
+                 qform,
+                 sform,
+                 frame_body_as_frame_head=False,
+                 keep_same_det=True,
+                 consider_translation=False,
+                 consider_subject_position=False
+                 ):
     # obtaining the nifti using only the information in visu_pars.
 
     # Check units of measurements:
@@ -72,25 +81,13 @@ def nifti_getter(img_data_vol, visu_pars, correct_slope, nifti_version, qform, s
         vol_data = slope_corrector(vol_data, visu_pars['VisuCoreDataSlope'])
 
     # get number sub-volumes
-    num_vols = len(elim_consecutive_duplicates(list(visu_pars['VisuCoreOrientation'])))
+    num_vols = len(eliminate_consecutive_duplicates(list(visu_pars['VisuCoreOrientation'])))
 
-    # get the default parameters when not filled in the parameter files.
+    # get the default parameters when not filled in the parameter files. - Not used but may be useful in future vers.
     if 'VisuCoreTransposition' not in visu_pars.keys():
         visu_core_transposition = [0, ] * vol_pre_shape[2]
     else:
         visu_core_transposition = visu_pars['VisuCoreTransposition']
-
-    # if 'VisuAcqSequenceName' in visu_pars.keys():
-    #     seq_name = visu_pars['VisuAcqSequenceName']
-    # elif 'VisuAcquisitionProtocol' in visu_pars.keys():
-    #     seq_name = visu_pars['VisuAcquisitionProtocol']
-    # else:
-    #     seq_name = ''
-    #
-    # if 'VisuFGOrderDesc' in visu_pars.keys():
-    #     fgo_order_desc = visu_pars['VisuFGOrderDesc']
-    # else:
-    #     fgo_order_desc = 0
 
     if num_vols > 1:
 
@@ -111,7 +108,11 @@ def nifti_getter(img_data_vol, visu_pars, correct_slope, nifti_version, qform, s
                                    list(visu_pars['VisuCoreOrientation'])[id_sub_vol * vol_shape[2]],
                                    list(visu_pars['VisuCorePosition'])[id_sub_vol * vol_shape[2]],
                                    visu_pars['VisuSubjectPosition'],
-                                   resolution)
+                                   resolution,
+                                   frame_body_as_frame_head=frame_body_as_frame_head,
+                                   keep_same_det=keep_same_det,
+                                   consider_translation=consider_translation,
+                                   consider_subject_position=consider_subject_position)
 
             # get sub volume in the correct shape
             img_data_sub_vol = vol_data[..., id_sub_vol * vol_shape[2] : (id_sub_vol + 1) * vol_shape[2]]

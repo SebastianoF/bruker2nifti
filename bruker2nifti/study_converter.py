@@ -34,10 +34,12 @@ def convert_a_study(pfo_study_bruker_input,
                     qform=2,
                     sform=1,
                     save_human_readable=True,
-                    normalise_b_vectors_if_dwi=True,
                     save_b0_if_dwi=True,
                     correct_slope=False,
-                    verbose=1
+                    verbose=1,
+                    get_acqp=False,
+                    get_method=False,
+                    get_reco=False,
                     ):
     """
     Core method of the module from a study Bruker folder structure to the homologous folder structure containing
@@ -63,7 +65,6 @@ def convert_a_study(pfo_study_bruker_input,
     :param sform: [1] sform of the ehader
     :param save_human_readable: [True] other than .pyc, additional .txt will be saved.
     :param save_b0_if_dwi: save the first timepoint of the dwi if the scan is acquired with DtiEpi modality
-    :param normalise_b_vectors_if_dwi: [True]
     :param correct_slope: [False] there is no correction for the slope parameters
     :param verbose: 0 no, 1 yes, 2 yes for debug
     :return: [None]
@@ -109,10 +110,12 @@ def convert_a_study(pfo_study_bruker_input,
                        qform=qform,
                        sform=sform,
                        save_human_readable=save_human_readable,
-                       normalise_b_vectors_if_dwi=normalise_b_vectors_if_dwi,
                        save_b0_if_dwi=save_b0_if_dwi,
                        correct_slope=correct_slope,
-                       verbose=verbose
+                       verbose=verbose,
+                       get_acqp=get_acqp,
+                       get_method=get_method,
+                       get_reco=get_reco,
                        )
 
     print('\nStudy converted and saved in \n{}'.format(pfo_study_nifti_output))

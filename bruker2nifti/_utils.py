@@ -8,11 +8,12 @@ from sympy.core.cache import clear_cache
 
 def indian_file_parser(s, sh=None):
     """
-    An indian file is a string whose shape needs to be changed, in function of its content and an optional parameter sh
+    An indian file is a string obtained from a sequence of rows from a Bruker parameter file
+    whose shape needs to be changed, in function of its content and according to an optional parameter sh
     that defines the shape of the output.
     This function transform the indian file in a data structure,
     according to the information that can be parsed in the file:
-    A - list of vectors transformed into a np.ndarray.
+    A - list of vectors transformed into a list
     B - list of numbers, transformed into a np.ndarray, or single number stored as a single float.
     C - list of strings separated by <>.
     D - everything else becomes a string.
@@ -211,7 +212,7 @@ def bruker_read_files(param_file, data_path, sub_scan_num='1'):
                                                        replace('<', '').replace('>', '').replace(',', ' ').strip()
 
         else:
-            # line does not contain any assignable variable, so this information is not included in the info.
+            # line does not contain any 'assignable' variable, so this information is not included in the info.
             pass
 
     clear_cache()
@@ -233,6 +234,35 @@ def normalise_b_vect(b_vect, remove_nan=True):
         b_vect_normalised = np.nan_to_num(b_vect_normalised)
 
     return b_vect_normalised
+
+
+def apply_reorientation_to_b_vectors(reorientation_matrix, row_b_vectors_in_rows):
+    """
+    :param reorientation_matrix: a 3x3 matrix representing a reorientation in the 3D space:
+    Typically with det = 1 or -1.
+    a b c
+    d e f
+    g h i
+
+    :param row_b_vectors_in_rows:
+     A nx3 matrix where n row-major b-vectors (v1, v2, v3, v4, ...) are aligned in rows
+    v1_1 v1_2 v1_3
+    v2_1 v2_2 v2_3
+    v3_1 v3_2 v3_3
+    v4_1 v4_2 v4_3
+    ...
+
+    :return:
+    An nx3 matrix where each row is the corresponding b-vector multiplied by the same matrix reorientation_matrix:
+    a.v1_1 +  b.v1_2 + c.v1_3 + d.v1_1 +  e.v1_2 + f.v1_3 + g.v1_1 +  h.v1_2 + i.v1_3
+    a.v2_1 +  b.v2_2 + c.v2_3 + d.v2_1 +  e.v2_2 + f.v2_3 + g.v2_1 +  h.v2_2 + i.v2_3
+    a.v3_1 +  b.v3_2 + c.v3_3 + d.v3_1 +  e.v3_2 + f.v3_3 + g.v3_1 +  h.v3_2 + i.v3_3
+    a.v4_1 +  b.v4_2 + c.v4_3 + d.v4_1 +  e.v4_2 + f.v4_3 + g.v4_1 +  h.v4_2 + i.v4_3
+    ...
+
+    """
+    b_vectors_in_column_reoriented = np.einsum('ij, kj -> ki', reorientation_matrix, row_b_vectors_in_rows)
+    return b_vectors_in_column_reoriented
 
 
 def slope_corrector(data, slope, num_initial_dir_to_skip=None):
@@ -330,7 +360,7 @@ def set_new_data(image, new_data, new_dtype=None, remove_nan=True):
     return new_image
 
 
-def elim_consecutive_duplicates(input_list):
+def eliminate_consecutive_duplicates(input_list):
 
     new_list = [input_list[0]]
     for k in input_list[1:]:
@@ -363,9 +393,10 @@ def compute_affine_from_visu_pars(vc_orientation, vc_position, vc_subject_positi
                                   consider_subject_position=False):
     """
     :param vc_orientation: visu core orientation parameter.
-    :param vc_position: visu core position parameter.
+    :param vc_position: visu core position parameter. -  corresponds to the translational part of the matrix.
     :param vc_subject_position: 'Head_Prone' or 'Head_Supine'. If head supine and if consider_subject_position is True
-    it invert the direction of the axis anterior-posterior.
+    it invert the direction of the axis anterior-posterior. - do not confuse subject_position with positon (read this
+    last as 'translation').
     :param resolution: resoultion of the image, output of compute_resolution_from_visu_pars in the same module.
     :param frame_body_as_frame_head: [False] This standard is the standard for me and my dataset. To get the
     behaviour described in the manual set to False.
@@ -412,6 +443,36 @@ def compute_affine_from_visu_pars(vc_orientation, vc_position, vc_subject_positi
 
     if keep_same_det:
         if (np.linalg.det(result) < 0 < vc_orientation_det) or (np.linalg.det(result) > 0 > vc_orientation_det):
+            result[0, :] = -1 * result[0, :]
+
+    return result
+
+
+def compute_reorientation_b_vectors_matrix(vc_orientation, vc_subject_position, frame_body_as_frame_head=False,
+                                           keep_same_det=True, consider_subject_position=False):
+
+    result = np.linalg.inv(vc_orientation.reshape([3, 3], order='F'))
+    result_det = np.linalg.det(result)
+
+    if result_det == 0:
+        raise IOError('Orientation determinant is 0. Cannot interpret this dataset.')
+
+    if not frame_body_as_frame_head:
+        result = result.dot(np.array([[1, 0, 0], [0, 0, 1], [0, 1, 0]]))
+
+    if -1 not in list(result[:, 0]):
+        result[:, 0] = -1 * result[:, 0]
+    if -1 not in list(vc_orientation[:, 1]):
+        result[:, 1] = -1 * result[:, 1]
+    if 1 not in list(result[:, 2]):
+        result[:, 2] = -1 * result[:, 2]
+
+    if consider_subject_position:
+        if vc_subject_position == 'Head_Prone':
+            result[1, :] = -1 * result[1, :]
+
+    if keep_same_det:
+        if (np.linalg.det(result) < 0 < result_det) or (np.linalg.det(result) > 0 > result_det):
             result[0, :] = -1 * result[0, :]
 
     return result
