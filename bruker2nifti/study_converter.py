@@ -67,6 +67,9 @@ def convert_a_study(pfo_study_bruker_input,
     :param save_b0_if_dwi: save the first timepoint of the dwi if the scan is acquired with DtiEpi modality
     :param correct_slope: [False] there is no correction for the slope parameters
     :param verbose: 0 no, 1 yes, 2 yes for debug
+    :param get_acqp: parse the acqp file as well.
+    :param get_method: parse the method file as well.
+    :param get_reco: parse the reco file as well.
     :return: [None]
     """
     if not os.path.isdir(pfo_study_bruker_input):

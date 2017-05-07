@@ -6,6 +6,9 @@ from os.path import join as jph
 from sympy.core.cache import clear_cache
 
 
+# --- text-files utils ---
+
+
 def indian_file_parser(s, sh=None):
     """
     An indian file is a string obtained from a sequence of rows from a Bruker parameter file
@@ -59,6 +62,19 @@ def var_name_clean(line_in):
     return line_out
 
 
+def from_dict_to_txt_sorted(dict_input, pfi_output):
+    """
+    Save the information contained in a dictionary into a txt file at the specified path.
+    :param dict_input: input structure dictionary
+    :param pfi_output: path to file.
+    :return:
+    """
+    sorted_keys = sorted(dict_input.keys())
+
+    with open(pfi_output, 'w') as f:
+        f.writelines('{0} = {1} \n'.format(k, dict_input[k]) for k in sorted_keys)
+
+
 def bruker_read_files(param_file, data_path, sub_scan_num='1'):
     """
     Reads parameters files of from Bruckert raw data imaging format.
@@ -68,8 +84,6 @@ def bruker_read_files(param_file, data_path, sub_scan_num='1'):
     :param sub_scan_num: number of the sub-scan folder where reco and visu_pars is stored.
     :return: dict_info dictionary with the parsed informations from the input file.
     """
-    # reco is only present for the sub_scan number '1'.
-    # There is an visu_pars for each sub-scan.
     if param_file.lower() == 'reco':
         if os.path.exists(jph(data_path, 'pdata', '1', 'reco')):
             f = open(jph(data_path, 'pdata', '1', 'reco'), 'r')
@@ -115,9 +129,6 @@ def bruker_read_files(param_file, data_path, sub_scan_num='1'):
         '''
 
         line_in = lines[line_num]
-
-        # if line_num == 671 and param_file.lower() == 'visu_pars':
-        #     print 'spam'
 
         if '##' in line_in:
 
@@ -219,6 +230,9 @@ def bruker_read_files(param_file, data_path, sub_scan_num='1'):
     return dict_info
 
 
+# --- b-vectors utils ---
+
+
 def normalise_b_vect(b_vect, remove_nan=True):
 
     b_vect_normalised = np.zeros_like(b_vect)
@@ -236,7 +250,7 @@ def normalise_b_vect(b_vect, remove_nan=True):
     return b_vect_normalised
 
 
-def apply_reorientation_to_b_vectors(reorientation_matrix, row_b_vectors_in_rows):
+def apply_reorientation_to_b_vect(reorientation_matrix, row_b_vectors_in_rows):
     """
     :param reorientation_matrix: a 3x3 matrix representing a reorientation in the 3D space:
     Typically with det = 1 or -1.
@@ -263,6 +277,9 @@ def apply_reorientation_to_b_vectors(reorientation_matrix, row_b_vectors_in_rows
     """
     b_vectors_in_column_reoriented = np.einsum('ij, kj -> ki', reorientation_matrix, row_b_vectors_in_rows)
     return b_vectors_in_column_reoriented
+
+
+# --- Slope related utils ---
 
 
 def slope_corrector(data, slope, num_initial_dir_to_skip=None):
@@ -316,57 +333,7 @@ def slope_corrector(data, slope, num_initial_dir_to_skip=None):
     return data
 
 
-def from_dict_to_txt_sorted(dict_input, pfi_output):
-    """
-    Save the information contained in a dictionary into a txt file at the specified path.
-    :param dict_input: input structure dictionary
-    :param pfi_output: path to file.
-    :return:
-    """
-    sorted_keys = sorted(dict_input.keys())
-
-    with open(pfi_output, 'w') as f:
-        f.writelines('{0} = {1} \n'.format(k, dict_input[k]) for k in sorted_keys)
-
-
-def set_new_data(image, new_data, new_dtype=None, remove_nan=True):
-    """
-    From a nibabel image and a numpy array it creates a new image with
-    the same header of the image and the new_data as its data.
-    :param image: nibabel image
-    :param new_data: numpy array
-    :param new_dtype:
-    :param remove_nan:
-    :return: nibabel image
-    """
-    if remove_nan:
-        new_data = np.nan_to_num(new_data)
-
-    # if nifty1
-    if image.header['sizeof_hdr'] == 348:
-        new_image = nib.Nifti1Image(new_data, image.affine, header=image.header)
-    # if nifty2
-    elif image.header['sizeof_hdr'] == 540:
-        new_image = nib.Nifti2Image(new_data, image.affine, header=image.header)
-    else:
-        raise IOError('Input image header problem')
-
-    # update data type:
-    if new_dtype is None:
-        new_image.set_data_dtype(new_data.dtype)
-    else:
-        new_image.set_data_dtype(new_dtype)
-
-    return new_image
-
-
-def eliminate_consecutive_duplicates(input_list):
-
-    new_list = [input_list[0]]
-    for k in input_list[1:]:
-        if not list(k) == list(new_list[-1]):
-            new_list.append(k)
-    return new_list
+# -- nifti affine matrix utils --
 
 
 def compute_resolution_from_visu_pars(vc_extent, vc_size, vc_frame_tickness):
@@ -410,13 +377,12 @@ def compute_affine_from_visu_pars(vc_orientation, vc_position, vc_subject_positi
     :return:
     """
 
-    # Cleaning here the input matrix. Problems with the precision of zeros sometimes.
-
-    vc_orientation = np.linalg.inv(vc_orientation.reshape([3, 3], order='F'))
+    # invert the matrix, according to nifti convention and Bruker manual. Round the decimals to avoid precision probl.
+    vc_orientation = np.around(np.linalg.inv(vc_orientation.reshape([3, 3], order='F')), decimals=4)
     vc_orientation_det = np.linalg.det(vc_orientation)
 
     if vc_orientation_det == 0:
-        raise IOError('Orientation determinant is 0. Cannot interpret this dataset.')
+        raise IOError('Orientation determinant is 0. Cannot understand this dataset.')
 
     if not frame_body_as_frame_head:
 
@@ -448,7 +414,7 @@ def compute_affine_from_visu_pars(vc_orientation, vc_position, vc_subject_positi
     return result
 
 
-def compute_reorientation_b_vectors_matrix(vc_orientation, vc_subject_position, frame_body_as_frame_head=False,
+def obtain_b_vectors_orient_matrix(vc_orientation, vc_subject_position, frame_body_as_frame_head=False,
                                            keep_same_det=True, consider_subject_position=False):
 
     result = np.linalg.inv(vc_orientation.reshape([3, 3], order='F'))
@@ -476,3 +442,46 @@ def compute_reorientation_b_vectors_matrix(vc_orientation, vc_subject_position, 
             result[0, :] = -1 * result[0, :]
 
     return result
+
+
+# -- housekeeping utils --
+
+
+def eliminate_consecutive_duplicates(input_list):
+
+    new_list = [input_list[0]]
+    for k in input_list[1:]:
+        if not list(k) == list(new_list[-1]):
+            new_list.append(k)
+    return new_list
+
+
+def set_new_data(image, new_data, new_dtype=None, remove_nan=True):
+    """
+    From a nibabel image and a numpy array it creates a new image with
+    the same header of the image and the new_data as its data.
+    :param image: nibabel image
+    :param new_data: numpy array
+    :param new_dtype:
+    :param remove_nan:
+    :return: nibabel image
+    """
+    if remove_nan:
+        new_data = np.nan_to_num(new_data)
+
+    # if nifty1
+    if image.header['sizeof_hdr'] == 348:
+        new_image = nib.Nifti1Image(new_data, image.affine, header=image.header)
+    # if nifty2
+    elif image.header['sizeof_hdr'] == 540:
+        new_image = nib.Nifti2Image(new_data, image.affine, header=image.header)
+    else:
+        raise IOError('Input image header problem')
+
+    # update data type:
+    if new_dtype is None:
+        new_image.set_data_dtype(new_data.dtype)
+    else:
+        new_image.set_data_dtype(new_dtype)
+
+    return new_image

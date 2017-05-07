@@ -9,7 +9,7 @@ from definitions import root_dir
 from bruker2nifti.study_converter import convert_a_study
 
 
-def test_convert_the_banana(open_converted=True):
+def test_convert_the_banana(open_converted=False):
 
     pfo_study_in = os.path.join(root_dir, 'test_data', 'bru_banana')
     pfo_study_out = os.path.join(root_dir, 'test_data', 'nifti_banana')

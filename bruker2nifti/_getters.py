@@ -2,8 +2,8 @@ import os
 import nibabel as nib
 import numpy as np
 
-from _utils import bruker_read_files, eliminate_consecutive_duplicates, slope_corrector, compute_affine_from_visu_pars, \
-    compute_resolution_from_visu_pars
+from _utils import bruker_read_files, eliminate_consecutive_duplicates, slope_corrector, \
+    compute_affine_from_visu_pars, compute_resolution_from_visu_pars
 
 
 def get_list_scans(start_path):
@@ -84,10 +84,10 @@ def nifti_getter(img_data_vol,
     num_vols = len(eliminate_consecutive_duplicates(list(visu_pars['VisuCoreOrientation'])))
 
     # get the default parameters when not filled in the parameter files. - Not used but may be useful in future vers.
-    if 'VisuCoreTransposition' not in visu_pars.keys():
-        visu_core_transposition = [0, ] * vol_pre_shape[2]
-    else:
-        visu_core_transposition = visu_pars['VisuCoreTransposition']
+    # if 'VisuCoreTransposition' not in visu_pars.keys():
+    #     visu_core_transposition = [0, ] * vol_pre_shape[2]
+    # else:
+    #     visu_core_transposition = visu_pars['VisuCoreTransposition']
 
     if num_vols > 1:
 

@@ -58,7 +58,4 @@ def convert_a_scan(pfo_input_scan,
                      save_human_readable=save_human_readable,
                      save_b0_if_dwi=save_b0_if_dwi,
                      verbose=verbose,
-                     get_acqp=get_acqp,
-                     get_method=get_method,
-                     get_reco=get_reco,
                      )
