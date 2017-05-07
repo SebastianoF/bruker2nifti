@@ -9,9 +9,9 @@ from sympy.core.cache import clear_cache
 # --- text-files utils ---
 
 
-def indian_file_parser(s, sh=None):
+def indians_file_parser(s, sh=None):
     """
-    An indian file is a string obtained from a sequence of rows from a Bruker parameter file
+    An here-called indians file is a string obtained from a sequence of rows from a Bruker parameter file
     whose shape needs to be changed, in function of its content and according to an optional parameter sh
     that defines the shape of the output.
     This function transform the indian file in a data structure,
@@ -172,7 +172,7 @@ def bruker_read_files(param_file, data_path, sub_scan_num='1'):
                         # we store the rows in the indian file all in the same string.
                         indian_file += line_to_explore.replace('\n', '').strip() + ' '
 
-                dict_info[var_name] = indian_file_parser(indian_file, sh)
+                dict_info[var_name] = indians_file_parser(indian_file, sh)
 
             # B:
             elif ('$' in line_in) and ('(' not in line_in):
@@ -180,7 +180,7 @@ def bruker_read_files(param_file, data_path, sub_scan_num='1'):
                 var_name = var_name_clean(splitted_line[0][3:])
                 indian_file = splitted_line[1]
 
-                dict_info[var_name] = indian_file_parser(indian_file)
+                dict_info[var_name] = indians_file_parser(indian_file)
 
             # C:
             elif ('$' not in line_in) and ('(' in line_in):
@@ -207,14 +207,14 @@ def bruker_read_files(param_file, data_path, sub_scan_num='1'):
                         # we store the rows in the indian file all in the same string.
                         indian_file += line_to_explore.replace('\n', '').strip() + ' '
 
-                dict_info[var_name] = indian_file_parser(indian_file)
+                dict_info[var_name] = indians_file_parser(indian_file)
 
             # D:
             elif ('$' not in line_in) and ('(' not in line_in):
                 splitted_line = line_in.split('=')
                 var_name = var_name_clean(splitted_line[0])
                 indian_file = splitted_line[1].replace('=', '').strip()
-                dict_info[var_name] = indian_file_parser(indian_file)
+                dict_info[var_name] = indians_file_parser(indian_file)
             # General case: take it as a simple string.
             else:
                 splitted_line = line_in.split('=')
@@ -246,7 +246,7 @@ def slope_corrector(data, slope, num_initial_dir_to_skip=None):
 
     if isinstance(slope, int) or isinstance(slope, float):
         # scalar times 3d array
-        data = slope * data
+        data *= slope
 
     elif len(data.shape) == 3 and len(slope.shape) == 1:
         # each slice of the 3d image is multiplied an element of the slope
