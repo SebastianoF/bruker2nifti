@@ -306,6 +306,12 @@ def compute_resolution_from_visu_pars(vc_extent, vc_size, vc_frame_tickness):
         raise IOError
 
 
+def sanity_check_visu_core_subject_position(vc_subject_position):
+    if vc_subject_position not in ['Head_Prone', 'Head_Supine']:
+        msg = "Known cases are 'Head_Prone' or  'Head_Supine' for the parameter 'visu_pars.VisuSubjectPosition."
+        raise IOError(msg)
+
+
 def compute_affine_from_visu_pars(vc_orientation, vc_position, vc_subject_position, resolution,
                                   frame_body_as_frame_head=False, keep_same_det=True, consider_translation=False,
                                   consider_subject_position=False):
@@ -327,6 +333,7 @@ def compute_affine_from_visu_pars(vc_orientation, vc_position, vc_subject_positi
     in neurological it can consciously set the variable vc_subject_position to 'Head_Supine'.
     :return:
     """
+    sanity_check_visu_core_subject_position(vc_subject_position)
 
     # invert the matrix, according to nifti convention and Bruker manual. Round the decimals to avoid precision probl.
     vc_orientation = np.around(np.linalg.inv(vc_orientation.reshape([3, 3], order='F')), decimals=4)
@@ -370,6 +377,8 @@ def compute_affine_from_visu_pars(vc_orientation, vc_position, vc_subject_positi
 
 def obtain_b_vectors_orient_matrix(vc_orientation, vc_subject_position, frame_body_as_frame_head=False,
                                            keep_same_det=True, consider_subject_position=False):
+
+    sanity_check_visu_core_subject_position(vc_subject_position)
 
     result = np.linalg.inv(vc_orientation.reshape([3, 3], order='F'))
     result_det = np.linalg.det(result)
