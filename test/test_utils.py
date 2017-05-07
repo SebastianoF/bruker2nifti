@@ -1,7 +1,8 @@
 import os
 import numpy as np
+import nibabel as nib
 
-from nose.tools import assert_equal, assert_true, assert_raises
+from nose.tools import assert_equal, assert_true, assert_raises, assert_almost_equals
 from numpy.testing import assert_array_equal
 import warnings
 import subprocess
@@ -11,7 +12,10 @@ import platform
 from definitions import root_dir
 from bruker2nifti._utils import indian_file_parser, normalise_b_vect, slope_corrector, \
     eliminate_consecutive_duplicates, compute_resolution_from_visu_pars, compute_affine_from_visu_pars, \
-    apply_reorientation_to_b_vect
+    apply_reorientation_to_b_vects
+
+
+# --- TEST text-files utils ---
 
 
 def test_indian_file_parser_A():
@@ -85,4 +89,48 @@ def test_indian_file_parser_D():
     assert_equal(a3, indian_file_test_3)
 
 
-# Next tests in progress...
+# --- TEST slope correction utils ---
+
+
+def test_slope_corrector():
+    pass  # In progress...
+
+
+# -- TSET nifti affine matrix utils --
+
+
+def test_compute_resolution_from_visu_pars():
+    pass
+
+
+def test_compute_affine_from_visu_pars():
+    pass
+
+
+# --- TEST b-vectors utils ---
+
+
+def test_normalise_b_vect():
+    num_vects = 30
+    v = np.random.normal(5, 10, [num_vects, 3])
+    v[5, :] = np.array([np.nan, ] * 3)
+    v_normalised = normalise_b_vect(v)
+
+    for k in list(set(range(num_vects)) - {5}):
+        assert_almost_equals(np.linalg.norm(v_normalised[k, :]), 1.0)
+    assert_equal(np.linalg.norm(v_normalised[5, :]), .0)
+
+
+def test_apply_reorientation_to_b_vects():
+    pass
+
+
+# -- TEST housekeeping utils --
+
+
+def test_eliminate_consecutive_duplicates():
+    pass
+
+
+def test_set_new_data():
+    pass

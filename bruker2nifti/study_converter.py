@@ -1,8 +1,8 @@
 import os
 
-from _utils import bruker_read_files
-from _getters import get_list_scans, get_subject_name
-from scan_converter import convert_a_scan
+from ._utils import bruker_read_files
+from ._getters import get_list_scans, get_subject_name
+from .scan_converter import convert_a_scan
 
 
 def show_study_structure(pfo_study):

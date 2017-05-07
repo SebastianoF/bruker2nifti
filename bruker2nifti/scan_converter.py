@@ -1,6 +1,6 @@
 import os
 
-from _cores import scan2struct, write_struct
+from ._cores import scan2struct, write_struct
 
 
 def convert_a_scan(pfo_input_scan,

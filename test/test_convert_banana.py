@@ -21,8 +21,7 @@ def test_convert_the_banana(open_converted=False):
                     study_name='banana',
                     get_acqp=False,
                     get_method=False,
-                    get_reco=False,
-    )
+                    get_reco=False)
 
     if open_converted:
 

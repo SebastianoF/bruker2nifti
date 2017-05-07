@@ -2,7 +2,7 @@ import os
 import nibabel as nib
 import numpy as np
 
-from _utils import bruker_read_files, eliminate_consecutive_duplicates, slope_corrector, \
+from ._utils import bruker_read_files, eliminate_consecutive_duplicates, slope_corrector, \
     compute_affine_from_visu_pars, compute_resolution_from_visu_pars
 
 

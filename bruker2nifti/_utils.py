@@ -230,56 +230,7 @@ def bruker_read_files(param_file, data_path, sub_scan_num='1'):
     return dict_info
 
 
-# --- b-vectors utils ---
-
-
-def normalise_b_vect(b_vect, remove_nan=True):
-
-    b_vect_normalised = np.zeros_like(b_vect)
-    norms = np.linalg.norm(b_vect, axis=1)
-
-    for r in range(b_vect.shape[0]):
-        if norms[r] < 10e-5:
-            b_vect_normalised[r, :] = np.nan
-        else:
-            b_vect_normalised[r, :] = (1 / float(norms[r])) * b_vect[r, :]
-
-    if remove_nan:
-        b_vect_normalised = np.nan_to_num(b_vect_normalised)
-
-    return b_vect_normalised
-
-
-def apply_reorientation_to_b_vect(reorientation_matrix, row_b_vectors_in_rows):
-    """
-    :param reorientation_matrix: a 3x3 matrix representing a reorientation in the 3D space:
-    Typically with det = 1 or -1.
-    a b c
-    d e f
-    g h i
-
-    :param row_b_vectors_in_rows:
-     A nx3 matrix where n row-major b-vectors (v1, v2, v3, v4, ...) are aligned in rows
-    v1_1 v1_2 v1_3
-    v2_1 v2_2 v2_3
-    v3_1 v3_2 v3_3
-    v4_1 v4_2 v4_3
-    ...
-
-    :return:
-    An nx3 matrix where each row is the corresponding b-vector multiplied by the same matrix reorientation_matrix:
-    a.v1_1 +  b.v1_2 + c.v1_3 + d.v1_1 +  e.v1_2 + f.v1_3 + g.v1_1 +  h.v1_2 + i.v1_3
-    a.v2_1 +  b.v2_2 + c.v2_3 + d.v2_1 +  e.v2_2 + f.v2_3 + g.v2_1 +  h.v2_2 + i.v2_3
-    a.v3_1 +  b.v3_2 + c.v3_3 + d.v3_1 +  e.v3_2 + f.v3_3 + g.v3_1 +  h.v3_2 + i.v3_3
-    a.v4_1 +  b.v4_2 + c.v4_3 + d.v4_1 +  e.v4_2 + f.v4_3 + g.v4_1 +  h.v4_2 + i.v4_3
-    ...
-
-    """
-    b_vectors_in_column_reoriented = np.einsum('ij, kj -> ki', reorientation_matrix, row_b_vectors_in_rows)
-    return b_vectors_in_column_reoriented
-
-
-# --- Slope related utils ---
+# --- Slope correction utils ---
 
 
 def slope_corrector(data, slope, num_initial_dir_to_skip=None):
@@ -414,6 +365,9 @@ def compute_affine_from_visu_pars(vc_orientation, vc_position, vc_subject_positi
     return result
 
 
+# --- b-vectors utils ---
+
+
 def obtain_b_vectors_orient_matrix(vc_orientation, vc_subject_position, frame_body_as_frame_head=False,
                                            keep_same_det=True, consider_subject_position=False):
 
@@ -442,6 +396,52 @@ def obtain_b_vectors_orient_matrix(vc_orientation, vc_subject_position, frame_bo
             result[0, :] = -1 * result[0, :]
 
     return result
+
+
+def normalise_b_vect(b_vect, remove_nan=True):
+
+    b_vect_normalised = np.zeros_like(b_vect)
+    norms = np.linalg.norm(b_vect, axis=1)
+
+    for r in range(b_vect.shape[0]):
+        if norms[r] < 10e-5:
+            b_vect_normalised[r, :] = np.nan
+        else:
+            b_vect_normalised[r, :] = (1 / float(norms[r])) * b_vect[r, :]
+
+    if remove_nan:
+        b_vect_normalised = np.nan_to_num(b_vect_normalised)
+
+    return b_vect_normalised
+
+
+def apply_reorientation_to_b_vects(reorientation_matrix, row_b_vectors_in_rows):
+    """
+    :param reorientation_matrix: a 3x3 matrix representing a reorientation in the 3D space:
+    Typically with det = 1 or -1.
+    a b c
+    d e f
+    g h i
+
+    :param row_b_vectors_in_rows:
+     A nx3 matrix where n row-major b-vectors (v1, v2, v3, v4, ...) are aligned in rows
+    v1_1 v1_2 v1_3
+    v2_1 v2_2 v2_3
+    v3_1 v3_2 v3_3
+    v4_1 v4_2 v4_3
+    ...
+
+    :return:
+    An nx3 matrix where each row is the corresponding b-vector multiplied by the same matrix reorientation_matrix:
+    a.v1_1 +  b.v1_2 + c.v1_3 + d.v1_1 +  e.v1_2 + f.v1_3 + g.v1_1 +  h.v1_2 + i.v1_3
+    a.v2_1 +  b.v2_2 + c.v2_3 + d.v2_1 +  e.v2_2 + f.v2_3 + g.v2_1 +  h.v2_2 + i.v2_3
+    a.v3_1 +  b.v3_2 + c.v3_3 + d.v3_1 +  e.v3_2 + f.v3_3 + g.v3_1 +  h.v3_2 + i.v3_3
+    a.v4_1 +  b.v4_2 + c.v4_3 + d.v4_1 +  e.v4_2 + f.v4_3 + g.v4_1 +  h.v4_2 + i.v4_3
+    ...
+
+    """
+    b_vectors_in_column_reoriented = np.einsum('ij, kj -> ki', reorientation_matrix, row_b_vectors_in_rows)
+    return b_vectors_in_column_reoriented
 
 
 # -- housekeeping utils --
