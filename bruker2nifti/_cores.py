@@ -221,7 +221,9 @@ def write_struct(struct,
     if is_dwi:  # File method is the same for each sub-scan. Cannot embed this in the next for cycle.
 
         # -- Deals with b-vector: normalise, reorient and save in external .npy/txt.
-        dw_dir = struct['method']['DwDir']
+        dw_grad_vec = struct['method']['DwGradVec']
+
+        assert dw_grad_vec.shape[0] == struct['method']['DwNDiffExp']
 
         # get b-vectors re-orientation matrix from visu-pars
         reorientation_matrix = obtain_b_vectors_orient_matrix(struct['visu_pars_list'][0]['VisuCoreOrientation'],
@@ -231,28 +233,28 @@ def write_struct(struct,
                                                               consider_subject_position=consider_subject_position)
 
         # apply reorientation
-        dw_dir = apply_reorientation_to_b_vects(reorientation_matrix, dw_dir)
+        dw_grad_vec = apply_reorientation_to_b_vects(reorientation_matrix, dw_grad_vec)
         # normalise:
-        dw_dir = normalise_b_vect(dw_dir)
+        dw_grad_vec = normalise_b_vect(dw_grad_vec)
 
-        np.save(jph(pfo_output, fin_scan + '_DwDir.npy'), dw_dir)
+        np.save(jph(pfo_output, fin_scan + '_DwGradVec.npy'), dw_grad_vec)
 
         if save_human_readable:
-            np.savetxt(jph(pfo_output, fin_scan + '_DwDir.txt'), dw_dir, fmt='%.14f')
+            np.savetxt(jph(pfo_output, fin_scan + '_DwGradVec.txt'), dw_grad_vec, fmt='%.14f')
 
         if verbose > 0:
             msg = 'Diffusion weighted directions saved in ' + jph(pfo_output, fin_scan + '_DwDir.npy')
             print(msg)
 
         b_vals = struct['method']['DwEffBval']
-        b_vects = struct['method']['DwGradVec']
+        b_vects = struct['method']['DwDir']
 
         np.save(jph(pfo_output, fin_scan + '_DwEffBval.npy'), b_vals)
-        np.save(jph(pfo_output, fin_scan + '_DwGradVec.npy'), b_vects)
+        np.save(jph(pfo_output, fin_scan + '_DwDir.npy'), b_vects)
 
         if save_human_readable:
             np.savetxt(jph(pfo_output, fin_scan + '_DwEffBval.txt'), b_vals, fmt='%.14f')
-            np.savetxt(jph(pfo_output, fin_scan + '_DwGradVec.txt'), b_vects, fmt='%.14f')
+            np.savetxt(jph(pfo_output, fin_scan + '_DwDir.txt'), b_vects, fmt='%.14f')
 
         if verbose > 0:
             print('B-vectors saved in {}'.format(jph(pfo_output, fin_scan + '_DwEffBval.npy')))
@@ -260,15 +262,15 @@ def write_struct(struct,
 
     # save the dictionary as numpy array containing the corresponding dictionaries
 
-    if struct['acqp'] is not {}:
+    if not struct['acqp'] == {}:
         np.save(jph(pfo_output, fin_scan + '_acqp.npy'), struct['acqp'])
         if save_human_readable:
             from_dict_to_txt_sorted(struct['acqp'], jph(pfo_output, fin_scan + '_acqp.txt'))
-    if struct['method'] is not {}:
+    if not struct['method'] == {}:
         np.save(jph(pfo_output, fin_scan + '_method.npy'), struct['method'])
         if save_human_readable:
             from_dict_to_txt_sorted(struct['method'], jph(pfo_output, fin_scan + '_method.txt'))
-    if struct['reco'] is not {}:
+    if not struct['reco'] == {}:
         np.save(jph(pfo_output, fin_scan + '_reco.npy'), struct['reco'])
         if save_human_readable:
             from_dict_to_txt_sorted(struct['reco'], jph(pfo_output, fin_scan + '_reco.txt'))

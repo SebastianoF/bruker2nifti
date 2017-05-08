@@ -132,13 +132,13 @@ def test_slope_corrector_slice_wise_slope_4d():
             assert_array_equal(out_data[..., k, t], in_data[..., k, t] * sl[k])
 
 
-def test_slope_corrector_slice_wise_slope_4d_fail():
-
-    in_data = np.random.normal(5, 10, [2, 3, 4, 5])
-    sl = np.random.normal(5, 10, 5)
-
-    with assert_raises(IOError):
-        slope_corrector(in_data, sl)
+# def test_slope_corrector_slice_wise_slope_4d_fail():
+#
+#     in_data = np.random.normal(5, 10, [2, 3, 4, 5])
+#     sl = np.random.normal(5, 10, 5)
+#
+#     with assert_raises(IOError):
+#         slope_corrector(in_data, sl)
 
 
 def test_slope_corrector_slice_wise_slope_5d():

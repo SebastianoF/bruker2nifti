@@ -12,18 +12,18 @@ Medical image format converter: from raw Brukert ParaVision to nifti, written in
 
 
 ### Testing
-Unit testing with [nosetest](http://pythontesting.net/framework/nose/nose-introduction/): test with
+Unit testing with [nosetest](http://pythontesting.net/framework/nose/nose-introduction/):
 * `nosetests`
 
-### Parsers
+### Use the parser from command line    
 * `python parsers/bruker2nii -h`
 * `python parsers/bruker2nii -i path/to/bruker/study -o path/to/output/folder`
 
 
 ### Further notes <a name="up"></a>
-Additional documentation and how to run for non-python programmers here: [bruker2nifti_wiki](https://github.com/SebastianoF/bruker2nifti/wiki).
+Additional documentation and how to run for non-python programmers: [bruker2nifti_wiki](https://github.com/SebastianoF/bruker2nifti/wiki).
 
-### Utilities <a name="utilities"></a>
+### Useful links <a name="utilities"></a>
 + [nifti format](https://nifti.nimh.nih.gov/nifti-1): official documentation.
 + [nifti format](https://brainder.org/2012/09/23/the-nifti-file-format/): unofficial documentation.
 + [nibabel](http://nipy.org/nibabel/): neuroimaging python library. 

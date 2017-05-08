@@ -256,7 +256,7 @@ def slope_corrector(data, slope, num_initial_dir_to_skip=None):
         else:
             raise IOError('Shape of the 2d image and slope dimensions are not consistent')
 
-    elif len(data.shape) == 4 and len(slope.shape) == 1:
+    elif len(data.shape) == 4 and len(slope.shape) == 1 and slope.shape[0] == data.shape[2]:
 
         if slope.size == data.shape[2]:
             for t in range(data.shape[3]):
@@ -265,7 +265,7 @@ def slope_corrector(data, slope, num_initial_dir_to_skip=None):
         else:
             raise IOError('If you are here, your case cannot be converted. Debug from here to include your case.')
 
-    elif len(data.shape) == 5 and len(slope.shape) == 1:
+    elif len(data.shape) == 5 and len(slope.shape) == 1 and slope.shape[0] == data.shape[3]:
 
         if slope.size == data.shape[3]:
             for t in range(data.shape[4]):
