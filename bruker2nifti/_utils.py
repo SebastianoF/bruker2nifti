@@ -256,23 +256,23 @@ def slope_corrector(data, slope, num_initial_dir_to_skip=None):
         else:
             raise IOError('Shape of the 2d image and slope dimensions are not consistent')
 
-    elif len(data.shape) == 4 and len(slope.shape) == 1 and data.shape[2] == slope.shape[0]:
+    elif len(data.shape) == 4 and len(slope.shape) == 1:
 
         if slope.size == data.shape[2]:
-            for k in range(data.shape[3]):
-                for t in range(slope.size):
-                    data[..., t, k] = data[..., t, k] * slope[t]
+            for t in range(data.shape[3]):
+                for k in range(slope.size):
+                    data[..., k, t] = data[..., k, t] * slope[k]
         else:
-            raise IOError('If you are here, your case cannot be converted from this tool. Debug from here.')
+            raise IOError('If you are here, your case cannot be converted. Debug from here to include your case.')
 
-    elif len(data.shape) == 5 and len(slope.shape) == 1 and data.shape[3] == slope.shape[0]:
+    elif len(data.shape) == 5 and len(slope.shape) == 1:
 
         if slope.size == data.shape[3]:
-            for k in range(data.shape[4]):
-                for t in range(slope.size):
-                    data[..., t, k] = data[..., t, k] * slope[t]
+            for t in range(data.shape[4]):
+                for k in range(slope.size):
+                    data[..., k, t] = data[..., k, t] * slope[k]
         else:
-            raise IOError('If you are here, your case cannot be converted from this tool. Debug from here.')
+            raise IOError('If you are here, your case cannot be converted. Debug from here to include your case.')
 
     else:
         if slope.size == data.shape[3]:
@@ -287,18 +287,18 @@ def slope_corrector(data, slope, num_initial_dir_to_skip=None):
 # -- nifti affine matrix utils --
 
 
-def compute_resolution_from_visu_pars(vc_extent, vc_size, vc_frame_tickness):
+def compute_resolution_from_visu_pars(vc_extent, vc_size, vc_frame_thickness):
 
     if len(vc_extent) == len(vc_size):
         resolution = [e / float(s) for e, s in zip(vc_extent, vc_size)]
     else:
         raise IOError
 
-    if isinstance(vc_frame_tickness, np.ndarray):
-        vc_frame_tickness = vc_frame_tickness[0]
+    if isinstance(vc_frame_thickness, np.ndarray) or isinstance(vc_frame_thickness, list):
+        vc_frame_thickness = vc_frame_thickness[0]
 
     if len(vc_extent) == 2:
-        resolution += [vc_frame_tickness]
+        resolution += [vc_frame_thickness]
         return resolution
     elif len(vc_extent) == 3:
         return resolution
