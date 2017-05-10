@@ -312,6 +312,16 @@ def sanity_check_visu_core_subject_position(vc_subject_position):
         raise IOError(msg)
 
 
+def filter_orientation(visu_parse_orientation):
+
+    if not np.prod(visu_parse_orientation.shape) == 9:
+        # Take the first 9 elements:
+        visu_parse_orientation = visu_parse_orientation.flat[:9]
+
+    ans = np.around(visu_parse_orientation.reshape([3, 3], order='F'), decimals=4)
+    return ans
+
+
 def compute_affine_from_visu_pars(vc_orientation, vc_position, vc_subject_position, resolution,
                                   frame_body_as_frame_head=False, keep_same_det=True, consider_translation=False,
                                   consider_subject_position=False):
@@ -334,9 +344,10 @@ def compute_affine_from_visu_pars(vc_orientation, vc_position, vc_subject_positi
     :return:
     """
     sanity_check_visu_core_subject_position(vc_subject_position)
+    vc_orientation = filter_orientation(vc_orientation)
 
     # invert the matrix, according to nifti convention and Bruker manual. Round the decimals to avoid precision probl.
-    vc_orientation = np.around(np.linalg.inv(vc_orientation.reshape([3, 3], order='F')), decimals=4)
+    vc_orientation = np.linalg.inv(vc_orientation)
     vc_orientation_det = np.linalg.det(vc_orientation)
 
     if vc_orientation_det == 0:
@@ -379,8 +390,9 @@ def obtain_b_vectors_orient_matrix(vc_orientation, vc_subject_position, frame_bo
                                            keep_same_det=True, consider_subject_position=False):
 
     sanity_check_visu_core_subject_position(vc_subject_position)
+    vc_orientation = filter_orientation(vc_orientation)
 
-    result = np.linalg.inv(vc_orientation.reshape([3, 3], order='F'))
+    result = np.linalg.inv(vc_orientation)
     result_det = np.linalg.det(result)
 
     if result_det == 0:
