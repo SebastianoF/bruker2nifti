@@ -361,17 +361,13 @@ def compute_affine_from_visu_pars(vc_orientation, vc_position, vc_subject_positi
     # We hope this is the case as we do not have any mean to confirm that. The fslreorient2std from FSL
     # should be applied afterwards to all the images (after DWI analysis if any).
 
-    # impose pivot first column to be negative
+    # impose pivot first column negative, second column negative, third column positive
     if vc_orientation[:, 0].max() > 0:
         vc_orientation[:, 0] = -1 * vc_orientation[:, 0]
-    # impose pivot second column to be negative
     if vc_orientation[:, 1].max() > 0:
         vc_orientation[:, 1] = -1 * vc_orientation[:, 1]
-    # impose pivot third column to be positive
     if vc_orientation[:, 2].max() < 0:
         vc_orientation[:, 2] = -1 * vc_orientation[:, 2]
-    #
-    # print '\n\n SPAAAAAMMMM\n\n'
 
     rotational_part = vc_orientation.dot(np.diag(resolution))
 
@@ -410,11 +406,12 @@ def obtain_b_vectors_orient_matrix(vc_orientation, vc_subject_position, frame_bo
     if not frame_body_as_frame_head:
         result = result.dot(np.array([[1, 0, 0], [0, 0, 1], [0, 1, 0]]))
 
-    if -1 not in list(result[:, 0]):
+    # impose pivot first column negative, second column negative, third column positive
+    if result[:, 0].max() > 0:
         result[:, 0] = -1 * result[:, 0]
-    if -1 not in list(vc_orientation[:, 1]):
+    if result[:, 1].max() > 0:
         result[:, 1] = -1 * result[:, 1]
-    if 1 not in list(result[:, 2]):
+    if result[:, 2].max() < 0:
         result[:, 2] = -1 * result[:, 2]
 
     if consider_subject_position:
