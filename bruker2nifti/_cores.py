@@ -146,20 +146,27 @@ def scan2struct(pfo_scan,
 
     # -- Get additional data
 
-    # Get information from acqp, method, reco, if they exists.
+    # Get information from method, if it exists. Parse Method parameter and erase the dictionary if unwanted
+    method = bruker_read_files('method', pfo_scan)
+
+    if method == {}:
+        print("Warning: No 'method' file to parse.")
+    if 'Method' in method.keys():
+        name_method = method['Method'].replace('<', '').replace('>', '').split(':')[-1]
+    else:
+        name_method = ''
+
+    if not get_method:
+        method = {}
+
+    # Get information from acqp, reco, if they exist.
     acqp   = {}
-    method = {}
     reco   = {}
 
     if get_acqp:
         acqp = bruker_read_files('acqp', pfo_scan)
         if acqp == {}:
             print("Warning: No 'acqp' file to parse.")
-
-    if get_method:
-        method = bruker_read_files('method', pfo_scan)
-        if method == {}:
-            print("Warning: No 'method' file to parse.")
 
     if get_reco:
         reco = bruker_read_files('reco', pfo_scan)
@@ -171,7 +178,8 @@ def scan2struct(pfo_scan,
                    'visu_pars_list' : visu_pars_list,
                    'acqp'           : acqp,
                    'reco'           : reco,
-                   'method'         : method}
+                   'method'         : method,
+                   'name_method'    : name_method}
 
     return struct_scan
 
@@ -184,7 +192,7 @@ def write_struct(struct,
                  verbose=1,
                  frame_body_as_frame_head=False,
                  keep_same_det=True,
-                 consider_subject_position=False
+                 consider_subject_position=False,
                  ):
     """
 
@@ -394,20 +402,11 @@ def write_struct(struct,
     # Finally summary info with the updated information.
     from_dict_to_txt_sorted(summary_info, jph(pfo_output, fin_scan + '_summary.txt'))
 
+    # Get the method name in a single .txt file:
+    if struct['name_method'] is not '':
+        text_file = open(jph(pfo_output, 'name_method.txt'), "w+")
+        text_file.write(struct['name_method'])
+        text_file.close()
 
-# TODO
-'''
-Once properly tested embed the two core methods into a class CoreConverter having the following as class-attributes.
-correct_slope=True,
-nifti_version=1,
-qform=2,
-sform=1,
-get_acqp=False,
-get_method=False,
-get_reco=False,
-frame_body_as_frame_head=False,
-keep_same_det=True,
-consider_translation=False,
-consider_subject_position=False
 
-'''
+# TODO: OO structure in a future refactoring?
