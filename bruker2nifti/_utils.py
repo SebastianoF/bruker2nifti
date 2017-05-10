@@ -322,6 +322,12 @@ def filter_orientation(visu_parse_orientation):
     return ans
 
 
+def pivot(v):
+    # max in absolute value with original sign or max from origin.
+    # Corresponds to the main direction for each column.
+    return v[list(abs(v)).index(abs(v).max())]
+
+
 def compute_affine_from_visu_pars(vc_orientation, vc_position, vc_subject_position, resolution,
                                   frame_body_as_frame_head=False, keep_same_det=True, consider_translation=False,
                                   consider_subject_position=False):
@@ -362,11 +368,11 @@ def compute_affine_from_visu_pars(vc_orientation, vc_position, vc_subject_positi
     # should be applied afterwards to all the images (after DWI analysis if any).
 
     # impose pivot first column negative, second column negative, third column positive
-    if vc_orientation[:, 0].max() > 0:
+    if pivot(vc_orientation[:, 0]) > 0:
         vc_orientation[:, 0] = -1 * vc_orientation[:, 0]
-    if vc_orientation[:, 1].max() > 0:
+    if pivot(vc_orientation[:, 1]) > 0:
         vc_orientation[:, 1] = -1 * vc_orientation[:, 1]
-    if vc_orientation[:, 2].max() < 0:
+    if pivot(vc_orientation[:, 2]) < 0:
         vc_orientation[:, 2] = -1 * vc_orientation[:, 2]
 
     rotational_part = vc_orientation.dot(np.diag(resolution))
@@ -407,11 +413,11 @@ def obtain_b_vectors_orient_matrix(vc_orientation, vc_subject_position, frame_bo
         result = result.dot(np.array([[1, 0, 0], [0, 0, 1], [0, 1, 0]]))
 
     # impose pivot first column negative, second column negative, third column positive
-    if result[:, 0].max() > 0:
+    if pivot(result[:, 0]) > 0:
         result[:, 0] = -1 * result[:, 0]
-    if result[:, 1].max() > 0:
+    if pivot(result[:, 1]) > 0:
         result[:, 1] = -1 * result[:, 1]
-    if result[:, 2].max() < 0:
+    if pivot(result[:, 2]) < 0:
         result[:, 2] = -1 * result[:, 2]
 
     if consider_subject_position:
