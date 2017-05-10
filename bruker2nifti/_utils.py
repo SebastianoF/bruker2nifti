@@ -357,12 +357,21 @@ def compute_affine_from_visu_pars(vc_orientation, vc_position, vc_subject_positi
 
         vc_orientation = vc_orientation.dot(np.array([[1, 0, 0], [0, 0, 1], [0, 1, 0]]))
 
-    if -1 not in list(vc_orientation[:, 0]):
+    # NOTE: we are assuming that the angles parametrisation is the same for the input and the output.
+    # We hope this is the case as we do not have any mean to confirm that. The fslreorient2std from FSL
+    # should be applied afterwards to all the images (after DWI analysis if any).
+
+    # impose pivot first column to be negative
+    if vc_orientation[:, 0].max() > 0:
         vc_orientation[:, 0] = -1 * vc_orientation[:, 0]
-    if -1 not in list(vc_orientation[:, 1]):
+    # impose pivot second column to be negative
+    if vc_orientation[:, 1].max() > 0:
         vc_orientation[:, 1] = -1 * vc_orientation[:, 1]
-    if 1 not in list(vc_orientation[:, 2]):
+    # impose pivot third column to be positive
+    if vc_orientation[:, 2].max() < 0:
         vc_orientation[:, 2] = -1 * vc_orientation[:, 2]
+    #
+    # print '\n\n SPAAAAAMMMM\n\n'
 
     rotational_part = vc_orientation.dot(np.diag(resolution))
 
