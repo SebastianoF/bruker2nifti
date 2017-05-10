@@ -291,7 +291,7 @@ def write_struct(struct,
         if len(struct['nib_scans_list']) > 1:
             i_label = '_subscan_' + str(i) + '_'
         else:
-            i_label = ''
+            i_label = '_'
 
         # A) Save visu_pars for each sub-scan:
         np.save(jph(pfo_output, fin_scan + i_label + 'visu_pars.npy'), struct['visu_pars_list'][i])
