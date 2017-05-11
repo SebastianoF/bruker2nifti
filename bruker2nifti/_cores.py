@@ -152,9 +152,9 @@ def scan2struct(pfo_scan,
     if method == {}:
         print("Warning: No 'method' file to parse.")
     if 'Method' in method.keys():
-        name_method = method['Method'].replace('<', '').replace('>', '').split(':')[-1]
+        acquisition_method = method['Method'].replace('<', '').replace('>', '').split(':')[-1]
     else:
-        name_method = ''
+        acquisition_method = ''
 
     if not get_method:
         method = {}
@@ -179,7 +179,7 @@ def scan2struct(pfo_scan,
                    'acqp'           : acqp,
                    'reco'           : reco,
                    'method'         : method,
-                   'name_method'    : name_method}
+                   'acquisition_method'    : acquisition_method}
 
     return struct_scan
 
@@ -361,15 +361,19 @@ def write_struct(struct,
             nib.save(struct['nib_scans_list'][i], pfi_scan)
 
             if save_b0_if_dwi and is_dwi:
+                # save the b0, first slice alone. Optimized if you have
+                # NiftiSeg (http://cmictig.cs.ucl.ac.uk/wiki/index.php/NiftySeg) installed
 
                 if fin_scan == '':
-                    pfi_scan = jph(pfo_output, 'scan' + i_label[:-1] + '_b0.nii.gz')
+                    pfi_scan_b0 = jph(pfo_output, 'scan' + i_label[:-1] + '_b0.nii.gz')
                 else:
-                    pfi_scan = jph(pfo_output, fin_scan + i_label[:-1] + '_b0.nii.gz')
-                nib.save(set_new_data(struct['nib_scans_list'][i], struct['nib_scans_list'][i].get_data()[..., 0]),
-                         pfi_scan)
+                    pfi_scan_b0 = jph(pfo_output, fin_scan + i_label[:-1] + '_b0.nii.gz')
+
+                nib.save(set_new_data(struct['nib_scans_list'][i],
+                                      struct['nib_scans_list'][i].get_data()[..., 0]),
+                         pfi_scan_b0)
                 if verbose > 0:
-                    msg = 'b0 scan saved alone in ' + pfi_scan
+                    msg = 'b0 scan saved alone in ' + pfi_scan_b0
                     print(msg)
 
     # complete the summary info with additional information from other parameter files, if required:
@@ -403,9 +407,9 @@ def write_struct(struct,
     from_dict_to_txt_sorted(summary_info, jph(pfo_output, fin_scan + '_summary.txt'))
 
     # Get the method name in a single .txt file:
-    if struct['name_method'] is not '':
-        text_file = open(jph(pfo_output, 'name_method.txt'), "w+")
-        text_file.write(struct['name_method'])
+    if struct['acquisition_method'] is not '':
+        text_file = open(jph(pfo_output, 'acquisition_method.txt'), "w+")
+        text_file.write(struct['acquisition_method'])
         text_file.close()
 
 
