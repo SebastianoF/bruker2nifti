@@ -363,16 +363,16 @@ def write_struct(struct,
             if save_b0_if_dwi and is_dwi:
 
                 if fin_scan == '':
-                    pfi_scan = jph(pfo_output, 'b0_scan' + i_label[:-1] + '.nii.gz')
+                    pfi_scan = jph(pfo_output, 'scan' + i_label[:-1] + '_b0.nii.gz')
                 else:
-                    pfi_scan = jph(pfo_output, 'b0_' + fin_scan + i_label[:-1] + '.nii.gz')
+                    pfi_scan = jph(pfo_output, fin_scan + i_label[:-1] + '_b0.nii.gz')
                 nib.save(set_new_data(struct['nib_scans_list'][i], struct['nib_scans_list'][i].get_data()[..., 0]),
                          pfi_scan)
                 if verbose > 0:
                     msg = 'b0 scan saved alone in ' + pfi_scan
                     print(msg)
 
-    # complete the summary info with additional informations from other parameter files, if required:
+    # complete the summary info with additional information from other parameter files, if required:
 
     if not struct['acqp'] == {}:
 
