@@ -136,24 +136,54 @@ def nifti_getter(img_data_vol,
         # get shape
         sh = vol_pre_shape
 
-        # check for frame groups:
+        # check for frame groups:  -- Very convoluted scaffolding. Waiting to have more infos to refactor this part.
+        # ideally an external function read VisuFGOrderDesc should provide the sh and the choice between # A and # B
+        # while testing for exception.
 
         if 'VisuFGOrderDescDim' in visu_pars.keys():  # see D-2-73
             if visu_pars['VisuFGOrderDescDim'] > 0:
                 if isinstance(visu_pars['VisuFGOrderDesc'], list):
                     if len(visu_pars['VisuFGOrderDesc']) > 1:
+                        descr = visu_pars['VisuFGOrderDesc'][:]
+                        # sort descr so that FG_SLICE is the first one, all the others came as they are after swapping.
+                        fg_slice_pos = -1
+                        fg_echo = -1
+                        fg_movie = -1
+                        for d in range(len(descr)):
+                            if '<FG_SLICE>' in descr[d]:
+                                fg_slice_pos = d
+                            if '<FG_ECHO>' in descr[d]:
+                                fg_echo = d
+                            if '<FG_MOVIE>' in descr[d]:
+                                fg_movie = d
+                        if fg_slice_pos == -1:
+                            raise IOError('FG_SLICE not found in the order descriptor, dunno the order.')
+
+                        descr[fg_slice_pos], descr[0] = descr[0], descr[fg_slice_pos]
+
                         dims = []
-                        for descr in visu_pars['VisuFGOrderDesc'][::-1]:
-                            dims.append(int(descr.replace('(', '').replace(')', '').split(',')[0]))
+                        for dd in descr:
+                            dims.append(int(dd.replace('(', '').replace(')', '').split(',')[0]))
+
                         if np.prod(dims) == sh[-1]:
                             sh = vol_pre_shape[:-1] + dims
+                            # A
+                            if fg_echo > -1:
+                                # MSME
+                                stack_data = np.zeros(sh, dtype=img_data_vol.dtype)
+                                for t in range(sh[3]):
+                                    for z in range(sh[2]):
+                                        stack_data[:, :, z, t] = vol_data[:, :, z * sh[3] + t]
 
-                            stack_data = np.zeros(sh, dtype=np.float64)
-                            for t in range(sh[3]):
-                                for z in range(sh[2]):
-                                    stack_data[:, :, z, t] = vol_data[:, :, z * sh[3] + t]
+                                vol_data = np.copy(stack_data)
+                            # B
+                            elif fg_movie > -1:
+                                # DTI
+                                vol_data = img_data_vol.reshape(sh, order='F')
+                            else:
+                                # Else ?
+                                vol_data = img_data_vol.reshape(sh, order='F')
 
-                            vol_data = np.copy(stack_data)
 
         # get resolution
         resolution = compute_resolution_from_visu_pars(visu_pars['VisuCoreExtent'],
