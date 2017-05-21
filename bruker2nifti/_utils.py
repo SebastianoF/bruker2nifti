@@ -248,6 +248,9 @@ def slope_corrector(data, slope, num_initial_dir_to_skip=None):
         # scalar times 3d array
         data *= slope
 
+    elif slope.size == 1:
+        data *= slope[0]
+
     elif len(data.shape) == 3 and len(slope.shape) == 1:
         # each slice of the 3d image is multiplied an element of the slope
         if data.shape[2] == slope.shape[0]:
@@ -255,16 +258,6 @@ def slope_corrector(data, slope, num_initial_dir_to_skip=None):
                 data[..., t] = data[..., t] * sl
         else:
             raise IOError('Shape of the 2d image and slope dimensions are not consistent')
-
-    elif len(data.shape) == 4 and len(slope.shape) == 1 and slope.shape[0] == data.shape[1]:
-
-        if slope.size == data.shape[1]:
-            for t in range(data.shape[3]):
-                for z in range(data.shape[2]):
-                    for k in range(slope.size):
-                        data[..., k, z, t] = data[..., k, z, t] * slope[k]
-        else:
-            raise IOError('If you are here, your case cannot be converted. Debug from here to include your case.')
 
     elif len(data.shape) == 4 and len(slope.shape) == 1 and slope.shape[0] == data.shape[2]:
 
