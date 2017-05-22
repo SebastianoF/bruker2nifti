@@ -232,17 +232,34 @@ def bruker_read_files(param_file, data_path, sub_scan_num='1'):
 
 # --- Slope correction utils ---
 
+def eliminates_consecutive_duplicates(input_list):
+    output_list = [input_list[0], ]
+    for i in range(1, len(input_list)):
+        if not input_list[i] == input_list[i-1]:
+            output_list.append(input_list[i])
 
-def slope_corrector(data, slope, num_initial_dir_to_skip=None):
+    return output_list
+
+
+def slope_corrector(data, slope, num_initial_dir_to_skip=None, dtype=np.float32):
+
+    # todo: need careful refactoring after meeting new cases
 
     if len(data.shape) > 5:
-        raise IOError('4d or lower dimensional images allowed. Input data has shape'.format(data.shape))
+        raise IOError('4d or lower dimensional images allowed. Input data has shape {} '.format(data.shape))
 
-    data = data.astype(np.float64)
+    data = data.astype(dtype)
 
     if num_initial_dir_to_skip is not None:
         slope = slope[num_initial_dir_to_skip:]
         data = data[..., num_initial_dir_to_skip:]
+
+    if not (isinstance(slope, int) or isinstance(slope, float)):
+        if len(slope.shape) == 1:
+            if not slope.size == data.shape[-1] or not slope.size == data.shape[-1]:
+                slope = np.array(eliminates_consecutive_duplicates(list(slope)), dtype=np.float64)
+                if not slope.size == data.shape[-1] or not slope.size == data.shape[-1]:
+                    raise IOError
 
     if isinstance(slope, int) or isinstance(slope, float):
         # scalar times 3d array
@@ -521,3 +538,62 @@ def set_new_data(image, new_data, new_dtype=None, remove_nan=True):
         new_image.set_data_dtype(new_dtype)
 
     return new_image
+
+
+
+'''
+
+def slope_corrector(data, slope, num_initial_dir_to_skip=None):
+
+    if len(data.shape) > 5:
+        raise IOError('4d or lower dimensional images allowed. Input data has shape'.format(data.shape))
+
+    data = data.astype(np.float64)
+
+    if num_initial_dir_to_skip is not None:
+        slope = slope[num_initial_dir_to_skip:]
+        data = data[..., num_initial_dir_to_skip:]
+
+    if isinstance(slope, int) or isinstance(slope, float):
+        # scalar times 3d array
+        data *= slope
+
+    elif slope.size == 1:
+        data *= slope[0]
+
+    elif len(data.shape) == 3 and len(slope.shape) == 1:
+        # each slice of the 3d image is multiplied an element of the slope
+        if data.shape[2] == slope.shape[0]:
+            for t, sl in enumerate(slope):
+                data[..., t] = data[..., t] * sl
+        else:
+            raise IOError('Shape of the 2d image and slope dimensions are not consistent')
+
+    elif len(data.shape) == 4 and len(slope.shape) == 1 and slope.shape[0] == data.shape[2]:
+
+        if slope.size == data.shape[2]:
+            for t in range(data.shape[3]):
+                for k in range(slope.size):
+                    data[..., k, t] = data[..., k, t] * slope[k]
+        else:
+            raise IOError('If you are here, your case cannot be converted. Debug from here to include your case.')
+
+    elif len(data.shape) == 5 and len(slope.shape) == 1 and slope.shape[0] == data.shape[3]:
+
+        if slope.size == data.shape[3]:
+            for t in range(data.shape[4]):
+                for k in range(slope.size):
+                    data[..., k, t] = data[..., k, t] * slope[k]
+        else:
+            raise IOError('If you are here, your case cannot be converted. Debug from here to include your case.')
+
+    else:
+        if slope.size == data.shape[3]:
+            for t in range(data.shape[3]):
+                data[..., t] = data[..., t] * slope[t]
+        else:
+            raise IOError('Shape of the 3d image and slope dimensions are not consistent')
+
+    return data
+
+'''
