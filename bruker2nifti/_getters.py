@@ -170,7 +170,7 @@ def nifti_getter(img_data_vol,
                             # A
                             if fg_echo > -1:
                                 # MSME
-                                stack_data = np.zeros(sh, dtype=img_data_vol.dtype)
+                                stack_data = np.zeros(sh, dtype=vol_data.dtype)
                                 for t in range(sh[3]):
                                     for z in range(sh[2]):
                                         stack_data[:, :, z, t] = vol_data[:, :, z * sh[3] + t]
