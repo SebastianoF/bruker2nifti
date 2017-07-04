@@ -80,8 +80,9 @@ def convert_a_study(pfo_study_bruker_input,
     if scans_list is None:
         scans_list = get_list_scans(pfo_study_bruker_input)
 
-    if study_name is None:
-        study_name = get_subject_name(pfo_study_bruker_input)
+    if study_name is None or study_name is '':
+        study_name = get_subject_name(pfo_study_bruker_input).replace(' ', '_')
+        study_name = ''.join(e for e in study_name if e.isalnum())
     if list_new_name_each_scan is None:
         list_new_name_each_scan = [study_name + '_' + ls for ls in scans_list]
     if list_new_nifti_file_names is None:
@@ -107,7 +108,7 @@ def convert_a_study(pfo_study_bruker_input,
 
         convert_a_scan(pfo_scan_bruker,
                        pfo_scan_nifti,
-                       create_output_folder_if_not_exists=True,
+                       create_output_folder_if_not_exists=True,  # hidden for the user, unreachable from here
                        fin_scan=nifti_file_name,
                        nifti_version=nifti_version,
                        qform=qform,

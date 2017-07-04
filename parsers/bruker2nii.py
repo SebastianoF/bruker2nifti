@@ -74,11 +74,6 @@ def main():
                         dest='save_human_readable',
                         action='store_true')
 
-    # normalise_b_vectors_if_dwi = True,
-    parser.add_argument('-normalise_b_vectors_if_dwi',
-                        dest='normalise_b_vectors_if_dwi',
-                        action='store_true')
-
     # correct_slope = False,
     parser.add_argument('-correct_slope',
                         dest='correct_slope',
@@ -102,7 +97,6 @@ def main():
                     qform=args.qform,
                     sform=args.sform,
                     save_human_readable=args.save_human_readable,
-                    normalise_b_vectors_if_dwi=args.normalise_b_vectors_if_dwi,
                     correct_slope=args.correct_slope,
                     verbose=args.verbose
                     )
