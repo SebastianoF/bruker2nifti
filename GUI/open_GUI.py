@@ -7,8 +7,9 @@ we suggest
 http://osxdaily.com/2013/06/19/copy-file-folder-path-mac-os-x/
 And follow
 https://www.podfeet.com/blog/tutorials-5/automator-shortcut-tutorial/
+To make it as a package:
+https://pyforms.readthedocs.io/en/v2.0/getting-started/the-basic/
 '''
-
 
 class BrukerToNifti(tk.Tk, object):
     def __init__(self):
