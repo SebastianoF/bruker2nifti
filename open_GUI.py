@@ -7,9 +7,8 @@ we suggest
 http://osxdaily.com/2013/06/19/copy-file-folder-path-mac-os-x/
 And follow
 https://www.podfeet.com/blog/tutorials-5/automator-shortcut-tutorial/
-To make it as a package:
-https://pyforms.readthedocs.io/en/v2.0/getting-started/the-basic/
 '''
+
 
 class BrukerToNifti(tk.Tk, object):
     def __init__(self):
@@ -18,18 +17,20 @@ class BrukerToNifti(tk.Tk, object):
         # Window settings:
 
         self.title('From bruker to nifti - interface')
-        self.geometry('450x150')
+        self.geometry('640x170')
 
         # Widgets:
 
+        self.header = tk.Label(self, text=' Bruker 2 nifti Converter ')
+
         self.label_pfo_input = tk.Label(self, text='Folder path input')
-        self.entry_pfo_input = tk.Entry(self, bd=2)
+        self.entry_pfo_input = tk.Entry(self, bd=2, width=50)
 
         self.label_pfo_output = tk.Label(self, text='Folder path output')
-        self.entry_pfo_output = tk.Entry(self, bd=2)
+        self.entry_pfo_output = tk.Entry(self, bd=2, width=50)
 
         self.label_study_name = tk.Label(self, text='Study name (optional)')
-        self.entry_study_name = tk.Entry(self, bd=2)
+        self.entry_study_name = tk.Entry(self, bd=2, width=50)
 
         self.CheckVar_cs = tk.IntVar(value=1)  # correct slope default True
         self.CheckVar_ac = tk.IntVar(value=0)  # get acquisition parameters default False
@@ -45,21 +46,23 @@ class BrukerToNifti(tk.Tk, object):
 
         # geometry
 
-        self.label_pfo_input.grid(row=0, column=0)
-        self.entry_pfo_input.grid(row=0, column=1, columnspan=3)
+        self.header.grid(row=0, column=1, columnspan=3)
 
-        self.label_pfo_output.grid(row=1, column=0)
-        self.entry_pfo_output.grid(row=1, column=1, columnspan=3)
+        self.label_pfo_input.grid(row=1, column=0)
+        self.entry_pfo_input.grid(row=1, column=1, columnspan=3)
 
-        self.label_study_name.grid(row=2, column=0)
-        self.entry_study_name.grid(row=2, column=1, columnspan=3)
+        self.label_pfo_output.grid(row=2, column=0)
+        self.entry_pfo_output.grid(row=2, column=1, columnspan=3)
 
-        self.radio_button_correct_slope.grid(row=3, column=0)
-        self.radio_button_get_acqp.grid(row=3, column=1)
-        self.radio_button_get_method.grid(row=3, column=2)
-        self.radio_button_get_reco.grid(row=3, column=3)
+        self.label_study_name.grid(row=3, column=0)
+        self.entry_study_name.grid(row=3, column=1, columnspan=3)
 
-        self.button_convert.grid(row=4, column=2, columnspan=2)
+        self.radio_button_correct_slope.grid(row=4, column=0)
+        self.radio_button_get_acqp.grid(row=4, column=1)
+        self.radio_button_get_method.grid(row=4, column=2)
+        self.radio_button_get_reco.grid(row=4, column=3)
+
+        self.button_convert.grid(row=5, column=3)
 
     # main command
     def convert(self):
