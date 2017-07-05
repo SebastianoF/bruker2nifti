@@ -10,7 +10,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $DIR
 
 # create virtual environment, install the libraries and deactivate
-
+sudo apt-get install virtualenv
 pip install virtualenv
 virtualenv venv
 source venv/bin/activate

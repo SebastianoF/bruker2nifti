@@ -10,6 +10,15 @@ Medical image format converter: from raw Brukert ParaVision to nifti, written in
 * (optional) `python setup.py install` to install as a library
 * (suggested) `pip install -e .` to install with pip in development mode.
 
+### GUI Installation
+Open a terminal in the cloned repository, then
+* chmod 777 gui_setupper.sh
+* ./gui_setupper.sh
+
+This simple bash script will create sort of 'launcher', named runGUIbru2nii that uses a virtualenvironment
+created in the root directory. 
+Once created, the location of the launcher can be changed, copy-pasted and moved around the system.
+The location of bruker2nifti folder cannot be moved. If moved the GUI Installation needs to be repeated
 
 ### Testing
 Unit testing with [nosetest](http://pythontesting.net/framework/nose/nose-introduction/):
