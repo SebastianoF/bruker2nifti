@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # simple bash script to create a gui 'launcher'.
 # Location of the launcher can be changed, copy-pasted and moved around
@@ -9,20 +9,21 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $DIR
 
-# create virtual environment, install the libraries and deactivate
+echo '\n create virtual environment, install the libraries and deactivate\n'
 sudo apt-get install virtualenv
+sudo apt-get install python-tk
 virtualenv venv
-source venv/bin/activate
+. venv/bin/activate
 pip install -r requirements.txt
 deactivate
 
-# select paths required to have the python of the virtualenvironment
+echo '\n select paths required to have the python of the virtualenvironment\n'
 
 DIR_PY=venv/bin/python
 CALLER=$DIR/$DIR_PY
 EXEC=$DIR/open_GUI.py
 
-# generate 'launcher' and add permission
+echo '\n generate launcher-like and add permission \n'
 
 echo '#!/bin/sh' > runGUIbru2nii
 echo $CALLER $EXEC >> runGUIbru2nii
