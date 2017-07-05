@@ -9,7 +9,10 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $DIR
 
-echo '\n create virtual environment, install the libraries and deactivate\n'
+echo
+echo 'create virtual environment, install the libraries and deactivate'
+echo
+
 sudo apt-get install virtualenv
 sudo apt-get install python-tk
 virtualenv venv
@@ -17,13 +20,17 @@ virtualenv venv
 pip install -r requirements.txt
 deactivate
 
-echo '\n select paths required to have the python of the virtualenvironment\n'
+echo
+echo 'select paths required to have the python of the virtualenvironment'
+echo
 
 DIR_PY=venv/bin/python
 CALLER=$DIR/$DIR_PY
 EXEC=$DIR/open_GUI.py
 
-echo '\n generate launcher-like and add permission \n'
+echo
+echo 'generate launcher-like and add permission'
+echo
 
 echo '#!/bin/sh' > runGUIbru2nii
 echo $CALLER $EXEC >> runGUIbru2nii
