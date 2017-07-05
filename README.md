@@ -12,8 +12,8 @@ Medical image format converter: from raw Brukert ParaVision to nifti, written in
 
 ### GUI Installation
 Open a terminal in the cloned repository, then
-* chmod 777 gui_setupper.sh
-* ./gui_setupper.sh
+* chmod 777 gui_setupper_MAC.sh
+* ./gui_setupper_MAC.sh
 
 This simple bash script will create sort of 'launcher', named runGUIbru2nii that uses a virtualenvironment
 created in the root directory. 
