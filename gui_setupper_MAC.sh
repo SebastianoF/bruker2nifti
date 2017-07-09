@@ -4,7 +4,6 @@
 # Location of the launcher can be changed, copy-pasted and moved around
 # location of the bruker2nifti folder cannot be moved!!
 
-# get directory bruker2 nifty, and move there.
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $DIR
