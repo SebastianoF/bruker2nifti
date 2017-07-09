@@ -13,7 +13,6 @@ echo
 echo 'create virtual environment, install the libraries and deactivate'
 echo
 
-sudo apt-get install virtualenv
 pip install virtualenv
 virtualenv venv
 source venv/bin/activate

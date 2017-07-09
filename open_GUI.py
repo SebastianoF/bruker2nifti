@@ -1,4 +1,5 @@
 import Tkinter as tk
+import tkFileDialog
 from bruker2nifti.study_converter import convert_a_study
 
 '''
@@ -17,7 +18,7 @@ class BrukerToNifti(tk.Tk, object):
         # Window settings:
 
         self.title('From bruker to nifti - interface')
-        self.geometry('640x170')
+        self.geometry('700x170')
 
         # Widgets:
 
@@ -42,6 +43,8 @@ class BrukerToNifti(tk.Tk, object):
         self.radio_button_get_method    = tk.Checkbutton(self, text='get method', variable=self.CheckVar_me)
         self.radio_button_get_reco      = tk.Checkbutton(self, text='get reco', variable=self.CheckVar_rc)
 
+        self.button_browse_input = tk.Button(self, text='Browse', command=self.button_browse_callback_pfo_input)
+        self.button_browse_output = tk.Button(self, text='Browse', command=self.button_browse_callback_pfo_output)
         self.button_convert = tk.Button(self, text='Convert', command=self.convert)
 
         # geometry
@@ -50,9 +53,11 @@ class BrukerToNifti(tk.Tk, object):
 
         self.label_pfo_input.grid(row=1, column=0)
         self.entry_pfo_input.grid(row=1, column=1, columnspan=3)
+        self.button_browse_input.grid(row=1, column=4)
 
         self.label_pfo_output.grid(row=2, column=0)
         self.entry_pfo_output.grid(row=2, column=1, columnspan=3)
+        self.button_browse_output.grid(row=2, column=4)
 
         self.label_study_name.grid(row=3, column=0)
         self.entry_study_name.grid(row=3, column=1, columnspan=3)
@@ -62,9 +67,22 @@ class BrukerToNifti(tk.Tk, object):
         self.radio_button_get_method.grid(row=4, column=2)
         self.radio_button_get_reco.grid(row=4, column=3)
 
-        self.button_convert.grid(row=5, column=3)
+        self.button_convert.grid(row=5, column=2)
 
-    # main command
+    # main commands
+
+    def button_browse_callback_pfo_input(self):
+        """ What to do when the Browse button is pressed """
+        filename = tkFileDialog.askdirectory()
+        self.entry_pfo_input.delete(0, tk.END)
+        self.entry_pfo_input.insert(0, filename)
+
+    def button_browse_callback_pfo_output(self):
+        """ What to do when the Browse button is pressed """
+        filename = tkFileDialog.askdirectory()
+        self.entry_pfo_output.delete(0, tk.END)
+        self.entry_pfo_output.insert(0, filename)
+
     def convert(self):
 
         print 'GUI bruker2nifti'
@@ -84,7 +102,6 @@ class BrukerToNifti(tk.Tk, object):
                         get_acqp=self.CheckVar_ac.get(),
                         get_method=self.CheckVar_me.get(),
                         get_reco=self.CheckVar_rc.get())
-
 
 if __name__ == '__main__':
     root = BrukerToNifti()
