@@ -241,7 +241,7 @@ def eliminates_consecutive_duplicates(input_list):
     return output_list
 
 
-def slope_corrector(data, slope, num_initial_dir_to_skip=None, dtype=np.float32):
+def slope_corrector(data, slope, num_initial_dir_to_skip=None, dtype=np.float64):
 
     # todo: need careful refactoring after meeting new cases
 
@@ -254,18 +254,21 @@ def slope_corrector(data, slope, num_initial_dir_to_skip=None, dtype=np.float32)
         slope = slope[num_initial_dir_to_skip:]
         data = data[..., num_initial_dir_to_skip:]
 
+    # correct for possible consecutive duplicates
     if not (isinstance(slope, int) or isinstance(slope, float)):
-        if len(slope.shape) == 1:
-            if not slope.size == data.shape[-1] or not slope.size == data.shape[-1]:
+        if slope.ndim == 1:
+            if not slope.size == data.shape[-1] and not slope.size == data.shape[-2]:
                 slope = np.array(eliminates_consecutive_duplicates(list(slope)), dtype=np.float64)
-                if not slope.size == data.shape[-1] or not slope.size == data.shape[-1]:
-                    raise IOError
+                if not slope.size == data.shape[-1] and not slope.size == data.shape[-2]:
+                    msg = 'Slope shape {0} and data shape {1} appears to be not compatible'.format(slope.shape, data.shape)
+                    raise IOError(msg)
 
     if isinstance(slope, int) or isinstance(slope, float):
-        # scalar times 3d array
+        # scalar times nd array
         data *= slope
 
     elif slope.size == 1:
+        # scalar embedded in a singleton times nd array
         data *= slope[0]
 
     elif len(data.shape) == 3 and len(slope.shape) == 1:
@@ -277,7 +280,7 @@ def slope_corrector(data, slope, num_initial_dir_to_skip=None, dtype=np.float32)
             raise IOError('Shape of the 2d image and slope dimensions are not consistent')
 
     elif len(data.shape) == 4 and len(slope.shape) == 1 and slope.shape[0] == data.shape[2]:
-
+        # each slice of the 4d image, taken from the third dimension, is multiplied by each element of the slope.
         if slope.size == data.shape[2]:
             for t in range(data.shape[3]):
                 for k in range(slope.size):
@@ -286,7 +289,7 @@ def slope_corrector(data, slope, num_initial_dir_to_skip=None, dtype=np.float32)
             raise IOError('If you are here, your case cannot be converted. Debug from here to include your case.')
 
     elif len(data.shape) == 5 and len(slope.shape) == 1 and slope.shape[0] == data.shape[3]:
-
+        # each slice of the 5d image, taken from the fourth dimension, is multiplied by each element of the slope.
         if slope.size == data.shape[3]:
             for t in range(data.shape[4]):
                 for k in range(slope.size):
@@ -295,11 +298,13 @@ def slope_corrector(data, slope, num_initial_dir_to_skip=None, dtype=np.float32)
             raise IOError('If you are here, your case cannot be converted. Debug from here to include your case.')
 
     else:
-        if slope.size == data.shape[3]:
-            for t in range(data.shape[3]):
+        # each slice of the nd image, taken from the last dimension, is multiplied by each element of the slope.
+        if slope.size == data.shape[-1]:
+            for t in range(data.shape[-1]):
                 data[..., t] = data[..., t] * slope[t]
         else:
-            raise IOError('Shape of the 3d image and slope dimensions are not consistent')
+            msg = 'Slope shape {0} and data shape {1} appears to be not compatible'.format(slope.shape, data.shape)
+            raise IOError(msg)
 
     return data
 
