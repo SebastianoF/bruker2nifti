@@ -352,6 +352,21 @@ def compute_affine_from_visu_pars(vc_orientation, vc_position, vc_subject_positi
                                   frame_body_as_frame_head=False, keep_same_det=True, consider_translation=False,
                                   consider_subject_position=False):
     """
+    How the affine is computed:
+
+    1) inverting the VisuCoreOrientation - according to ParaVision manual and nifti convention.
+
+    2) Switching the last 2 columns, no matter the value of VisuCoreTransposition - According to the fact we are
+    dealing with quadrupeds and not with humans, we need to switch the Anterior-Posterior with the Inferior-Superior
+    direction. Set frame_body_as_frame_head=True to se the biped orientation.
+
+    3) impose the signs of the first two columns to be negative, and the third to be be positive.
+    - according to the passage from DICOM-like to NIFTI: LPS to RAS (Left/Right, Anterior/Posterior, Inferior/Superior).
+
+    4) Finally we impose the same determinant as the input matrix.
+
+    (If there is any b-vector, they should be modified accordingly).
+
     :param vc_orientation: visu core orientation parameter.
     :param vc_position: visu core position parameter. -  corresponds to the translational part of the matrix.
     :param vc_subject_position: 'Head_Prone' or 'Head_Supine'. If head supine and if consider_subject_position is True
@@ -539,9 +554,8 @@ def set_new_data(image, new_data, new_dtype=None, remove_nan=True):
 
     return new_image
 
-
-
-'''
+"""
+# old stand alone slope corrector:
 
 def slope_corrector(data, slope, num_initial_dir_to_skip=None):
 
@@ -596,4 +610,4 @@ def slope_corrector(data, slope, num_initial_dir_to_skip=None):
 
     return data
 
-'''
+"""

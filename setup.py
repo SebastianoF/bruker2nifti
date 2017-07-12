@@ -5,7 +5,7 @@ from definitions import root_dir
 
 infos = {
          'name': 'bruker2nifti',
-         'version': '0.0.0',
+         'version': '0.0.1',
          'description': 'From raw Bruker to nifti, home-made converter.',
          'web_infos' : '',
          'repository': {

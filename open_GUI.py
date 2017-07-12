@@ -3,11 +3,7 @@ import tkFileDialog
 from bruker2nifti.study_converter import convert_a_study
 
 '''
-No drag and drop on mac: 
-we suggest
-http://osxdaily.com/2013/06/19/copy-file-folder-path-mac-os-x/
-And follow
-https://www.podfeet.com/blog/tutorials-5/automator-shortcut-tutorial/
+Graphical user interface to access bruker to nifti.
 '''
 
 
@@ -17,7 +13,7 @@ class BrukerToNifti(tk.Tk, object):
 
         # Window settings:
 
-        self.title('From bruker to nifti - interface')
+        self.title('From bruker to nifti - GUI version 0.1')
         self.geometry('700x170')
 
         # Widgets:
