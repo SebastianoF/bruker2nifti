@@ -260,7 +260,8 @@ def slope_corrector(data, slope, num_initial_dir_to_skip=None, dtype=np.float64)
             if not slope.size == data.shape[-1] and not slope.size == data.shape[-2]:
                 slope = np.array(eliminates_consecutive_duplicates(list(slope)), dtype=np.float64)
                 if not slope.size == data.shape[-1] and not slope.size == data.shape[-2]:
-                    msg = 'Slope shape {0} and data shape {1} appears to be not compatible'.format(slope.shape, data.shape)
+                    msg = 'Slope shape {0} and data shape {1} appears to be not compatible'.format(slope.shape,
+                                                                                                   data.shape)
                     raise IOError(msg)
 
     if isinstance(slope, int) or isinstance(slope, float):
