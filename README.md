@@ -14,12 +14,16 @@ Medical image format converter: from raw Brukert ParaVision to nifti, written in
 Open a terminal in the root folder of the cloned repository, then
 * `chmod 777 gui_setupper_MAC.sh`
 * `./gui_setupper_MAC.sh`
-Alternatively double click on gui_run_setupper_MAC
 
-This simple bash script will create sort of 'launcher', named runGUIbru2nii that uses a virtualenvironment
-created in the root directory (not tested yet for LINUX). 
+Alternatively double click on `gui_run_setupper_MAC`
+
+This simple bash script will create some sort of 'launcher', named runGUIbru2nii that uses a virtualenvironment
+created ad hoc in the root directory. 
 Once created, the location of the launcher can be changed, copy-pasted and moved around the system.
-The location of bruker2nifti folder cannot be moved. If moved the GUI Installation needs to be repeated
+The location of bruker2nifti folder cannot be moved. If moved, the launcher can be deleted, and the GUI Installation 
+needs to be repeated.
+
+![gui_example](https://github.com/SebastianoF/bruker2nifti/screenshots/gui_example.jpg)
 
 ### Testing
 Unit testing with [nosetest](http://pythontesting.net/framework/nose/nose-introduction/):

@@ -1,6 +1,8 @@
 import Tkinter as tk
 import tkFileDialog
+
 from bruker2nifti.study_converter import convert_a_study
+from setup import infos
 
 '''
 Graphical user interface to access bruker to nifti.
@@ -13,7 +15,7 @@ class BrukerToNifti(tk.Tk, object):
 
         # Window settings:
 
-        self.title('From bruker to nifti - GUI version 0.1')
+        self.title('From bruker to nifti - GUI version {}'.format(infos['version']))
         self.geometry('700x170')
 
         # Widgets:
