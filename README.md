@@ -23,7 +23,7 @@ Once created, the location of the launcher can be changed, copy-pasted and moved
 The location of bruker2nifti folder cannot be moved. If moved, the launcher can be deleted, and the GUI Installation 
 needs to be repeated.
 
-![gui_example](https://github.com/SebastianoF/bruker2nifti/screenshots/gui_example.jpg)
+![gui_example](https://github.com/SebastianoF/bruker2nifti/blob/master/screenshots/gui_example.jpg)
 
 ### Testing
 Unit testing with [nosetest](http://pythontesting.net/framework/nose/nose-introduction/):
