@@ -360,18 +360,33 @@ def compute_affine_from_visu_pars(vc_orientation, vc_position, vc_subject_positi
     """
     How the affine is computed:
 
-    1) inverting the VisuCoreOrientation - according to ParaVision manual and nifti convention.
+    0) resolution, orientation and translation are provided in separate array, we combine them togheter in the
+    starndard 4x4 matrix.
 
-    2) Switching the last 2 columns, no matter the value of VisuCoreTransposition - According to the fact we are
-    dealing with quadrupeds and not with humans, we need to switch the Anterior-Posterior with the Inferior-Superior
-    direction. Set frame_body_as_frame_head=True to set the biped orientation.
+    1) We invert the resulting matrix - according to conventions ParaVision (scanner to image frame)
+       and DICOM/Nifti (image to scanner frame).
 
-    3) impose the signs of the first two columns to be negative, and the third to be be positive.
-    - according to the passage from DICOM-like to NIFTI: LPS to RAS (Left/Right, Anterior/Posterior, Inferior/Superior).
+    2) impose the signs of the first two columns (pivots) to be negative, and the third to be be positive.
+    - according to the fact that the provided transformation is DICOM-like (LPS) instead of NIFTI like (RAS)
+    (Left/Right, Anterior/Posterior, Inferior/Superior).
 
-    4) Finally, for safety, we impose the same determinant as the input matrix.
+    -------- optional changes ----------
 
-    (If there is any b-vector, they should be modified accordingly).
+    3) frame_body_as_frame_head: Switching the last 2 columns of the rotational part, no matter the value of
+    VisuCoreTransposition - According to the fact we are dealing with quadrupeds and not with humans,
+    we need to switch the Anterior-Posterior with the Inferior-Superior direction.
+    Set frame_body_as_frame_head=True to set the biped orientation.
+
+    4) consider_subject_position: This can be 'head_prone' or 'head_supine'.
+    Reason why sometimes this must be considered for a correct
+    orientation and must be considered dis-jointly with frame_body_as_frame_head, is that this parameter is sometimes
+    tuned to voluntarily switch from radiological to neurological coordinate systems.
+    If the subject is Prone and the technician wants to have the coordinates in neurological he/she can consciously
+    set the variable vc_subject_position to 'Head_Supine', even if the subject is not supine.
+
+    5) keep_same_det: Finally, for safety, we can impose the same determinant as the input matrix.
+
+    (If there is any b-vectors list, this should be modified accordingly).
 
     :param vc_orientation: visu core orientation parameter.
     :param vc_position: visu core position parameter. -  corresponds to the translational part of the matrix.
@@ -382,56 +397,59 @@ def compute_affine_from_visu_pars(vc_orientation, vc_position, vc_subject_positi
     :param frame_body_as_frame_head: [False] This standard is the standard for me and my dataset. To get the
     behaviour described in the manual set to False.
     :param keep_same_det: in case you want the determinant to be the same as the input one. Consider it in particular
-    if frame_body_as_frame_head is set to False.
+    if frame_body_as_frame_head is set to False, and according to the choice of consider_subject_position.
     :param consider_subject_position: [False] The reason why sometimes this must be considered for a correct
     orientation and sometimes must not, is that this parameter is tuned to voluntarily switch from radiological
     to neurological coordinate systems. If the subject is Prone and the technician wants to have the coordinates
     in neurological he/she can consciously set the variable vc_subject_position to 'Head_Supine'.
-    :return:
+    :return: final affine (qform) transformation according to the nifti convention
+
+    NOTE: we are assuming that the angles parametrisation is the same for the input and the output.
+    We hope this is the case as we do not have any mean to confirm that. The fslreorient2std from FSL
+    should be applied afterwards to all the images (after DWI analysis if any).
     """
+
     sanity_check_visu_core_subject_position(vc_subject_position)
     vc_orientation = filter_orientation(vc_orientation)
 
-    # 1) invert the matrix, according to nifti convention and Bruker manual. Round the decimals.
-    vc_orientation = np.linalg.inv(vc_orientation)
-    vc_orientation_det = np.linalg.det(vc_orientation)
+    # 0) integrate resolution with the orientation and add the translation in the projective coordinates:
 
-    if vc_orientation_det == 0:
-        raise IOError('Orientation determinant is 0. Cannot grasp this dataset.')
-
-    # 2)
-    if not frame_body_as_frame_head:
-
-        vc_orientation = vc_orientation.dot(np.array([[1, 0, 0], [0, 0, 1], [0, 1, 0]]))
-
-    # NOTE: we are assuming that the angles parametrisation is the same for the input and the output.
-    # We hope this is the case as we do not have any mean to confirm that. The fslreorient2std from FSL
-    # should be applied afterwards to all the images (after DWI analysis if any).
-
-    # 3) impose pivot first column negative, second column negative, third column positive
-    if pivot(vc_orientation[:, 0]) > 0:
-        vc_orientation[:, 0] = -1 * vc_orientation[:, 0]
-    if pivot(vc_orientation[:, 1]) > 0:
-        vc_orientation[:, 1] = -1 * vc_orientation[:, 1]
-    if pivot(vc_orientation[:, 2]) < 0:
-        vc_orientation[:, 2] = -1 * vc_orientation[:, 2]
-
-    rotational_part = vc_orientation.dot(np.diag(resolution))
-
-    result = np.eye(4, dtype=np.float64)
-    result[0:3, 0:3] = rotational_part
-
-    # 3bis) translational part -  this needs further tests - should this be done before inverting?
+    result = np.eye(4, dtype=np.float32)
+    result[0:3, 0:3] = vc_orientation
     result[0:3, 3] = vc_position
 
+    # 1) Invert the orientation matrix, according to nifti convention and Bruker manual.
+    # Round the decimals to avoid precision problems. Check if determinant makes sense.
+    result = np.round(np.linalg.inv(result), decimals=4)
+    result_det = np.linalg.det(result)
+    if result_det == 0:
+        raise IOError('Orientation determinant is 0. Cannot grasp this dataset.')
+
+    # 2-3) impose pivot first column negative, second column negative, third column positive
+    result_orientation = result[:3, :3]
+
+    if not frame_body_as_frame_head:
+        result_orientation = result_orientation.dot(np.array([[1, 0, 0], [0, 0, 1], [0, 1, 0]]))
+
+    if pivot(result_orientation[:, 0]) > 0:
+        result_orientation[:, 0] = -1 * result_orientation[:, 0]
+    if pivot(result_orientation[:, 1]) > 0:
+        result_orientation[:, 1] = -1 * result_orientation[:, 1]
+    if pivot(result_orientation[:, 2]) < 0:
+        result_orientation[:, 2] = -1 * result_orientation[:, 2]
+
+    result_orientation = result_orientation.dot(np.diag(resolution))
+
+    result[:3, :3] = result_orientation
+
+    # 4) - optional
     if consider_subject_position:
         if vc_subject_position == 'Head_Prone':
             result[1, :] = -1 * result[1, :]
-
-    # 4)
+    # 5) - optional
     if keep_same_det:
-        if (np.linalg.det(result) < 0 < vc_orientation_det) or (np.linalg.det(result) > 0 > vc_orientation_det):
-            result[0, :] = -1 * result[0, :]
+        if (np.linalg.det(result) < 0 < result_det) or (np.linalg.det(result) > 0 > result_det):
+            result[0, :3] = -1 * result[0, :3]
 
     return result
 
@@ -442,35 +460,14 @@ def compute_affine_from_visu_pars(vc_orientation, vc_position, vc_subject_positi
 def obtain_b_vectors_orient_matrix(vc_orientation, vc_subject_position, frame_body_as_frame_head=False,
                                            keep_same_det=True, consider_subject_position=False):
 
-    sanity_check_visu_core_subject_position(vc_subject_position)
-    vc_orientation = filter_orientation(vc_orientation)
+    resolution = np.array([1, 1, 1])
+    translation = np.array([0, 0, 0])
 
-    result = np.linalg.inv(vc_orientation)
-    result_det = np.linalg.det(result)
+    aff = compute_affine_from_visu_pars(vc_orientation, translation, vc_subject_position, resolution,
+                                        frame_body_as_frame_head=frame_body_as_frame_head, keep_same_det=keep_same_det,
+                                        consider_subject_position=consider_subject_position)
 
-    if result_det == 0:
-        raise IOError('Orientation determinant is 0. Cannot interpret this dataset.')
-
-    if not frame_body_as_frame_head:
-        result = result.dot(np.array([[1, 0, 0], [0, 0, 1], [0, 1, 0]]))
-
-    # impose pivot first column negative, second column negative, third column positive
-    if pivot(result[:, 0]) > 0:
-        result[:, 0] = -1 * result[:, 0]
-    if pivot(result[:, 1]) > 0:
-        result[:, 1] = -1 * result[:, 1]
-    if pivot(result[:, 2]) < 0:
-        result[:, 2] = -1 * result[:, 2]
-
-    if consider_subject_position:
-        if vc_subject_position == 'Head_Prone':
-            result[1, :] = -1 * result[1, :]
-
-    if keep_same_det:
-        if (np.linalg.det(result) < 0 < result_det) or (np.linalg.det(result) > 0 > result_det):
-            result[0, :] = -1 * result[0, :]
-
-    return result
+    return np.copy(aff[:3, :3])
 
 
 def normalise_b_vect(b_vect, remove_nan=True):
