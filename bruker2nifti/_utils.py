@@ -364,12 +364,12 @@ def compute_affine_from_visu_pars(vc_orientation, vc_position, vc_subject_positi
 
     2) Switching the last 2 columns, no matter the value of VisuCoreTransposition - According to the fact we are
     dealing with quadrupeds and not with humans, we need to switch the Anterior-Posterior with the Inferior-Superior
-    direction. Set frame_body_as_frame_head=True to se the biped orientation.
+    direction. Set frame_body_as_frame_head=True to set the biped orientation.
 
     3) impose the signs of the first two columns to be negative, and the third to be be positive.
     - according to the passage from DICOM-like to NIFTI: LPS to RAS (Left/Right, Anterior/Posterior, Inferior/Superior).
 
-    4) Finally we impose the same determinant as the input matrix.
+    4) Finally, for safety, we impose the same determinant as the input matrix.
 
     (If there is any b-vector, they should be modified accordingly).
 
@@ -392,13 +392,14 @@ def compute_affine_from_visu_pars(vc_orientation, vc_position, vc_subject_positi
     sanity_check_visu_core_subject_position(vc_subject_position)
     vc_orientation = filter_orientation(vc_orientation)
 
-    # invert the matrix, according to nifti convention and Bruker manual. Round the decimals to avoid precision probl.
+    # 1) invert the matrix, according to nifti convention and Bruker manual. Round the decimals.
     vc_orientation = np.linalg.inv(vc_orientation)
     vc_orientation_det = np.linalg.det(vc_orientation)
 
     if vc_orientation_det == 0:
-        raise IOError('Orientation determinant is 0. Cannot understand this dataset.')
+        raise IOError('Orientation determinant is 0. Cannot grasp this dataset.')
 
+    # 2)
     if not frame_body_as_frame_head:
 
         vc_orientation = vc_orientation.dot(np.array([[1, 0, 0], [0, 0, 1], [0, 1, 0]]))
@@ -407,7 +408,7 @@ def compute_affine_from_visu_pars(vc_orientation, vc_position, vc_subject_positi
     # We hope this is the case as we do not have any mean to confirm that. The fslreorient2std from FSL
     # should be applied afterwards to all the images (after DWI analysis if any).
 
-    # impose pivot first column negative, second column negative, third column positive
+    # 3) impose pivot first column negative, second column negative, third column positive
     if pivot(vc_orientation[:, 0]) > 0:
         vc_orientation[:, 0] = -1 * vc_orientation[:, 0]
     if pivot(vc_orientation[:, 1]) > 0:
@@ -420,13 +421,14 @@ def compute_affine_from_visu_pars(vc_orientation, vc_position, vc_subject_positi
     result = np.eye(4, dtype=np.float64)
     result[0:3, 0:3] = rotational_part
 
-    # translational part -  this needs further tests - should this be done before inverting?
+    # 3bis) translational part -  this needs further tests - should this be done before inverting?
     result[0:3, 3] = vc_position
 
     if consider_subject_position:
         if vc_subject_position == 'Head_Prone':
             result[1, :] = -1 * result[1, :]
 
+    # 4)
     if keep_same_det:
         if (np.linalg.det(result) < 0 < vc_orientation_det) or (np.linalg.det(result) > 0 > vc_orientation_det):
             result[0, :] = -1 * result[0, :]
