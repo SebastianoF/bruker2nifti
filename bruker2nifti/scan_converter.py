@@ -7,8 +7,8 @@ def convert_a_scan(pfo_input_scan,
                    pfo_output,
                    create_output_folder_if_not_exists=True,
                    nifti_version=1,
-                   qform=2,
-                   sform=1,
+                   qform_code=1,
+                   sform_code=2,
                    correct_slope=True,
                    fin_scan=None,
                    save_b0_if_dwi=True,
@@ -26,8 +26,8 @@ def convert_a_scan(pfo_input_scan,
     :param create_output_folder_if_not_exists: [True]
     :param fin_scan: [None] filename of the nifti image that will be saved into the pfo_output folder.
     :param nifti_version: [1]
-    :param qform:
-    :param sform:
+    :param qform_code: see nibabel documentation
+    :param sform_code: see nibabel documentation
     :param correct_slope:
     :param save_human_readable:
     :param save_b0_if_dwi:
@@ -44,8 +44,8 @@ def convert_a_scan(pfo_input_scan,
     struct_scan = scan2struct(pfo_input_scan,
                               correct_slope=correct_slope,
                               nifti_version=nifti_version,
-                              qform=qform,
-                              sform=sform,
+                              qform_code=qform_code,
+                              sform_code=sform_code,
                               get_acqp=get_acqp,
                               get_method=get_method,
                               get_reco=get_reco,

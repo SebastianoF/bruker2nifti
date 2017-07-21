@@ -51,11 +51,10 @@ def nifti_getter(img_data_vol,
                  visu_pars,
                  correct_slope,
                  nifti_version,
-                 qform,
-                 sform,
+                 qform_code,
+                 sform_code,
                  frame_body_as_frame_head=False,
                  keep_same_det=True,
-                 consider_translation=False,
                  consider_subject_position=False
                  ):
     # obtaining the nifti using only the information in visu_pars.
@@ -111,7 +110,6 @@ def nifti_getter(img_data_vol,
                                    resolution,
                                    frame_body_as_frame_head=frame_body_as_frame_head,
                                    keep_same_det=keep_same_det,
-                                   consider_translation=consider_translation,
                                    consider_subject_position=consider_subject_position)
 
             # get sub volume in the correct shape
@@ -125,8 +123,8 @@ def nifti_getter(img_data_vol,
                 raise IOError('Nifti versions allowed are 1 or 2.')
 
             hdr_sub_vol = nib_im_sub_vol.header
-            hdr_sub_vol.set_qform(affine_transf, qform)
-            hdr_sub_vol.set_sform(affine_transf, sform)
+            hdr_sub_vol.set_qform(affine_transf, code=qform_code)
+            hdr_sub_vol.set_sform(affine_transf, code=sform_code)
             nib_im_sub_vol.update_header()
 
             output_nifti.append(nib_im_sub_vol)
@@ -184,7 +182,6 @@ def nifti_getter(img_data_vol,
                                 # Else ?
                                 vol_data = img_data_vol.reshape(sh, order='F')
 
-
         # get resolution
         resolution = compute_resolution_from_visu_pars(visu_pars['VisuCoreExtent'],
                                                        visu_pars['VisuCoreSize'],
@@ -204,8 +201,8 @@ def nifti_getter(img_data_vol,
             raise IOError('Nifti versions allowed are 1 or 2.')
 
         hdr_sub_vol = output_nifti.header
-        hdr_sub_vol.set_qform(affine_transf, qform)
-        hdr_sub_vol.set_sform(affine_transf, sform)
+        hdr_sub_vol.set_qform(affine_transf, code=qform_code)
+        hdr_sub_vol.set_sform(affine_transf, code=sform_code)
         output_nifti.update_header()
 
     return output_nifti

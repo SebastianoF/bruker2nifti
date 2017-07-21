@@ -14,14 +14,13 @@ from ._utils import bruker_read_files, normalise_b_vect, from_dict_to_txt_sorted
 def scan2struct(pfo_scan,
                 correct_slope=True,
                 nifti_version=1,
-                qform=2,
-                sform=1,
+                qform_code=1,
+                sform_code=2,
                 get_acqp=False,
                 get_method=False,
                 get_reco=False,
                 frame_body_as_frame_head=False,
                 keep_same_det=True,
-                consider_translation=False,
                 consider_subject_position=False
                 ):
     """
@@ -31,22 +30,20 @@ def scan2struct(pfo_scan,
     image, with additional infos.
     :param pfo_scan: path to folder containing the scan
     :param correct_slope: [True] if you want to correct the slope of the values.
-    :param nifti_version: [1] output nifti version can be version 1 or version 2
-    :param qform: [2] qform of the final nifti image
-    :param sform: [1] sform of the final nifti image
+    :param nifti_version: [1] output nifti version can be version 1 or version 2 (see nibabel documentation)
+    :param qform_code: [1] qform of the final nifti image
+    :param sform_code: [2] sform of the final nifti image
     :param get_acqp: [False] if you want to parse the information in the acqp parameter file of the bruker raw data
     :param get_method: [False] if you want to parse the information in the method file. Forced to True when
     dealing with diffusion weighted images.
     :param get_reco: [False] if you want to parse the information in the reco parameter file.
     :param frame_body_as_frame_head: e.g. true if monkey, false if rat.
     :param keep_same_det: impose to have in the nifti affine matrix, the same determinat as in the bruker parameter.
-    :param consider_translation: to have the translation information in the final nifti affine matrix. Can be set to
-    the origin in most cases, set False if you want to have it as the origin.
     :param consider_subject_position : visu_pars SubjPosition can be 'Head_Prone' or 'Head_Supine'. While it may
-    make sense in most cases to take this value into account, in some other it may not, as when it is
-    tuned to voluntarily switch from radiological to neurological coordinate systems.
+    make sense in most cases to take this value into account, in some other it may not, as it is
+    tuned to switch from radiological to neurological coordinate systems in a work-around.
     If the subject is Prone and the technician wants to have the coordinates
-    in neurological it can consciously set the variable vc_subject_position to 'Head_Supine'.
+    in neurological he/she can consciously set the variable vc_subject_position to 'Head_Supine'.
     :return: output_data data structure containing the nibabel image(s) {nib_list, visu_pars_list, acqp, method, reco}
     """
 
@@ -96,7 +93,7 @@ def scan2struct(pfo_scan,
         elif visu_pars['VisuCoreWordType'] == '_32BIT_FLOAT':
             dt = np.float32
         else:
-            raise IOError('Unknown data type.')
+            raise IOError('Unknown data type for VisuPars VisuCoreWordType')
 
         # GET IMAGE VOLUME
         if os.path.exists(jph(pfo_scan, 'pdata', id_sub_scan, '2dseq')):
@@ -131,11 +128,10 @@ def scan2struct(pfo_scan,
                               visu_pars,
                               correct_slope,
                               nifti_version,
-                              qform,
-                              sform,
+                              qform_code,
+                              sform_code,
                               frame_body_as_frame_head=frame_body_as_frame_head,
                               keep_same_det=keep_same_det,
-                              consider_translation=consider_translation,
                               consider_subject_position=consider_subject_position
                               )
         # ------------------------------------------------------ #
@@ -160,8 +156,8 @@ def scan2struct(pfo_scan,
         method = {}
 
     # Get information from acqp, reco, if they exist.
-    acqp   = {}
-    reco   = {}
+    acqp = {}
+    reco = {}
 
     if get_acqp:
         acqp = bruker_read_files('acqp', pfo_scan)

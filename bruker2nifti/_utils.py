@@ -355,7 +355,7 @@ def pivot(v):
 
 
 def compute_affine_from_visu_pars(vc_orientation, vc_position, vc_subject_position, resolution,
-                                  frame_body_as_frame_head=False, keep_same_det=True, consider_translation=False,
+                                  frame_body_as_frame_head=False, keep_same_det=True,
                                   consider_subject_position=False):
     """
     How the affine is computed:
@@ -378,16 +378,15 @@ def compute_affine_from_visu_pars(vc_orientation, vc_position, vc_subject_positi
     :param vc_subject_position: 'Head_Prone' or 'Head_Supine'. If head supine and if consider_subject_position is True
     it invert the direction of the axis anterior-posterior. - do not confuse subject_position with positon (read this
     last as 'translation').
-    :param resolution: resoultion of the image, output of compute_resolution_from_visu_pars in the same module.
+    :param resolution: resolution of the image, output of compute_resolution_from_visu_pars in the same module.
     :param frame_body_as_frame_head: [False] This standard is the standard for me and my dataset. To get the
     behaviour described in the manual set to False.
     :param keep_same_det: in case you want the determinant to be the same as the input one. Consider it in particular
     if frame_body_as_frame_head is set to False.
-    :param consider_translation: if you do not need the translation information for your further studies.
     :param consider_subject_position: [False] The reason why sometimes this must be considered for a correct
     orientation and sometimes must not, is that this parameter is tuned to voluntarily switch from radiological
     to neurological coordinate systems. If the subject is Prone and the technician wants to have the coordinates
-    in neurological it can consciously set the variable vc_subject_position to 'Head_Supine'.
+    in neurological he/she can consciously set the variable vc_subject_position to 'Head_Supine'.
     :return:
     """
     sanity_check_visu_core_subject_position(vc_subject_position)
@@ -421,8 +420,8 @@ def compute_affine_from_visu_pars(vc_orientation, vc_position, vc_subject_positi
     result = np.eye(4, dtype=np.float64)
     result[0:3, 0:3] = rotational_part
 
-    if consider_translation:
-        result[0:3, 3] = vc_position
+    # translational part -  this needs further tests - should this be done before inverting?
+    result[0:3, 3] = vc_position
 
     if consider_subject_position:
         if vc_subject_position == 'Head_Prone':

@@ -31,8 +31,8 @@ def convert_a_study(pfo_study_bruker_input,
                     list_new_name_each_scan=None,
                     list_new_nifti_file_names=None,
                     nifti_version=1,
-                    qform=2,
-                    sform=1,
+                    qform_code=2,
+                    sform_code=1,
                     save_human_readable=True,
                     save_b0_if_dwi=True,
                     correct_slope=False,
@@ -61,8 +61,8 @@ def convert_a_study(pfo_study_bruker_input,
         -> in the folder 'Patient supine' the nifti scan(s) will be (or start with) 'pat123_sup'.
          in the folder 'Patient prone' the nifti scan(s) will be (or start with) 'pat123_pro'.
     :param nifti_version: see convert_a_scan.__doc__
-    :param qform: [2] qform of the header
-    :param sform: [1] sform of the ehader
+    :param qform_code: [1] qform of the header
+    :param sform_code: [2] sform of the ehader
     :param save_human_readable: [True] other than .pyc, additional .txt will be saved.
     :param save_b0_if_dwi: save the first timepoint of the dwi if the scan is acquired with DtiEpi modality
     :param correct_slope: [False] there is no correction for the slope parameters
@@ -111,8 +111,8 @@ def convert_a_study(pfo_study_bruker_input,
                        create_output_folder_if_not_exists=True,  # hidden for the user, unreachable from here
                        fin_scan=nifti_file_name,
                        nifti_version=nifti_version,
-                       qform=qform,
-                       sform=sform,
+                       qform_code=qform_code,
+                       sform_code=sform_code,
                        save_human_readable=save_human_readable,
                        save_b0_if_dwi=save_b0_if_dwi,
                        correct_slope=correct_slope,
