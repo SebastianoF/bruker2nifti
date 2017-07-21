@@ -52,14 +52,14 @@ def main():
                         default=1)
 
     # qform = 2,
-    parser.add_argument('-qform',
-                        dest='qform',
+    parser.add_argument('-qform_code',
+                        dest='qform_code',
                         type=int,
                         default=2)
 
     # sform= 1,
-    parser.add_argument('-sform',
-                        dest='sform',
+    parser.add_argument('-sform_code',
+                        dest='sform_code',
                         type=int,
                         default=1)
 
@@ -94,8 +94,8 @@ def main():
                     list_new_name_each_scan=args.list_new_name_each_scan,
                     list_new_nifti_file_names=args.list_new_nifti_file_names,
                     nifti_version=args.nifti_version,
-                    qform=args.qform,
-                    sform=args.sform,
+                    qform_code=args.qform_code,
+                    sform_code=args.sform_code,
                     save_human_readable=args.save_human_readable,
                     correct_slope=args.correct_slope,
                     verbose=args.verbose

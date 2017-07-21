@@ -35,13 +35,13 @@ def main():
                         default=1,
                         help='Filename of the nifti output.')
     # qform = 2,
-    parser.add_argument('-qform',
-                        dest='qform',
+    parser.add_argument('-qform_code',
+                        dest='qform_code',
                         type=int,
                         default=2)
     # sform = 1,
-    parser.add_argument('-sform',
-                        dest='sform',
+    parser.add_argument('-sform_code',
+                        dest='sform_code',
                         type=int,
                         default=1)
     # axis_direction = (-1, -1, 1),
@@ -79,10 +79,9 @@ def main():
     convert_a_scan(args.pfo_input,
                    args.pfo_output,
                    nifti_version=args.nifti_version,
-                   qform=args.qform,
-                   sform=args.sform,
+                   qform_code=args.qform_code,
+                   sform_code=args.sform_code,
                    save_human_readable=args.save_human_readable,
-                   normalise_b_vectors_if_dwi=args.normalise_b_vectors_if_dwi,
                    correct_slope=args.correct_slope,
                    verbose=args.verbose)
 

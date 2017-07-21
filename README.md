@@ -30,8 +30,8 @@ Unit testing with [nosetest](http://pythontesting.net/framework/nose/nose-introd
 * `nosetests`
 
 ### Use the parser from command line    
-* `python parsers/bruker2nii -h`
-* `python parsers/bruker2nii -i path/to/bruker/study -o path/to/output/folder`
+* `python parsers/bruker2nii.py -h`
+* `python parsers/bruker2nii.py -i path/to/bruker/study -o path/to/output/folder`
 
 
 ### Further notes <a name="up"></a>
