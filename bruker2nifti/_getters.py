@@ -61,6 +61,7 @@ def nifti_getter(img_data_vol,
 
     # Check units of measurements:
     if not ['mm', ] * len(visu_pars['VisuCoreSize']) == visu_pars['VisuCoreUnits']:
+        # if the UoM is not mm, change here. Add other measurements and refer to xyzt_units from nibabel convention.
         print('Warning, measurement not in mm. This version of the converter deals with data in mm only.')
 
     # get pre-shape and re-shape volume: (pre-shape is the shape compatible with the slope).
@@ -125,6 +126,7 @@ def nifti_getter(img_data_vol,
             hdr_sub_vol = nib_im_sub_vol.header
             hdr_sub_vol.set_qform(affine_transf, code=qform_code)
             hdr_sub_vol.set_sform(affine_transf, code=sform_code)
+            hdr_sub_vol['xyzt_units'] = 10  # default mm, seconds
             nib_im_sub_vol.update_header()
 
             output_nifti.append(nib_im_sub_vol)
@@ -203,6 +205,7 @@ def nifti_getter(img_data_vol,
         hdr_sub_vol = output_nifti.header
         hdr_sub_vol.set_qform(affine_transf, code=qform_code)
         hdr_sub_vol.set_sform(affine_transf, code=sform_code)
+        hdr_sub_vol['xyzt_units'] = 10
         output_nifti.update_header()
 
     return output_nifti

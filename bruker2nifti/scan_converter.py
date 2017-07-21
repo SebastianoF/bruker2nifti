@@ -26,8 +26,8 @@ def convert_a_scan(pfo_input_scan,
     :param create_output_folder_if_not_exists: [True]
     :param fin_scan: [None] filename of the nifti image that will be saved into the pfo_output folder.
     :param nifti_version: [1]
-    :param qform_code: see nibabel documentation
-    :param sform_code: see nibabel documentation
+    :param qform_code: [1] see nibabel documentation
+    :param sform_code: [2] see nibabel documentation
     :param correct_slope:
     :param save_human_readable:
     :param save_b0_if_dwi:
