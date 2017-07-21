@@ -29,7 +29,8 @@ needs to be repeated.
 Unit testing with [nosetest](http://pythontesting.net/framework/nose/nose-introduction/):
 * `nosetests`
 
-### Use the parser from command line    
+### Use the parser from command line 
+* `PYTHONPATH="${PYTHONPATH}:path-to-bruker2nifti"`
 * `python parsers/bruker2nii.py -h`
 * `python parsers/bruker2nii.py -i path/to/bruker/study -o path/to/output/folder`
 

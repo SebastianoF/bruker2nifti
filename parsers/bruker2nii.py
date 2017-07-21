@@ -4,8 +4,7 @@ from bruker2nifti.study_converter import convert_a_study
 
 def main():
     """
-    Parser from terminal with
-
+    Parser from terminal with:
     $ python2 bruker2nifti_study -i input_file_path -o output_file_path
     """
 
