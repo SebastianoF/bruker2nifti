@@ -3,5 +3,5 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $DIR
 
-chmod 777 gui_setupper_LINUX.sh
-./gui_setupper_LINUX.sh
+chmod 777 setupper_MAC.sh
+./setupper_MAC.sh
