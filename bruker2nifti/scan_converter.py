@@ -37,6 +37,8 @@ def convert_a_scan(pfo_input_scan,
     :param get_reco: parse also the parameter file reco
     :return: [None] save the data parsed from the raw Bruker scan into a folder, including the nifti image.
     """
+    if not os.path.isdir(pfo_input_scan):
+        raise IOError('Input folder does not exist.')
 
     if create_output_folder_if_not_exists:
         os.system('mkdir -p {}'.format(pfo_output))

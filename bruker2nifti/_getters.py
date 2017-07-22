@@ -26,25 +26,20 @@ def get_list_scans(start_path):
     return scans_list
 
 
-def get_info_sj(pfo_study):
-    """
-    :param pfo_study: path to study folder.
-    :return: get the information of the subject as a dictionary.
-    """
-
-    if not os.path.isdir(pfo_study):
-        raise IOError('Input folder does not exists.')
-
-    return bruker_read_files('subject', pfo_study)
-
-
 def get_subject_name(pfo_study):
     """
     :param pfo_study: path to study folder.
     :return: name of the subject in the study. See get_subject_id.
     """
-    info_sj = get_info_sj(pfo_study)
-    return info_sj['SUBJECT_name']
+    # (1) 'subject' at the study level is present
+    if os.path.exists(os.path.join(pfo_study, 'subject')):
+        subject = bruker_read_files('subject', pfo_study)
+        return subject['SUBJECT_study_name']
+    # (2) 'subject' at the study level is not present, we use 'VisuSubjectId' from visu_pars of the first scan.
+    else:
+        list_scans = get_list_scans(pfo_study)
+        visu_pars = bruker_read_files('visu_pars', pfo_study, sub_scan_num=list_scans[0])
+        return visu_pars['VisuSubjectId']
 
 
 def nifti_getter(img_data_vol,

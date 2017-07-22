@@ -105,6 +105,8 @@ def bruker_read_files(param_file, data_path, sub_scan_num='1'):
     elif param_file.lower() == 'visu_pars':
         if os.path.exists(jph(data_path, 'pdata', str(sub_scan_num), 'visu_pars')):
             f = open(jph(data_path, 'pdata', str(sub_scan_num), 'visu_pars'), 'r')
+        elif os.path.exists(jph(data_path, str(sub_scan_num), 'pdata', '1', 'visu_pars')):
+            f = open(jph(data_path, str(sub_scan_num), 'pdata', '1', 'visu_pars'), 'r')
         else:
             print('File {} does not exists'.format(jph(data_path, 'pdata', str(sub_scan_num), 'visu_pars')))
             return {}

@@ -76,7 +76,6 @@ def convert_a_study(pfo_study_bruker_input,
         raise IOError('Input folder does not exist.')
     if not os.path.isdir(pfo_study_nifti_output):
         raise IOError('Output folder does not exist.')
-
     if scans_list is None:
         scans_list = get_list_scans(pfo_study_bruker_input)
 
