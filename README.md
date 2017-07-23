@@ -30,7 +30,7 @@ Unit testing with [nosetest](http://pythontesting.net/framework/nose/nose-introd
 * `nosetests`
 
 ### Further notes <a name="up"></a>
-Additional documentation and how to run for non-python programmers: [bruker2nifti_wiki](https://github.com/SebastianoF/bruker2nifti/wiki).
+Additional documentation: [bruker2nifti_wiki](https://github.com/SebastianoF/bruker2nifti/wiki).
 
 ### Useful links and related software <a name="utilities"></a>
 + [nifti format](https://nifti.nimh.nih.gov/nifti-1): official documentation.
