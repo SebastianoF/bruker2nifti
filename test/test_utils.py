@@ -2,7 +2,7 @@ import numpy as np
 import nibabel as nib
 
 from nose.tools import assert_equal, assert_true, assert_almost_equals, assert_raises
-from numpy.testing import assert_array_equal, assert_array_almost_equal
+from numpy.testing import assert_array_equal
 
 from bruker2nifti._utils import indians_file_parser, normalise_b_vect, slope_corrector, \
     eliminate_consecutive_duplicates, compute_resolution_from_visu_pars, compute_affine_from_visu_pars, \
@@ -193,7 +193,6 @@ def test_compute_affine_from_visu_pars():
 def test_obtain_b_vectors_orient_matrix():
     print(obtain_b_vectors_orient_matrix)
     pass
-
 
 
 # --- TEST b-vectors utils ---

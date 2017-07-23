@@ -1,5 +1,5 @@
 import argparse
-from bruker2nifti.study_converter import convert_a_study
+from bruker2nifti.converter import Bruker2Nifti
 
 
 def main():
@@ -85,20 +85,22 @@ def main():
     # Parse the input arguments
     args = parser.parse_args()
 
-    # Apply to the study:
-    convert_a_study(args.pfo_input,
-                    args.pfo_output,
-                    study_name=args.study_name,
-                    scans_list=args.scans_list,
-                    list_new_name_each_scan=args.list_new_name_each_scan,
-                    list_new_nifti_file_names=args.list_new_nifti_file_names,
-                    nifti_version=args.nifti_version,
-                    qform_code=args.qform_code,
-                    sform_code=args.sform_code,
-                    save_human_readable=args.save_human_readable,
-                    correct_slope=args.correct_slope,
-                    verbose=args.verbose
-                    )
+    # instantiate a converter:
+    bruconv = Bruker2Nifti(args.pfo_input,
+                           args.pfo_output,
+                           study_name=args.study_name)
+
+    bruconv.scans_list = args.scans_list
+    bruconv.list_new_name_each_scan = args.list_new_name_each_scan
+    bruconv.list_new_nifti_file_names = args.list_new_nifti_file_names
+    bruconv.nifti_version = args.nifti_version
+    bruconv.qform_code = args.qform_code
+    bruconv.sform_code = args.sform_code
+    bruconv.save_human_readable = args.save_human_readable
+    bruconv.correct_slope = args.correct_slope
+    bruconv.verbose = args.verbose
+
+    bruconv.convert()
 
 if __name__ == "__main__":
     main()

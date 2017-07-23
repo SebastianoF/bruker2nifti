@@ -1,5 +1,7 @@
 import argparse
-from bruker2nifti.scan_converter import convert_a_scan
+import os
+
+from bruker2nifti.converter import Bruker2Nifti
 
 
 def main():
@@ -76,14 +78,18 @@ def main():
 
     args = parser.parse_args()
 
-    convert_a_scan(args.pfo_input,
-                   args.pfo_output,
-                   nifti_version=args.nifti_version,
-                   qform_code=args.qform_code,
-                   sform_code=args.sform_code,
-                   save_human_readable=args.save_human_readable,
-                   correct_slope=args.correct_slope,
-                   verbose=args.verbose)
+    # instantiate a converter:
+    bruconv = Bruker2Nifti(os.path.dirname(args.pfo_input), args.pfo_output)
+    # get the attributes
+    bruconv.nifti_version = args.nifti_version
+    bruconv.qform_code = args.qform_code
+    bruconv.sform_code = args.sform_code
+    bruconv.save_human_readable = args.save_human_readable
+    bruconv.correct_slope = args.correct_slope
+    bruconv.verbose = args.verbose
+    # convert the single:
+    bruconv.convert_scan(args.pfo_input, args.pfo_output, nifti_file_name=args.fin_output,
+                         create_output_folder_if_not_exists=True)
 
 
 if __name__ == "__main__":

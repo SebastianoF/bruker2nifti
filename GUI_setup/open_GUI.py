@@ -1,6 +1,7 @@
 import Tkinter as tk
 import tkFileDialog
-from bruker2nifti.study_converter import convert_a_study
+# from bruker2nifti.z_study_converter import convert_a_study
+from bruker2nifti.converter import Bruker2Nifti
 
 
 class BrukerToNifti(tk.Tk, object):
@@ -77,7 +78,7 @@ class BrukerToNifti(tk.Tk, object):
 
     def convert(self):
 
-        print 'GUI bruker2nifti'
+        print ' --- GUI bruker2nifti --- '
         print('Input path: {}'.format(self.entry_pfo_input.get()))
         print('Output path: {}'.format(self.entry_pfo_output.get()))
         print('Study name: {}'.format(self.entry_study_name.get()))
@@ -87,15 +88,23 @@ class BrukerToNifti(tk.Tk, object):
         print('get method    : {}'.format(self.CheckVar_me.get()))
         print('get reco      : {}'.format(self.CheckVar_rc.get()))
 
-        convert_a_study(self.entry_pfo_input.get(),
-                        self.entry_pfo_output.get(),
-                        study_name=self.entry_study_name.get(),
-                        correct_slope=self.CheckVar_cs.get(),
-                        get_acqp=self.CheckVar_ac.get(),
-                        get_method=self.CheckVar_me.get(),
-                        get_reco=self.CheckVar_rc.get())
+        bru = Bruker2Nifti(self.entry_pfo_input.get(),
+                           self.entry_pfo_output.get(),
+                           study_name=self.entry_study_name.get())
+
+        bru.correct_slope = self.CheckVar_cs.get()
+        bru.get_acqp = self.CheckVar_ac.get()
+        bru.get_method = self.CheckVar_me.get()
+        bru.get_reco = self.CheckVar_rc.get()
+
+        bru.convert()
+
+        del bru
+
+        print('Have a nice day!')
 
 if __name__ == '__main__':
+
     root = BrukerToNifti()
     root.mainloop()
 
