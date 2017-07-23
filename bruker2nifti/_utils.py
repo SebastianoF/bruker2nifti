@@ -3,8 +3,6 @@ import os
 import nibabel as nib
 from os.path import join as jph
 
-from sympy.core.cache import clear_cache
-
 
 # --- text-files utils ---
 
@@ -228,7 +226,6 @@ def bruker_read_files(param_file, data_path, sub_scan_num='1'):
             # line does not contain any 'assignable' variable, so this information is not included in the info.
             pass
 
-    clear_cache()
     return dict_info
 
 
@@ -559,61 +556,3 @@ def set_new_data(image, new_data, new_dtype=None, remove_nan=True):
         new_image.set_data_dtype(new_dtype)
 
     return new_image
-
-"""
-# old stand alone slope corrector:
-
-def slope_corrector(data, slope, num_initial_dir_to_skip=None):
-
-    if len(data.shape) > 5:
-        raise IOError('4d or lower dimensional images allowed. Input data has shape'.format(data.shape))
-
-    data = data.astype(np.float64)
-
-    if num_initial_dir_to_skip is not None:
-        slope = slope[num_initial_dir_to_skip:]
-        data = data[..., num_initial_dir_to_skip:]
-
-    if isinstance(slope, int) or isinstance(slope, float):
-        # scalar times 3d array
-        data *= slope
-
-    elif slope.size == 1:
-        data *= slope[0]
-
-    elif len(data.shape) == 3 and len(slope.shape) == 1:
-        # each slice of the 3d image is multiplied an element of the slope
-        if data.shape[2] == slope.shape[0]:
-            for t, sl in enumerate(slope):
-                data[..., t] = data[..., t] * sl
-        else:
-            raise IOError('Shape of the 2d image and slope dimensions are not consistent')
-
-    elif len(data.shape) == 4 and len(slope.shape) == 1 and slope.shape[0] == data.shape[2]:
-
-        if slope.size == data.shape[2]:
-            for t in range(data.shape[3]):
-                for k in range(slope.size):
-                    data[..., k, t] = data[..., k, t] * slope[k]
-        else:
-            raise IOError('If you are here, your case cannot be converted. Debug from here to include your case.')
-
-    elif len(data.shape) == 5 and len(slope.shape) == 1 and slope.shape[0] == data.shape[3]:
-
-        if slope.size == data.shape[3]:
-            for t in range(data.shape[4]):
-                for k in range(slope.size):
-                    data[..., k, t] = data[..., k, t] * slope[k]
-        else:
-            raise IOError('If you are here, your case cannot be converted. Debug from here to include your case.')
-
-    else:
-        if slope.size == data.shape[3]:
-            for t in range(data.shape[3]):
-                data[..., t] = data[..., t] * slope[t]
-        else:
-            raise IOError('Shape of the 3d image and slope dimensions are not consistent')
-
-    return data
-
-"""

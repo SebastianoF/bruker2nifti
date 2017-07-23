@@ -26,7 +26,7 @@ echo
 
 DIR_PY=venv/bin/python
 CALLER=$PARENTDIR/$DIR_PY
-EXEC=$PARENTDIR/open_GUI.py
+EXEC=$DIR/open_GUI.py
 
 echo
 echo 'Generating launcher-like and add permission:'

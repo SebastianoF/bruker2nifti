@@ -22,7 +22,6 @@ conda install -n vevn -c conda-forge nose
 conda install -n vevn -c conda-forge nibabel
 conda install -n vevn -c anaconda numpy
 conda install -n vevn -c anaconda setuptools
-conda install -n vevn -c anaconda sympy
 # install bruker2nifti as a local library:
 python setup.py install
 # deacrivate
@@ -33,7 +32,7 @@ echo 'Selecting paths required to have the python of the virtualenvironment:'
 echo
 
 CALLER=//anaconda/envs/venv/bin/python
-EXEC=$PARENTDIR/open_GUI.py
+EXEC=$DIR/open_GUI.py
 
 echo
 echo 'Generating launcher-like and add permission:'

@@ -407,6 +407,3 @@ def write_struct(struct,
         text_file = open(jph(pfo_output, 'acquisition_method.txt'), "w+")
         text_file.write(struct['acquisition_method'])
         text_file.close()
-
-
-# TODO: OO structure in a future refactoring?
