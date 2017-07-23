@@ -108,7 +108,7 @@ def convert_a_study(pfo_study_bruker_input,
         convert_a_scan(pfo_scan_bruker,
                        pfo_scan_nifti,
                        create_output_folder_if_not_exists=True,  # hidden for the user, unreachable from here
-                       fin_scan=nifti_file_name,
+                       nifti_file_name=nifti_file_name,
                        nifti_version=nifti_version,
                        qform_code=qform_code,
                        sform_code=sform_code,

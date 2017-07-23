@@ -180,7 +180,7 @@ def scan2struct(pfo_scan,
     return struct_scan
 
 
-def write_struct(struct,
+def write_struct(bruker_struct,
                  pfo_output,
                  fin_scan='',
                  save_human_readable=True,
@@ -192,7 +192,7 @@ def write_struct(struct,
                  ):
     """
 
-    :param struct:
+    :param bruker_struct:
     :param pfo_output:
     :param fin_scan:
     :param save_human_readable:
@@ -207,10 +207,10 @@ def write_struct(struct,
     if not os.path.isdir(pfo_output):
         raise IOError('Output folder does not exists.')
 
-    if struct is None:
+    if bruker_struct is None:
         return
 
-    if not len(struct['visu_pars_list']) == len(struct['nib_scans_list']):
+    if not len(bruker_struct['visu_pars_list']) == len(bruker_struct['nib_scans_list']):
         raise IOError('Visu pars list and scans list have a different number of elements.')
 
     if fin_scan is None:
@@ -219,19 +219,19 @@ def write_struct(struct,
     # -- WRITE Additional data shared by all the sub-scans:
     # if the modality is a DtiEpi or Dwimage then save the DW directions, b values and b vectors in separate csv .txt.
 
-    is_dwi = 'dtiepi' in struct['visu_pars_list'][0]['VisuAcqSequenceName'].lower() or \
-                  'dwi' in struct['visu_pars_list'][0]['VisuAcqSequenceName'].lower()
+    is_dwi = 'dtiepi' in bruker_struct['visu_pars_list'][0]['VisuAcqSequenceName'].lower() or \
+                  'dwi' in bruker_struct['visu_pars_list'][0]['VisuAcqSequenceName'].lower()
 
     if is_dwi:  # File method is the same for each sub-scan. Cannot embed this in the next for cycle.
 
         # -- Deals with b-vector: normalise, reorient and save in external .npy/txt.
-        dw_grad_vec = struct['method']['DwGradVec']
+        dw_grad_vec = bruker_struct['method']['DwGradVec']
 
-        assert dw_grad_vec.shape[0] == struct['method']['DwNDiffExp']
+        assert dw_grad_vec.shape[0] == bruker_struct['method']['DwNDiffExp']
 
         # get b-vectors re-orientation matrix from visu-pars
-        reorientation_matrix = obtain_b_vectors_orient_matrix(struct['visu_pars_list'][0]['VisuCoreOrientation'],
-                                                              struct['visu_pars_list'][0]['VisuSubjectPosition'],
+        reorientation_matrix = obtain_b_vectors_orient_matrix(bruker_struct['visu_pars_list'][0]['VisuCoreOrientation'],
+                                                              bruker_struct['visu_pars_list'][0]['VisuSubjectPosition'],
                                                               frame_body_as_frame_head=frame_body_as_frame_head,
                                                               keep_same_det=keep_same_det,
                                                               consider_subject_position=consider_subject_position)
@@ -250,8 +250,8 @@ def write_struct(struct,
             msg = 'Diffusion weighted directions saved in ' + jph(pfo_output, fin_scan + '_DwDir.npy')
             print(msg)
 
-        b_vals = struct['method']['DwEffBval']
-        b_vects = struct['method']['DwDir']
+        b_vals = bruker_struct['method']['DwEffBval']
+        b_vects = bruker_struct['method']['DwDir']
 
         np.save(jph(pfo_output, fin_scan + '_DwEffBval.npy'), b_vals)
         np.save(jph(pfo_output, fin_scan + '_DwDir.npy'), b_vects)
@@ -266,79 +266,79 @@ def write_struct(struct,
 
     # save the dictionary as numpy array containing the corresponding dictionaries
 
-    if not struct['acqp'] == {}:
-        np.save(jph(pfo_output, fin_scan + '_acqp.npy'), struct['acqp'])
+    if not bruker_struct['acqp'] == {}:
+        np.save(jph(pfo_output, fin_scan + '_acqp.npy'), bruker_struct['acqp'])
         if save_human_readable:
-            from_dict_to_txt_sorted(struct['acqp'], jph(pfo_output, fin_scan + '_acqp.txt'))
-    if not struct['method'] == {}:
-        np.save(jph(pfo_output, fin_scan + '_method.npy'), struct['method'])
+            from_dict_to_txt_sorted(bruker_struct['acqp'], jph(pfo_output, fin_scan + '_acqp.txt'))
+    if not bruker_struct['method'] == {}:
+        np.save(jph(pfo_output, fin_scan + '_method.npy'), bruker_struct['method'])
         if save_human_readable:
-            from_dict_to_txt_sorted(struct['method'], jph(pfo_output, fin_scan + '_method.txt'))
-    if not struct['reco'] == {}:
-        np.save(jph(pfo_output, fin_scan + '_reco.npy'), struct['reco'])
+            from_dict_to_txt_sorted(bruker_struct['method'], jph(pfo_output, fin_scan + '_method.txt'))
+    if not bruker_struct['reco'] == {}:
+        np.save(jph(pfo_output, fin_scan + '_reco.npy'), bruker_struct['reco'])
         if save_human_readable:
-            from_dict_to_txt_sorted(struct['reco'], jph(pfo_output, fin_scan + '_reco.txt'))
+            from_dict_to_txt_sorted(bruker_struct['reco'], jph(pfo_output, fin_scan + '_reco.txt'))
 
     # Visu_pars and summary info for each sub-scan:
     summary_info = {}
 
-    for i in range(len(struct['visu_pars_list'])):
+    for i in range(len(bruker_struct['visu_pars_list'])):
 
-        if len(struct['nib_scans_list']) > 1:
+        if len(bruker_struct['nib_scans_list']) > 1:
             i_label = '_subscan_' + str(i) + '_'
         else:
             i_label = '_'
 
         # A) Save visu_pars for each sub-scan:
-        np.save(jph(pfo_output, fin_scan + i_label + 'visu_pars.npy'), struct['visu_pars_list'][i])
+        np.save(jph(pfo_output, fin_scan + i_label + 'visu_pars.npy'), bruker_struct['visu_pars_list'][i])
 
         # B) Save single slope data for each sub-scan (from visu_pars):
-        np.save(jph(pfo_output, fin_scan + i_label + 'slope.npy'), struct['visu_pars_list'][i]['VisuCoreDataSlope'])
+        np.save(jph(pfo_output, fin_scan + i_label + 'slope.npy'), bruker_struct['visu_pars_list'][i]['VisuCoreDataSlope'])
 
         # A and B) save them both in .txt if human readable version of data is required.
         if save_human_readable:
-            from_dict_to_txt_sorted(struct['visu_pars_list'][i], jph(pfo_output, fin_scan + i_label + 'visu_pars.txt'))
+            from_dict_to_txt_sorted(bruker_struct['visu_pars_list'][i], jph(pfo_output, fin_scan + i_label + 'visu_pars.txt'))
 
-            slope = struct['visu_pars_list'][i]['VisuCoreDataSlope']
+            slope = bruker_struct['visu_pars_list'][i]['VisuCoreDataSlope']
             if not isinstance(slope, np.ndarray):
                 slope = np.atleast_2d(slope)
             np.savetxt(jph(pfo_output, fin_scan + i_label + 'slope.txt'), slope, fmt='%.14f')
 
         # Update summary dictionary:
         summary_info_i = {i_label[1:] + "visu_pars['VisuUid']"
-                                    : struct['visu_pars_list'][i]['VisuUid'],
+                                    : bruker_struct['visu_pars_list'][i]['VisuUid'],
                           i_label[1:] + "visu_pars['VisuCoreDataSlope']"
-                                    : struct['visu_pars_list'][i]['VisuCoreDataSlope'],
+                                    : bruker_struct['visu_pars_list'][i]['VisuCoreDataSlope'],
                           i_label[1:] + "visu_pars['VisuCoreSize']"
-                                    : struct['visu_pars_list'][i]['VisuCoreSize'],
+                                    : bruker_struct['visu_pars_list'][i]['VisuCoreSize'],
                           i_label[1:] + "visu_pars['VisuCoreOrientation']"
-                                    : struct['visu_pars_list'][i]['VisuCoreOrientation'],
+                                    : bruker_struct['visu_pars_list'][i]['VisuCoreOrientation'],
                           i_label[1:] + "visu_pars['VisuCorePosition']"
-                                    : struct['visu_pars_list'][i]['VisuCorePosition']}
+                                    : bruker_struct['visu_pars_list'][i]['VisuCorePosition']}
 
-        if len(list(struct['visu_pars_list'][i]['VisuCoreExtent'])) == 2:
+        if len(list(bruker_struct['visu_pars_list'][i]['VisuCoreExtent'])) == 2:
             # equivalent to struct['method']['SpatDimEnum'] == '2D':
-            if 'VisuCoreSlicePacksSlices' in struct['visu_pars_list'][i].keys():
+            if 'VisuCoreSlicePacksSlices' in bruker_struct['visu_pars_list'][i].keys():
                 summary_info_i.update({i_label[1:] + "visu_pars['VisuCoreSlicePacksSlices']"
-                                                : struct['visu_pars_list'][i]['VisuCoreSlicePacksSlices']})
+                                                : bruker_struct['visu_pars_list'][i]['VisuCoreSlicePacksSlices']})
 
-        if len(list(struct['visu_pars_list'][i]['VisuCoreExtent'])) == 3 and \
-                        'VisuCoreDiskSliceOrder' in struct['visu_pars_list'][i].keys():
+        if len(list(bruker_struct['visu_pars_list'][i]['VisuCoreExtent'])) == 3 and \
+                        'VisuCoreDiskSliceOrder' in bruker_struct['visu_pars_list'][i].keys():
             # first part equivalent to struct['method']['SpatDimEnum'] == '3D':
             summary_info_i.update({i_label[1:] + "visu_pars['VisuCoreDiskSliceOrder']"
-                                            : struct['visu_pars_list'][i]['VisuCoreDiskSliceOrder']})
+                                            : bruker_struct['visu_pars_list'][i]['VisuCoreDiskSliceOrder']})
 
-        if 'VisuCreatorVersion' in struct['visu_pars_list'][i].keys():
+        if 'VisuCreatorVersion' in bruker_struct['visu_pars_list'][i].keys():
             summary_info_i.update({i_label[1:] + "visu_pars['VisuCreatorVersion']"
-                                            : struct['visu_pars_list'][i]['VisuCreatorVersion']})
+                                            : bruker_struct['visu_pars_list'][i]['VisuCreatorVersion']})
 
         summary_info.update(summary_info_i)
 
         # WRITE NIFTI IMAGES:
 
-        if isinstance(struct['nib_scans_list'][i], list):
+        if isinstance(bruker_struct['nib_scans_list'][i], list):
             # the scan had sub-volumes embedded. they are saved separately
-            for sub_vol_id, subvol in enumerate(struct['nib_scans_list'][i]):
+            for sub_vol_id, subvol in enumerate(bruker_struct['nib_scans_list'][i]):
 
                 if fin_scan == '':
                     pfi_scan = jph(pfo_output, 'scan' + i_label[:-1] + '_subvol_' + str(sub_vol_id) + '.nii.gz')
@@ -354,7 +354,7 @@ def write_struct(struct,
             else:
                 pfi_scan = jph(pfo_output, fin_scan + i_label[:-1] + '.nii.gz')
 
-            nib.save(struct['nib_scans_list'][i], pfi_scan)
+            nib.save(bruker_struct['nib_scans_list'][i], pfi_scan)
 
             if save_b0_if_dwi and is_dwi:
                 # save the b0, first slice alone. Optimized if you have
@@ -365,8 +365,8 @@ def write_struct(struct,
                 else:
                     pfi_scan_b0 = jph(pfo_output, fin_scan + i_label[:-1] + '_b0.nii.gz')
 
-                nib.save(set_new_data(struct['nib_scans_list'][i],
-                                      struct['nib_scans_list'][i].get_data()[..., 0]),
+                nib.save(set_new_data(bruker_struct['nib_scans_list'][i],
+                                      bruker_struct['nib_scans_list'][i].get_data()[..., 0]),
                          pfi_scan_b0)
                 if verbose > 0:
                     msg = 'b0 scan saved alone in ' + pfi_scan_b0
@@ -374,36 +374,36 @@ def write_struct(struct,
 
     # complete the summary info with additional information from other parameter files, if required:
 
-    if not struct['acqp'] == {}:
+    if not bruker_struct['acqp'] == {}:
 
-        summary_info_acqp = {"acqp['ACQ_sw_version']"     : struct['acqp']['ACQ_sw_version'],
-                             "acqp['NR']"                 : struct['acqp']['NR'],
-                             "acqp['NI']"                 : struct['acqp']['NI'],
-                             "acqp['ACQ_n_echo_images']"  : struct['acqp']['ACQ_n_echo_images'],
-                             "acqp['ACQ_slice_thick']"    : struct['acqp']['ACQ_slice_thick']}
+        summary_info_acqp = {"acqp['ACQ_sw_version']"     : bruker_struct['acqp']['ACQ_sw_version'],
+                             "acqp['NR']"                 : bruker_struct['acqp']['NR'],
+                             "acqp['NI']"                 : bruker_struct['acqp']['NI'],
+                             "acqp['ACQ_n_echo_images']"  : bruker_struct['acqp']['ACQ_n_echo_images'],
+                             "acqp['ACQ_slice_thick']"    : bruker_struct['acqp']['ACQ_slice_thick']}
         summary_info.update(summary_info_acqp)
 
-    if not struct['method'] == {}:
+    if not bruker_struct['method'] == {}:
 
-        summary_info_method = {"method['SpatDimEnum']"         : struct['method']['SpatDimEnum'],
-                               "method['Matrix']"              : struct['method']['Matrix'],
-                               "method['SpatResol']"           : struct['method']['SpatResol'],
-                               "method['Method']"              : struct['method']['Method'],
-                               "method['SPackArrSliceOrient']" : struct['method']['SPackArrSliceOrient'],
-                               "method['SPackArrReadOrient']"  : struct['method']['SPackArrReadOrient']}
+        summary_info_method = {"method['SpatDimEnum']"         : bruker_struct['method']['SpatDimEnum'],
+                               "method['Matrix']"              : bruker_struct['method']['Matrix'],
+                               "method['SpatResol']"           : bruker_struct['method']['SpatResol'],
+                               "method['Method']"              : bruker_struct['method']['Method'],
+                               "method['SPackArrSliceOrient']" : bruker_struct['method']['SPackArrSliceOrient'],
+                               "method['SPackArrReadOrient']"  : bruker_struct['method']['SPackArrReadOrient']}
         summary_info.update(summary_info_method)
 
-    if not struct['reco'] == {}:
+    if not bruker_struct['reco'] == {}:
 
-        summary_info_reco = {"reco['RECO_size']"       : struct['reco']['RECO_size'],
-                             "reco['RECO_inp_order']"  : struct['reco']['RECO_inp_order']}
+        summary_info_reco = {"reco['RECO_size']"       : bruker_struct['reco']['RECO_size'],
+                             "reco['RECO_inp_order']"  : bruker_struct['reco']['RECO_inp_order']}
         summary_info.update(summary_info_reco)
 
     # Finally summary info with the updated information.
     from_dict_to_txt_sorted(summary_info, jph(pfo_output, fin_scan + '_summary.txt'))
 
     # Get the method name in a single .txt file:
-    if struct['acquisition_method'] is not '':
+    if bruker_struct['acquisition_method'] is not '':
         text_file = open(jph(pfo_output, 'acquisition_method.txt'), "w+")
-        text_file.write(struct['acquisition_method'])
+        text_file.write(bruker_struct['acquisition_method'])
         text_file.close()

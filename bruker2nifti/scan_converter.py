@@ -10,7 +10,7 @@ def convert_a_scan(pfo_input_scan,
                    qform_code=1,
                    sform_code=2,
                    correct_slope=True,
-                   fin_scan=None,
+                   nifti_file_name=None,
                    save_b0_if_dwi=True,
                    save_human_readable=True,
                    verbose=1,
@@ -24,7 +24,7 @@ def convert_a_scan(pfo_input_scan,
     :param pfo_input_scan: path to folder containing a scan from Bruker.
     :param pfo_output: path to folder where the nifti and all the additional informations will be stored.
     :param create_output_folder_if_not_exists: [True]
-    :param fin_scan: [None] filename of the nifti image that will be saved into the pfo_output folder.
+    :param nifti_file_name: [None] filename of the nifti image that will be saved into the pfo_output folder.
     :param nifti_version: [1]
     :param qform_code: [1] see nibabel documentation
     :param sform_code: [2] see nibabel documentation
@@ -56,7 +56,7 @@ def convert_a_scan(pfo_input_scan,
     if not struct_scan == 'no data':
         write_struct(struct_scan,
                      pfo_output,
-                     fin_scan=fin_scan,
+                     fin_scan=nifti_file_name,
                      save_human_readable=save_human_readable,
                      save_b0_if_dwi=save_b0_if_dwi,
                      verbose=verbose,

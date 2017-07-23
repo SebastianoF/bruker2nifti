@@ -6,7 +6,7 @@ from ._utils import bruker_read_files, eliminate_consecutive_duplicates, slope_c
     compute_affine_from_visu_pars, compute_resolution_from_visu_pars
 
 
-def get_list_scans(start_path):
+def get_list_scans(start_path, print_structure=True):
 
     scans_list = []
 
@@ -17,12 +17,16 @@ def get_list_scans(start_path):
 
         level = dirpath.replace(start_path, '').count(os.sep)
         indent = (' ' * 4) * level
-        print('{}{}/'.format(indent, os.path.basename(dirpath)))
+        if print_structure:
+            print('{}{}/'.format(indent, os.path.basename(dirpath)))
 
         sub_indent = (' ' * 4) * (level + 1)
-        for f in filenames:
-            print('{}{}'.format(sub_indent, f))
 
+        if print_structure:
+            for f in filenames:
+                print('{}{}'.format(sub_indent, f))
+
+    scans_list.sort(key=float)
     return scans_list
 
 
