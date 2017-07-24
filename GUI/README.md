@@ -4,7 +4,7 @@ If the selected python distribution has the libraries already installed and the
 root directory of the code is added to the PYTHONPATH, to run
 the GUI, in the root you can just type: 
 ```
-python GUI/open_GUI.py
+python bruker2nifti/open_GUI.py
 ```
 To create a 'launcher' based on an ad-hoc virtual environment double click
 on the run_setupper_YOUR_DISTIBUTION.
