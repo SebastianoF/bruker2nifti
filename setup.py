@@ -10,7 +10,7 @@ infos = {
          'web_infos' : '',
          'repository': {
                         'type': 'git',
-                        'url': ''
+                        'url': 'https://github.com/SebastianoF/bruker2nifti'
                        },
          'author': 'sebastiano ferraris',
          'author_email': 'sebastiano.ferraris@gmail.com',

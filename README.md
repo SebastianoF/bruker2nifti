@@ -17,11 +17,11 @@ Medical image format converter: from raw Brukert ParaVision to nifti, written in
 Where python is a distribution proivided with the required libraries.
 
 ### GUI Installation
-* `chmod 777 gui_setupper_MAC.sh`
-* `./gui_setupper_MAC.sh`
+* `chmod 777 GUI/setupper_MAC.sh`
+* `./GUI/setupper_MAC.sh`
 
 Alternatively double click on 
-* `gui_run_setupper_MAC`.
+* `GUI/run_setupper_MAC`.
 
 ![gui_example](https://github.com/SebastianoF/bruker2nifti/blob/master/screenshots/gui_example.jpg)
 

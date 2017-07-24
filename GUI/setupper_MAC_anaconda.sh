@@ -32,7 +32,7 @@ echo 'Selecting paths required to have the python of the virtualenvironment:'
 echo
 
 CALLER=//anaconda/envs/venv/bin/python
-EXEC=$DIR/open_GUI.py
+EXEC=$PARENTDIR/bruker2nifti/open_GUI.py
 
 echo
 echo 'Generating launcher-like and add permission:'

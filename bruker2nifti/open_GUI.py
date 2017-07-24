@@ -1,12 +1,14 @@
 import Tkinter as tk
 import tkFileDialog
-# from bruker2nifti.z_study_converter import convert_a_study
+
 from bruker2nifti.converter import Bruker2Nifti
 
 
-class BrukerToNifti(tk.Tk, object):
-    def __init__(self):
-        super(BrukerToNifti, self).__init__()
+class BrukerToNiftiGUI(tk.Tk, object):
+
+    def __init__(self, in_pfo_input=None, in_pfo_output=None, in_study_name=None):
+
+        super(BrukerToNiftiGUI, self).__init__()
 
         # Window settings:
 
@@ -20,11 +22,20 @@ class BrukerToNifti(tk.Tk, object):
         self.label_pfo_input = tk.Label(self, text='Folder path input')
         self.entry_pfo_input = tk.Entry(self, bd=2, width=50)
 
+        if in_pfo_input is not None:
+            self.entry_pfo_input.insert(0, in_pfo_input)
+
         self.label_pfo_output = tk.Label(self, text='Folder path output')
         self.entry_pfo_output = tk.Entry(self, bd=2, width=50)
 
+        if in_pfo_output is not None:
+            self.entry_pfo_output.insert(0, in_pfo_output)
+
         self.label_study_name = tk.Label(self, text='Study name (optional)')
         self.entry_study_name = tk.Entry(self, bd=2, width=50)
+
+        if in_study_name is not None:
+            self.entry_study_name.insert(0, in_study_name)
 
         self.CheckVar_cs = tk.IntVar(value=1)  # correct slope default True
         self.CheckVar_ac = tk.IntVar(value=0)  # get acquisition parameters default False
@@ -103,8 +114,11 @@ class BrukerToNifti(tk.Tk, object):
 
         print('Have a nice day!')
 
-if __name__ == '__main__':
 
-    root = BrukerToNifti()
+def open_gui(in_pfo_input=None, in_pfo_output=None, in_study_name=None):
+    root = BrukerToNiftiGUI(in_pfo_input=in_pfo_input, in_pfo_output=in_pfo_output, in_study_name=in_study_name)
     root.mainloop()
 
+
+if __name__ == '__main__':
+    open_gui()
