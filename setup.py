@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 from setuptools import setup, find_packages
-from definitions import root_dir
+
+from bruker2nifti._utils import version_bruker2nifti
 
 
 infos = {
          'name': 'bruker2nifti',
-         'version': '0.0.1',
+         'version': version_bruker2nifti,
          'description': 'From raw Bruker to nifti, home-made converter.',
          'web_infos' : '',
          'repository': {
@@ -16,7 +17,7 @@ infos = {
          'author_email': 'sebastiano.ferraris@gmail.com',
          'dependencies': {
                           # requirements.txt file automatically generated using pipreqs.
-                          'python' : '{0}/requirements.txt'.format(root_dir)
+                          'python' : 'requirements.txt'
                           }
          }
 

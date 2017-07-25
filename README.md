@@ -3,25 +3,37 @@
 Medical image format converter: from raw Brukert ParaVision to nifti, written in Python.
 
 ### Requirements
-* Python 2.7+ provided with the libraries in requirements.txt.
+* Python 2.7+ provided with the libraries in requirements.txt (generated with pipreqs).
 
 ### Installation
-* `pip install -r requirements.txt`
-* (optional) `python setup.py install` to install as a library
-* (suggested) `pip install -e .` to install with pip in development mode.
+```
+pip install -r path-to-bruker2nifti-repo/requirements.txt
+pip install bruker2nifti
+```
+
+### To install in development mode:
+```
+cd path-to-bruker2nifti-repo
+pip install -e .
+```
 
 ### CLI usage (no installation) 
-* `PYTHONPATH="${PYTHONPATH}:path-to-bruker2nifti"`
+* `PYTHONPATH="${PYTHONPATH}:path-to-bruker2nifti-repo"`
 * `python parsers/bruker2nii.py -h`
-* `python parsers/bruker2nii.py -i path/to/bruker/study -o path/to/output/folder`
+* `python parsers/bruker2nii.py -i path/to/a/bruker/study -o path/to/output/folder`
 Where python is a distribution proivided with the required libraries.
 
-### GUI Installation
-* `chmod 777 GUI/setupper_MAC.sh`
-* `./GUI/setupper_MAC.sh`
+### Open the GUI (no installation)
+```
+cd path-to-bruker2nifti-repo
+chmod 777 GUI/setupper_MAC.sh
+./GUI/setupper_MAC.sh
+```
 
 Alternatively double click on 
-* `GUI/run_setupper_MAC`.
+`GUI/run_setupper_MAC`.
+After the installation, double-click on the file 'OpenGUIbru2nii' to open the GUI. 
+The launcher can be moved around in the user system.
 
 ![gui_example](https://github.com/SebastianoF/bruker2nifti/blob/master/screenshots/gui_example.jpg)
 

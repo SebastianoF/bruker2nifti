@@ -191,17 +191,17 @@ def write_struct(bruker_struct,
                  consider_subject_position=False,
                  ):
     """
-
-    :param bruker_struct:
-    :param pfo_output:
-    :param fin_scan:
-    :param save_human_readable:
-    :param save_b0_if_dwi:
+    Second part of the bridge -
+    :param bruker_struct: output of scan2struct
+    :param pfo_output: path-to-folder where the converted structure will be saved.
+    :param fin_scan: filename of the scan
+    :param save_human_readable: output data will be saved in .txt other than in numpy format.
+    :param save_b0_if_dwi: save the first time-point if the data is a DWI.
     :param verbose:
-    :param frame_body_as_frame_head:
-    :param keep_same_det:
-    :param consider_subject_position:
-    :return:
+    :param frame_body_as_frame_head: according to the animal. If True monkey, if False rat-rabbit
+    :param keep_same_det: force the initial determinant to be the same as the final one
+    :param consider_subject_position: Attribute manually set, or left blank, by the lab experts. False by default
+    :return: save the bruker_struct parsed in scan2struct in the specified folder, with the specified parameters.
     """
 
     if not os.path.isdir(pfo_output):
@@ -265,6 +265,7 @@ def write_struct(bruker_struct,
             print('B-values  saved in {}'.format(jph(pfo_output, fin_scan + '_DwGradVec.npy')))
 
     # save the dictionary as numpy array containing the corresponding dictionaries
+    # TODO use pickle instead of numpy to save the dictionaries(?)
 
     if not bruker_struct['acqp'] == {}:
         np.save(jph(pfo_output, fin_scan + '_acqp.npy'), bruker_struct['acqp'])
@@ -293,11 +294,13 @@ def write_struct(bruker_struct,
         np.save(jph(pfo_output, fin_scan + i_label + 'visu_pars.npy'), bruker_struct['visu_pars_list'][i])
 
         # B) Save single slope data for each sub-scan (from visu_pars):
-        np.save(jph(pfo_output, fin_scan + i_label + 'slope.npy'), bruker_struct['visu_pars_list'][i]['VisuCoreDataSlope'])
+        np.save(jph(pfo_output, fin_scan + i_label + 'slope.npy'),
+                bruker_struct['visu_pars_list'][i]['VisuCoreDataSlope'])
 
         # A and B) save them both in .txt if human readable version of data is required.
         if save_human_readable:
-            from_dict_to_txt_sorted(bruker_struct['visu_pars_list'][i], jph(pfo_output, fin_scan + i_label + 'visu_pars.txt'))
+            from_dict_to_txt_sorted(bruker_struct['visu_pars_list'][i],
+                                    jph(pfo_output, fin_scan + i_label + 'visu_pars.txt'))
 
             slope = bruker_struct['visu_pars_list'][i]['VisuCoreDataSlope']
             if not isinstance(slope, np.ndarray):

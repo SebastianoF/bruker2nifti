@@ -6,6 +6,8 @@ from os.path import join as jph
 
 # --- text-files utils ---
 
+version_bruker2nifti = '0.0.4'
+
 
 def indians_file_parser(s, sh=None):
     """
