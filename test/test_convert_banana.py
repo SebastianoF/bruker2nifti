@@ -4,8 +4,11 @@ import warnings
 import subprocess
 import platform
 
-from definitions import root_dir
 from bruker2nifti.converter import Bruker2Nifti
+
+
+here = os.path.abspath(os.path.dirname(__file__))
+root_dir = os.path.dirname(here)
 
 
 def test_convert_the_banana(open_converted=False):

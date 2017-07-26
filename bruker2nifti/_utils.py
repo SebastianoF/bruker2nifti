@@ -6,9 +6,6 @@ from os.path import join as jph
 
 # --- text-files utils ---
 
-version_bruker2nifti = '0.0.4'
-
-
 def indians_file_parser(s, sh=None):
     """
     An here-called indians file is a string obtained from a sequence of rows from a Bruker parameter file

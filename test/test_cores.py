@@ -4,8 +4,10 @@ import numpy as np
 from nose.tools import assert_equal
 from numpy.testing import assert_array_equal
 
-from definitions import root_dir
 from bruker2nifti._cores import scan2struct
+
+here = os.path.abspath(os.path.dirname(__file__))
+root_dir = os.path.dirname(here)
 
 
 def test_scan2struct_with_banana_data_slope_no_slope():
