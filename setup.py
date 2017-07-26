@@ -4,6 +4,14 @@ from setuptools import setup, find_packages
 from bruker2nifti._utils import version_bruker2nifti
 
 
+def requirements2list(pfi_txt='requirements.txt'):
+    f = open(pfi_txt, 'r')
+    l = []
+    for line in f.readlines():
+        l.append(line.replace('\n', ''))
+    return l
+
+
 infos = {
          'name': 'bruker2nifti',
          'version': version_bruker2nifti,
@@ -27,5 +35,10 @@ setup(name=infos['name'],
       author=infos['author'],
       author_email=infos['author_email'],
       url=infos['repository']['url'],
-      packages=find_packages()
+      packages=find_packages(),
+      install_requires=requirements2list(),
+      entry_points={
+        'console_scripts': ['bruker2nifti=parsers.bruker2nifti:main', ],
+        'gui_scripts' : ['bruker2nifti_gui=bruker2nifti.open_gui:open_gui']
+      }
       )

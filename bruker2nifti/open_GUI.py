@@ -113,7 +113,7 @@ class BrukerToNiftiGUI(tk.Tk, object):
 
         del bru
 
-        print('Have a nice day!')
+        print('\nbruker2Nifti verision {} - Have a nice day!'.format(version_bruker2nifti))
 
 
 def open_gui(in_pfo_input=None, in_pfo_output=None, in_study_name=None):

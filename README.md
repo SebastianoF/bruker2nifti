@@ -59,8 +59,8 @@ parameter file exists only if the image was created using ParaVision reconstruct
 
 ### Thanks <a name="thanks"></a>
 Thanks to 
-Bernard Siow (Centre for Advanced Biomedical Imaging, UCL), 
-Willy Gsell (Department of Imaging and Pathology, KU Leuven) 
+Bernard Siow (Centre for Advanced Biomedical Imaging, University College London), 
+Chris Rorden (McCausland Center for Brain Imaging, University of South Carolina) 
 and 
 Mattew Brett (Berkeley Brain Imaging Center).
 
