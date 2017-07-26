@@ -2,7 +2,7 @@ import Tkinter as tk
 import tkFileDialog
 
 from bruker2nifti.converter import Bruker2Nifti
-from bruker2nifti._utils import version_bruker2nifti
+from bruker2nifti._definitions import version_bruker2nifti
 
 
 class BrukerToNiftiGUI(tk.Tk, object):
