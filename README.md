@@ -6,6 +6,7 @@ Medical image format converter: from raw Brukert ParaVision to nifti, written in
 * Python 2.7+ provided with the libraries in requirements.txt (generated with pipreqs).
 
 ### Installation
+To install it as a Python library
 ```
 pip install bruker2nifti
 ```
@@ -16,7 +17,7 @@ cd path-to-bruker2nifti-repo
 pip install -e .
 ```
 
-### CLI usage (no installation) 
+### CLI usage (no installation):
 * `PYTHONPATH="${PYTHONPATH}:path-to-bruker2nifti-repo"`
 * `python parsers/bruker2nii.py -h`
 * `python parsers/bruker2nii.py -i path/to/a/bruker/study -o path/to/output/folder`
@@ -31,7 +32,7 @@ chmod 777 GUI/setupper_MAC.sh
 
 Alternatively double click on 
 `GUI/run_setupper_MAC`.
-After the installation, double-click on the file 'OpenGUIbru2nii' to open the GUI. 
+After the isntalling, double-click on the file 'OpenGUIbru2nii' to open the GUI. 
 The launcher can be moved around in the user system.
 
 ![gui_example](https://github.com/SebastianoF/bruker2nifti/blob/master/screenshots/gui_example.jpg)
@@ -39,9 +40,12 @@ The launcher can be moved around in the user system.
 ### Testing
 Unit testing with [nosetest](http://pythontesting.net/framework/nose/nose-introduction/):
 * `nosetests`
+Tests are based on an open dataset Bruker images downloadable with the repo, in the folder 
+[test_data](https://github.com/SebastianoF/bruker2nifti/tree/master/test_data)
 
-### Further notes <a name="up"></a>
-Additional documentation: [bruker2nifti_wiki](https://github.com/SebastianoF/bruker2nifti/wiki).
+### API documentation, further notes and examples <a name="up"></a>
+Essential API documentation can be found [here](bruker2nifti.rtfd.io).
+Additional documentation and examples can be found in the [bruker2nifti wiki pages](https://github.com/SebastianoF/bruker2nifti/wiki).
 
 ### Useful links and related software <a name="utilities"></a>
 + [nifti format](https://nifti.nimh.nih.gov/nifti-1): official documentation.
@@ -59,7 +63,7 @@ parameter file exists only if the image was created using ParaVision reconstruct
 
 ### Copyright and Licence 
 Copyright (c) 2017, Sebastiano Ferraris.
-Bruker2nifti is available as free open-source software under an MIT License.
+Bruker2nifti is available as free open-source software under [MIT License](https://github.com/SebastianoF/bruker2nifti/blob/master/LICENCE.txt).
 
 ### Thanks <a name="thanks"></a>
 Thanks to 
@@ -67,7 +71,6 @@ Bernard Siow (Centre for Advanced Biomedical Imaging, University College London)
 Chris Rorden (McCausland Center for Brain Imaging, University of South Carolina) 
 and 
 Mattew Brett (Berkeley Brain Imaging Center).
-
 
 
 
