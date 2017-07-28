@@ -14,7 +14,12 @@ banana
 venv
 OpenGUIbru2nii
 APMFruits20111130
-paper
+article.aux
+article.bbl
+article.blg
+article.log
+article.out
+article.synctex.gz
 _build
 _static
 _templates

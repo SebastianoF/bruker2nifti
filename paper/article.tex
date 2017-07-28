@@ -1,0 +1,63 @@
+\documentclass{article}
+\usepackage{authblk}
+%\usepackage{cite}
+%\usepackage[square,sort,comma]{natbib}
+\usepackage{hyperref}
+
+\title{Bruker2nifti: Magnetic Resonance Images converter from Bruker ParaVision to Nifti format}
+
+\author[1]{Sebastiano Ferraris}
+\author[1]{Dzhoshkun Ismail Shakir}
+\author[2]{Johannes Van Der Merwe}
+\author[3]{Willy Gsell}
+\author[1,2,4]{Jan Deprest}
+\author[1,2,4]{Tom Vercauteren}
+
+\affil[1]{Translational Imaging Group, Centre for Medical Image Computing (CMIC), Department of Medical Physics and Bioengineering, University College London, UK}
+\affil[2]{Biomedical MRI, Department of Imaging and Pathology, KU Leuven, Belgium.}
+\affil[3]{Department of Development and Regeneration, Organ System Cluster, Group Biomedical Sciences, KU Leuven, Belgium.}
+\affil[4]{Wellcome/EPSRC Centre for Interventional and Surgical Sciences, University College London, UK.}
+
+%\date{}                     %% if you don't need date to appear
+\setcounter{Maxaffil}{0}
+
+\renewcommand\Affilfont{\itshape\small}
+
+\begin{document}
+	\maketitle
+
+%\section{Summary}
+%
+%In this work we present the pip-installable python library \emph{bruker2nifti}. It consists of a medical image format converter from Bruker MRI (ParaVision) to Nifti format. It is entirely written in python, providing a parser tool for the Bruker data structure, a converter to the nifti format (nifti-1 or nifti-2), a graphical user interface and a command line utility.
+
+\section{Motivations and Summary}
+
+%In medical imaging, after a Magnetic Resonance Image dataset is acquired, the first step of many clinical and pre-clinical study is the image conversion from the native format to a format suitable for the intended analysis.
+%Not all proprietary software provide the tools for the data conversion to a suitable open formats for research, such as nifti \cite{cox2004sort} for which most of the available tools for medical image analysis are implemented. 
+
+In clinical and pre-clinical research involving medical images, the first step following a Magnetic Resonance Imaging dataset acquisition, usually entails the image conversion from the native scanner format to a format suitable for the intended analysis. 
+The  \href{https://www.bruker.com/products/mr/preclinical-mri/software/service-support.html}{Bruker ParaVision} proprietary software is not currently providing the tools for the data conversion to a suitable open formats for research, such as nifti \cite{cox2004sort}, for which most of the available tools for medical image analysis are implemented. 
+
+
+%The DICOM (Digital Imaging and Communications in Medicine) standard \cite{mustra2008overview}, was initially designed to provide a common standard output, and to solve this issue. Over the years the standard was bent in different directions to cope with the growing needs of each producer: in the present each scanner manufacturer can have its own DICOM version, so that a DICOM from e.g. a Philips scanner can have a different file structure, file extension and orientation convention, when compared to a DICOM from a Bruker scanner (ParaVision software).
+%Moreover, once the DICOM is obtained from the native format, this requires to be converted again to nifti using one of the available converter that may be well tested from a DICOM obtained from a specific producer, but may introduce other errors, e.g. flipping the R-L orientation or stacking the slices of 4D volumes in the wrong order when applied to DICOM from a different producer.
+
+%A possible solution to address these time consuming and possibly frustrating issues is to avoid the passage trough 2 black boxes from Native format to DICOM and subsequently from DICOM to nifti. This can be done gaining control directly over the Native format, and parsing the native variables that are relevant to fill the nifti header and the consequent image volume.
+
+For this purpose we have designed and developed \href{https://github.com/SebastianoF/bruker2nifti}{\emph{bruker2nifti}}, a pip-installable Python tool provided with a Graphical User Interface to convert from the native MRI Bruker format %\cite{brukerPV6Webiste}, \cite{brukerPreclinicalMRI} 
+to the nifti format, without any intermediate step through the DICOM standard formats \cite{mustra2008overview}. %A command line interface is provided as well to allow for the automatic conversion of a dataset within a pipeline. 
+
+%Finally, as data conversions are never free of deceptions (different scanner settings, different Bruker Paravision software versions and different hardware, can give raise to different parsing and native format structure), 
+Bruker2nifti is intended to be a tool to access the data structure and to parse every Parameter Files of the Bruker ParaVision format into python dictionaries, to select the relevant information to fill the Nifti header and data volume. Lastly it is meant to be a starting point where to integrate possible future variations in Bruker hardware and ParaVision software future releases.
+
+
+\section{Acknowledgements}
+
+This work was supported by Wellcome / Engineering and Physical Sciences Research Council (EPSRC) [WT101957; NS/A000027/1; 203145Z/16/Z]. Sebastiano Ferraris is supported by the EPSRC-funded UCL Centre for Doctoral Training in Medical Imaging (EP/L016478/1) and Doctoral Training Grant (EP/M506448/1).
+Hannes Van Der Merwe is co-funded with support of the Erasmus + Programme of the European Union (Framework Agreement number: 2013-0040). This publication reflects the views only of the author, and the Commission cannot be held responsible for any use which may be made of the information contained therein. 
+We would also like to thank all the people who directly contributed to bruker2nifti with offline hints and suggestions: Bernard Siow (Centre for Advanced Biomedical Imaging, University College London), Chris Rorden (McCausland Center for Brain Imaging, University of South Carolina) and Mattew Brett (Berkeley Brain Imaging Center).
+
+\bibliography{article.bib}{}
+\bibliographystyle{alpha}
+
+\end{document}
