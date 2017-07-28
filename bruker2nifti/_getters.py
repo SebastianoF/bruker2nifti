@@ -7,6 +7,13 @@ from ._utils import bruker_read_files, eliminate_consecutive_duplicates, slope_c
 
 
 def get_list_scans(start_path, print_structure=True):
+    """
+    Given a path containing scans (pfo_study) or sub-scans (join(pfo_study, 'pdata')),
+    finds the list of the names of the scans.
+    :param start_path: path to the folder containing scans or sub-scans.
+    :param print_structure: [True] optional if you want to visualise the structure data at console
+    :return: list of scans/sub_scans names.
+    """
 
     scans_list = []
 
@@ -40,6 +47,7 @@ def get_subject_name(pfo_study):
         subject = bruker_read_files('subject', pfo_study)
         return subject['SUBJECT_study_name']
     # (2) 'subject' at the study level is not present, we use 'VisuSubjectId' from visu_pars of the first scan.
+    # Longer solution as at the end 'visu_pars' will be unavoidably scanned twice.
     else:
         list_scans = get_list_scans(pfo_study)
         visu_pars = bruker_read_files('visu_pars', pfo_study, sub_scan_num=list_scans[0])
@@ -56,8 +64,19 @@ def nifti_getter(img_data_vol,
                  keep_same_det=True,
                  consider_subject_position=False
                  ):
-    # obtaining the nifti using only the information in visu_pars.
-
+    """
+    Passage method to get a nifti image from the volume and the element contained into visu_pars.
+    :param img_data_vol: volume of the image.
+    :param visu_pars: corresponding dictionary to the 'visu_pars' data file.
+    :param correct_slope: [True/False] if you want to correct the slope.
+    :param nifti_version: [1/2] according to the required nifti output
+    :param qform_code: required nifti ouptut qform code.
+    :param sform_code: required nifti ouput sform code
+    :param frame_body_as_frame_head: [True/False] if the frame is the same for head and body [monkey] or not [mouse].
+    :param keep_same_det: flag to constrain the determinant to be as the one provided into the orientation parameter.
+    :param consider_subject_position: if taking into account the 'Head_prone' 'Head_supine' input.
+    :return:
+    """
     # Check units of measurements:
     if not ['mm', ] * len(visu_pars['VisuCoreSize']) == visu_pars['VisuCoreUnits']:
         # if the UoM is not mm, change here. Add other measurements and refer to xyzt_units from nibabel convention.

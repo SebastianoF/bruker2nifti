@@ -24,7 +24,11 @@ def scan2struct(pfo_scan,
                 consider_subject_position=False
                 ):
     """
-    First part of the bridge. Info required to fill nifti header are in the visu_pars file.
+    The core method of the converter has 2 parts.
+    1) parsing the Bruker scan folder structure into an internal dictionary called struct.
+    2) writing the infrormation parsed in struct into folders.
+    ----
+    scan2struct is the first part of the bridge. Info required to fill nifti header are in the visu_pars file.
     The user may want to parse as well acqp, method (must when EpiDti) and reco parameter files.
     Data are parsed in the intermediate dictionary struct containing the final scan(s) converted in nibabel
     image, with additional infos.
@@ -191,7 +195,11 @@ def write_struct(bruker_struct,
                  consider_subject_position=False,
                  ):
     """
-    Second part of the bridge -
+    The core method of the converter has 2 parts.
+    1) parsing the Bruker scan folder structure into an internal dictionary called struct.
+    2) writing the infrormation parsed in struct into folders.
+    -------
+    write_struct is the econd part of the bridge -
     :param bruker_struct: output of scan2struct
     :param pfo_output: path-to-folder where the converted structure will be saved.
     :param fin_scan: filename of the scan
