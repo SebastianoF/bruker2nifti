@@ -1,1 +1,1 @@
-version_bruker2nifti = '0.0.4'
+version_bruker2nifti = '1.0.0'

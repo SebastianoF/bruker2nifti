@@ -7,7 +7,6 @@ Medical image format converter: from raw Brukert ParaVision to nifti, written in
 
 ### Installation
 ```
-pip install -r path-to-bruker2nifti-repo/requirements.txt
 pip install bruker2nifti
 ```
 
