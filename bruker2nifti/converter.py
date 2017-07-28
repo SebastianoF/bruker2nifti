@@ -53,7 +53,7 @@ class Bruker2Nifti(object):
         # advanced selections:
         self.scans_list = None  # you can select a subset of scans in the study to be converted.
         self.list_new_name_each_scan = None  # you can select specific names for the subset self.scans_list.
-        self.list_new_nifti_file_names = None  # possibly redundant with self.list_new_name_each_scan
+        # self.list_new_nifti_file_names = None  # possibly redundant with self.list_new_name_each_scan
         # automatic filling of advanced selections class attributes
         self._get_scans_attributes()
 
@@ -78,8 +78,8 @@ class Bruker2Nifti(object):
             list_new_name_each_scan = [self.study_name + '_' + ls for ls in self.scans_list]
             self.list_new_name_each_scan = list_new_name_each_scan
             assert isinstance(self.list_new_name_each_scan, list)
-        if self.list_new_nifti_file_names is None:
-            self.list_new_nifti_file_names = self.list_new_name_each_scan
+        # if self.list_new_nifti_file_names is None:
+        #     self.list_new_nifti_file_names = self.list_new_name_each_scan
         else:
             if not len(self.scans_list) == len(self.list_new_name_each_scan):
                 msg = 'list_name_each_scan {0} does not have the same amount of scans in the ' \
@@ -167,9 +167,7 @@ class Bruker2Nifti(object):
 
         print('\nStudy conversion \n{}\nstarted:\n'.format(self.pfo_study_bruker_input))
 
-        for bruker_scan_name, scan_name, nifti_file_name in zip(self.scans_list,
-                                                                self.list_new_name_each_scan,
-                                                                self.list_new_nifti_file_names):
+        for bruker_scan_name, scan_name in zip(self.scans_list, self.list_new_name_each_scan):
             pfo_scan_bruker = os.path.join(self.pfo_study_bruker_input, bruker_scan_name)
             pfo_scan_nifti = os.path.join(pfo_nifti_study, scan_name)
 
@@ -178,6 +176,6 @@ class Bruker2Nifti(object):
             self.convert_scan(pfo_scan_bruker,
                                pfo_scan_nifti,
                                create_output_folder_if_not_exists=True,
-                               nifti_file_name=nifti_file_name,)
+                               nifti_file_name=scan_name)
 
         print('\nStudy converted and saved in \n{}'.format(self.pfo_study_nifti_output))
