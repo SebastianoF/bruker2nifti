@@ -184,17 +184,6 @@ def test_compute_resolution_from_visu_pars():
     assert_array_equal(res, [6.0, 6.0, 0.123])
 
 
-def test_compute_affine_from_visu_pars():
-    print(compute_affine_from_visu_pars)
-    # TODO
-    pass
-
-
-def test_obtain_b_vectors_orient_matrix():
-    print(obtain_b_vectors_orient_matrix)
-    pass
-
-
 # --- TEST b-vectors utils ---
 
 

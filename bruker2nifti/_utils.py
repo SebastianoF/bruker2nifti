@@ -235,15 +235,22 @@ def bruker_read_files(param_file, data_path, sub_scan_num='1'):
 
 def eliminate_consecutive_duplicates(input_list):
     """
-    Simple funcion to eliminate consecutive duplicates in a list.
+    Simple funcion to eliminate consecutive duplicates in a list or arrays or in a list of numbers.
     :param input_list: list with possible consecutive duplicates.
     :return: input_list with no consecutive duplicates.
     """
-    new_list = [input_list[0]]
-    for k in input_list[1:]:
-        if not list(k) == list(new_list[-1]):
-            new_list.append(k)
-    return new_list
+    if isinstance(input_list[0], np.ndarray):
+        output_list = [input_list[0]]
+        for k in input_list[1:]:
+            if not list(k) == list(output_list[-1]):
+                output_list.append(k)
+        return output_list
+    else:
+        output_list = [input_list[0], ]
+        for i in range(1, len(input_list)):
+            if not input_list[i] == input_list[i-1]:
+                output_list.append(input_list[i])
+        return output_list
 
 
 def slope_corrector(data, slope, num_initial_dir_to_skip=None, dtype=np.float64):

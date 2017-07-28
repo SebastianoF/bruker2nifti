@@ -35,3 +35,6 @@ def test_scan2struct_with_banana_data_slope_no_slope():
     # check data of the nibabel images:
     np.testing.assert_array_almost_equal(ground_slope[0] * struct_no_slope_corrected['nib_scans_list'][0].get_data(),
                                          struct_yes_slope_corrected['nib_scans_list'][0].get_data(), decimal=4)
+
+
+test_scan2struct_with_banana_data_slope_no_slope()
