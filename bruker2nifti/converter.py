@@ -11,7 +11,7 @@ class Bruker2Nifti(object):
     (scan_to_struct, write_struct).
 
     Nomenclature:
-    =================
+
     study: a series of acquisition related to the same subject, acquired in the same scanning session and usually
     containing multiple scans. It is provided as a folder structure containing the scans produced with paravision (PV)
     software. Patient/subject information are embedded in the study (opposed hierarchy as in the DICOM files).
@@ -106,11 +106,11 @@ class Bruker2Nifti(object):
                      create_output_folder_if_not_exists=True):
         """
         :param pfo_input_scan: path to folder (pfo) containing a scan from Bruker, see documentation for the difference
-        between Bruker 'scan' and Bruker 'study'.
+         between Bruker 'scan' and Bruker 'study'.
         :param pfo_output_converted: path to the folder where the converted scan will be stored.
         :param create_output_folder_if_not_exists: [True] if the output folder does not exist will be created.
         :param nifti_file_name: [None] filename of the nifti image that will be saved into the pfo_output folder.
-        If None, the filename will be obtained from the parameter file of the study.
+         If None, the filename will be obtained from the parameter file of the study.
         :return: [None] save the data parsed from the raw Bruker scan into a folder, including the nifti image.
         """
         if not os.path.isdir(pfo_input_scan):
@@ -145,7 +145,6 @@ class Bruker2Nifti(object):
         in the specified folder stored in self.pfo_study_nifti_output, and according to the other class attributes.
 
         Example:
-        ===================
 
         >> bru = Bruker2Nifti('/path/to/my/study', '/path/output', study_name='study1')
 
