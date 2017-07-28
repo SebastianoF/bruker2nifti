@@ -32,7 +32,7 @@ chmod 777 GUI/setupper_MAC.sh
 
 Alternatively double click on 
 `GUI/run_setupper_MAC`.
-After the isntalling, double-click on the file 'OpenGUIbru2nii' to open the GUI. 
+After the installation, double-click on the file 'OpenGUIbru2nii' to open the GUI. 
 The launcher can be moved around in the user system.
 
 ![gui_example](https://github.com/SebastianoF/bruker2nifti/blob/master/screenshots/gui_example.jpg)
@@ -71,7 +71,3 @@ Bernard Siow (Centre for Advanced Biomedical Imaging, University College London)
 Chris Rorden (McCausland Center for Brain Imaging, University of South Carolina) 
 and 
 Mattew Brett (Berkeley Brain Imaging Center).
-
-
-
-
