@@ -2,11 +2,13 @@ import Tkinter as tk
 import tkFileDialog
 
 from bruker2nifti.converter import Bruker2Nifti
-from bruker2nifti._definitions import version_bruker2nifti
+from bruker2nifti.__definitions import version_bruker2nifti
 
 
 class BrukerToNiftiGUI(tk.Tk, object):
-
+    """
+    Graphical user inerface class to access Bruker to Nifti converter.
+    """
     def __init__(self, in_pfo_input=None, in_pfo_output=None, in_study_name=None):
 
         super(BrukerToNiftiGUI, self).__init__()
@@ -77,13 +79,11 @@ class BrukerToNiftiGUI(tk.Tk, object):
     # main commands
 
     def button_browse_callback_pfo_input(self):
-        """ What to do when the Browse button is pressed """
         filename = tkFileDialog.askdirectory()
         self.entry_pfo_input.delete(0, tk.END)
         self.entry_pfo_input.insert(0, filename)
 
     def button_browse_callback_pfo_output(self):
-        """ What to do when the Browse button is pressed """
         filename = tkFileDialog.askdirectory()
         self.entry_pfo_output.delete(0, tk.END)
         self.entry_pfo_output.insert(0, filename)
@@ -117,6 +117,15 @@ class BrukerToNiftiGUI(tk.Tk, object):
 
 
 def open_gui(in_pfo_input=None, in_pfo_output=None, in_study_name=None):
+    """
+    To open the Graphical user interface accessing Bruker2Nifti converter.
+    :param in_pfo_input: [None] input path to folder (pfo) where the bruker folder structure is located.
+    It that will initialise the corresponding field entry on the GUI.
+    :param in_pfo_output: [None] input path to folder (pfo) where the corresponding folder structure with nifti images
+    and selected parameter files will be located.
+    :param in_study_name: [None] to initialise the optional study name field.
+    :return: Will open the gui.
+    """
     root = BrukerToNiftiGUI(in_pfo_input=in_pfo_input, in_pfo_output=in_pfo_output, in_study_name=in_study_name)
     root.mainloop()
 

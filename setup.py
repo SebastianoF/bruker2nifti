@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from setuptools import setup, find_packages
 
-from bruker2nifti._definitions import version_bruker2nifti
+from bruker2nifti.__definitions import version_bruker2nifti
 
 
 def requirements2list(pfi_txt='requirements.txt'):

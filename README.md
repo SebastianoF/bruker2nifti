@@ -23,7 +23,7 @@ pip install -e .
 * `python parsers/bruker2nii.py -i path/to/a/bruker/study -o path/to/output/folder`
 Where python is a distribution proivided with the required libraries.
 
-### Open the GUI (no installation)
+### Open the GUI
 ```
 cd path-to-bruker2nifti-repo
 chmod 777 GUI/setupper_MAC.sh
@@ -56,6 +56,11 @@ information about Bruker format, other than the official documentation stored un
 + [mpi](https://github.com/francopestilli/mpi): from Bruker to Vistasoft or Analyze in Matlab. Conversion is based on the parameters contained in the **reco** parameter file. This
 parameter file exists only if the image was created using ParaVision reconstruction.
 + [Bruker2nifti](https://github.com/CristinaChavarrias/Bruker2nifti): from Bruker to Nifti, Matlab (not maintained anymore?).
+
+
+### Copyright and Licence 
+Copyright (c) 2017, Sebastiano Ferraris.
+Bruker2nifti is available as free open-source software under an MIT License.
 
 ### Thanks <a name="thanks"></a>
 Thanks to 

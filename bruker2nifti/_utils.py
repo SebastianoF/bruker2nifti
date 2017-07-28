@@ -14,7 +14,7 @@ def indians_file_parser(s, sh=None):
     This function transform the indian file in a data structure,
     according to the information that can be parsed in the file:
     A - list of vectors transformed into a list
-    B - list of numbers, transformed into a np.ndarray, or single number stored as a single float.
+    B - list of numbers, transformed into a np.ndarray, or single number stored as a float.
     C - list of strings separated by <>.
     D - everything else becomes a string.
 
@@ -25,23 +25,27 @@ def indians_file_parser(s, sh=None):
 
     s = s.strip()  # removes initial and final spaces.
 
-    if ('(' in s) and (')' in s):  # A
+    # A
+    if ('(' in s) and (')' in s):
         s = s[1:-1]  # removes initial and final ( )
         a = ['(' + v + ')' for v in s.split(') (')]
-    elif s.replace('-', '').replace('.', '').replace(' ', '').replace('e', '').isdigit():  # B
+    # B
+    elif s.replace('-', '').replace('.', '').replace(' ', '').replace('e', '').isdigit():
         if ' ' in s:
             a = np.array([float(x) for x in s.split()])
             if sh is not None:
                 a = a.reshape(sh)
         else:
             a = float(s)
-    elif ('<' in s) and ('>' in s):  # C
+    # C
+    elif ('<' in s) and ('>' in s):
         s = s[1:-1]  # removes initial and final < >
         a = [v for v in s.split('> <')]
-    else:  # D
+    # D
+    else:
         a = s[:]
 
-    # added to work with ParaVision 6:
+    # added to work with ParaVision vers 6.0.1:
     if isinstance(a, list):
         if len(a) == 1:
             a = a[0]
@@ -51,7 +55,7 @@ def indians_file_parser(s, sh=None):
 
 def var_name_clean(line_in):
     """
-    Removes #, $ and PVM_ from line_in
+    Removes #, $ and PVM_ from line_in, where line in is a string from a Bruker parameter list file.
     :param line_in: input string
     :return: output string cleaned from #, $ and PVM_
     """
@@ -61,7 +65,8 @@ def var_name_clean(line_in):
 
 def from_dict_to_txt_sorted(dict_input, pfi_output):
     """
-    Save the information contained in a dictionary into a txt file at the specified path.
+    Simple auxiliary to save the information contained in a dictionary into a txt file
+    at the specified path to file (pfi).
     :param dict_input: input structure dictionary
     :param pfi_output: path to file.
     :return:
@@ -74,12 +79,15 @@ def from_dict_to_txt_sorted(dict_input, pfi_output):
 
 def bruker_read_files(param_file, data_path, sub_scan_num='1'):
     """
-    Reads parameters files of from Bruckert raw data imaging format.
-    It parses the files 'acqp' 'method' and 'reco'
-    :param param_file: file parameter.
+    Reads parameters files of from Bruker raw data imaging format.
+    It parses the files 'acqp', 'method', 'reco', 'visu_pars' and 'subject'.
+    Even if only 'visu_pars' is relevant for the conversion to nifti, having a more general parser has turned out
+    to be useful in many cases (e.g. in PV5.1 to check).
+    :param param_file: file parameter, must be a string in the list ['acqp', 'method', 'reco', 'visu_pars', 'subject'].
     :param data_path: path to data.
-    :param sub_scan_num: number of the sub-scan folder where reco and visu_pars is stored.
-    :return: dict_info dictionary with the parsed informations from the input file.
+    :param sub_scan_num: number of the sub-scan folder where usually the 'reco' and 'visu_pars' parameter files
+    are stored.
+    :return: dict_info dictionary with the parsed information from the input file.
     """
     if param_file.lower() == 'reco':
         if os.path.exists(jph(data_path, 'pdata', '1', 'reco')):
@@ -122,18 +130,16 @@ def bruker_read_files(param_file, data_path, sub_scan_num='1'):
     for line_num in range(len(lines)):
         '''
         Relevant information are in the lines with '##'.
-        A: for the parameters that have arrays values specified between (), with values in the next line.
-           Values in the next line can be parsed in lists or np.ndarray, if they contains also characters
-           or only numbers.
+        For the parameters that have arrays values specified between (), with values in the next line.
+        Values in the next line can be parsed in lists or np.ndarray when they contains also characters or numbers.
         '''
 
         line_in = lines[line_num]
 
         if '##' in line_in:
 
-            # A:
             if ('$' in line_in) and ('(' in line_in) and ('<' not in line_in):
-
+                # A:
                 splitted_line = line_in.split('=')
                 # name of the variable contained in the row, and shape:
                 var_name = var_name_clean(splitted_line[0][3:])
@@ -173,17 +179,16 @@ def bruker_read_files(param_file, data_path, sub_scan_num='1'):
 
                 dict_info[var_name] = indians_file_parser(indian_file, sh)
 
-            # B:
             elif ('$' in line_in) and ('(' not in line_in):
+                # B:
                 splitted_line = line_in.split('=')
                 var_name = var_name_clean(splitted_line[0][3:])
                 indian_file = splitted_line[1]
 
                 dict_info[var_name] = indians_file_parser(indian_file)
 
-            # C:
             elif ('$' not in line_in) and ('(' in line_in):
-
+                # C:
                 splitted_line = line_in.split('=')
                 var_name = var_name_clean(splitted_line[0][2:])
 
@@ -192,30 +197,27 @@ def bruker_read_files(param_file, data_path, sub_scan_num='1'):
                 pos = line_num
 
                 while not done:
-
                     pos += 1
-
                     # collect the indian file: info related to the same variables that can appears on multiple rows.
                     line_to_explore = lines[pos]  # tell seek does not work in the line iterators...
-
                     if ('##' in line_to_explore) or ('$$' in line_to_explore):
                         # indian file is over
                         done = True
-
                     else:
                         # we store the rows in the indian file all in the same string.
                         indian_file += line_to_explore.replace('\n', '').strip() + ' '
 
                 dict_info[var_name] = indians_file_parser(indian_file)
 
-            # D:
             elif ('$' not in line_in) and ('(' not in line_in):
+                # D:
                 splitted_line = line_in.split('=')
                 var_name = var_name_clean(splitted_line[0])
                 indian_file = splitted_line[1].replace('=', '').strip()
                 dict_info[var_name] = indians_file_parser(indian_file)
-            # General case: take it as a simple string.
+
             else:
+                # General case: take it as a simple string.
                 splitted_line = line_in.split('=')
                 var_name = var_name_clean(splitted_line[0])
                 dict_info[var_name] = splitted_line[1].replace('(', '').replace(')', '').replace('\n', ''). \
@@ -230,18 +232,39 @@ def bruker_read_files(param_file, data_path, sub_scan_num='1'):
 
 # --- Slope correction utils ---
 
-def eliminates_consecutive_duplicates(input_list):
-    output_list = [input_list[0], ]
-    for i in range(1, len(input_list)):
-        if not input_list[i] == input_list[i-1]:
-            output_list.append(input_list[i])
 
-    return output_list
+def eliminate_consecutive_duplicates(input_list):
+    """
+    Simple funcion to eliminate consecutive duplicates in a list.
+    :param input_list: list with possible consecutive duplicates.
+    :return: input_list with no consecutive duplicates.
+    """
+    new_list = [input_list[0]]
+    for k in input_list[1:]:
+        if not list(k) == list(new_list[-1]):
+            new_list.append(k)
+    return new_list
 
 
 def slope_corrector(data, slope, num_initial_dir_to_skip=None, dtype=np.float64):
+    """
+    Slope is a float or a vector that needs to be multiplied to the data, to obtain the data as they are acquired.
+    To reduce the weight of an image, each slice can be divided by a common float factor, so that at each voxel only the
+    integer remaining is stored:
 
-    # todo: need careful refactoring after meeting new cases
+    real_value_acquired[slice_j][x] = data_integer_reminder[slice_j][x] * float_slope[slice_j][x]
+
+    (where = is an almost equal, where the small loss of accuracy is justified by the huge amount of space saved)
+
+    :param data: data as parsed from the data structure.
+    :param slope: slope as parsed from the data structure
+    :param num_initial_dir_to_skip: in some cases (as some DWI) the number of slices in the image is higher than the
+    provided slope length. Usually it is because the initial directions have no weighted and the first element in the
+     slope can correct them all. If num_initial_direction_to_skip=j the slope correction starts after j slices, and
+     the initial j timepoint are trimmed by j.
+    :param dtype: [np.float64] output datatype.
+    :return: data after the slope correction.
+    """
 
     if len(data.shape) > 5:
         raise IOError('4d or lower dimensional images allowed. Input data has shape {} '.format(data.shape))
@@ -252,26 +275,28 @@ def slope_corrector(data, slope, num_initial_dir_to_skip=None, dtype=np.float64)
         slope = slope[num_initial_dir_to_skip:]
         data = data[..., num_initial_dir_to_skip:]
 
-    # correct for possible consecutive duplicates
+    # Check compatibility slope and data and if necessarily correct for possible consecutive duplicates
+    # (as in some cases, when the size of the slope is larger than any timepoint or spatial point, the problem can
+    # be in the fact that there are duplicates in the slope vector. This has been seein only in PV5.1).
     if not (isinstance(slope, int) or isinstance(slope, float)):
         if slope.ndim == 1:
             if not slope.size == data.shape[-1] and not slope.size == data.shape[-2]:
-                slope = np.array(eliminates_consecutive_duplicates(list(slope)), dtype=np.float64)
+                slope = np.array(eliminate_consecutive_duplicates(list(slope)), dtype=np.float64)
                 if not slope.size == data.shape[-1] and not slope.size == data.shape[-2]:
                     msg = 'Slope shape {0} and data shape {1} appears to be not compatible'.format(slope.shape,
                                                                                                    data.shape)
                     raise IOError(msg)
 
     if isinstance(slope, int) or isinstance(slope, float):
-        # scalar times nd array
+        # scalar slope times nd array data
         data *= slope
 
     elif slope.size == 1:
-        # scalar embedded in a singleton times nd array
+        # scalar slope embedded in a singleton times nd array data
         data *= slope[0]
 
     elif len(data.shape) == 3 and len(slope.shape) == 1:
-        # each slice of the 3d image is multiplied an element of the slope
+        # each slice of the 3d image is multiplied an element of the slope consecutively
         if data.shape[2] == slope.shape[0]:
             for t, sl in enumerate(slope):
                 data[..., t] = data[..., t] * sl
@@ -279,22 +304,22 @@ def slope_corrector(data, slope, num_initial_dir_to_skip=None, dtype=np.float64)
             raise IOError('Shape of the 2d image and slope dimensions are not consistent')
 
     elif len(data.shape) == 4 and len(slope.shape) == 1 and slope.shape[0] == data.shape[2]:
-        # each slice of the 4d image, taken from the third dimension, is multiplied by each element of the slope.
+        # each slice of the 4d image, taken from the third dim, is multiplied by each element of the slope in sequence.
         if slope.size == data.shape[2]:
             for t in range(data.shape[3]):
                 for k in range(slope.size):
                     data[..., k, t] = data[..., k, t] * slope[k]
         else:
-            raise IOError('If you are here, your case cannot be converted. Debug from here to include your case.')
+            raise IOError('If you are here, your case cannot be converted. Further investigations required.')
 
     elif len(data.shape) == 5 and len(slope.shape) == 1 and slope.shape[0] == data.shape[3]:
-        # each slice of the 5d image, taken from the fourth dimension, is multiplied by each element of the slope.
+        # each slice of the 5d image, taken from the fourth dim, is multiplied by each element of the slope in sequence.
         if slope.size == data.shape[3]:
             for t in range(data.shape[4]):
                 for k in range(slope.size):
                     data[..., k, t] = data[..., k, t] * slope[k]
         else:
-            raise IOError('If you are here, your case cannot be converted. Debug from here to include your case.')
+            raise IOError('If you are here, your case cannot be converted. Further investigations required.')
 
     else:
         # each slice of the nd image, taken from the last dimension, is multiplied by each element of the slope.
@@ -312,6 +337,14 @@ def slope_corrector(data, slope, num_initial_dir_to_skip=None, dtype=np.float64)
 
 
 def compute_resolution_from_visu_pars(vc_extent, vc_size, vc_frame_thickness):
+    """
+    Resolution parameter is provided as a vector in the 'reco' parameter file. To extract the information from the
+    'visu_pars' only, as some scans can lack the reco file, some computation on its paramteres neesd to be performed.
+    :param vc_extent: VisuCoreExtent parameter file from 'visu_pars'.
+    :param vc_size: VisuCoreSize parameter file from 'visu_pars'.
+    :param vc_frame_thickness: VisuCoreFrameThickness parameter file from 'visu_pars'.
+    :return:
+    """
 
     if len(vc_extent) == len(vc_size):
         resolution = [e / float(s) for e, s in zip(vc_extent, vc_size)]
@@ -331,12 +364,22 @@ def compute_resolution_from_visu_pars(vc_extent, vc_size, vc_frame_thickness):
 
 
 def sanity_check_visu_core_subject_position(vc_subject_position):
+    """
+    The parameter VisuCoreSubjectPosition can be 'Head_Prone' or 'Head_Supine'. Tertium non datur.
+    :param vc_subject_position: VisuCoreSubjectPosition from 'visu_pars'
+    :return: Raise error if VisuCoreSubjectPosition is not 'Head_Prone' or 'Head_Supine'
+    """
     if vc_subject_position not in ['Head_Prone', 'Head_Supine']:
         msg = "Known cases are 'Head_Prone' or  'Head_Supine' for the parameter 'visu_pars.VisuSubjectPosition."
         raise IOError(msg)
 
 
 def filter_orientation(visu_parse_orientation):
+    """
+    Pre-process the paramter value VisuParseOrientation from the 'visu_pars' paramter file.
+    :param visu_parse_orientation: VisuParseOrientation from the 'visu_pars' paramter file.
+    :return: re-shaped and rounded VisuParseOrientation parameter.
+    """
 
     if not np.prod(visu_parse_orientation.shape) == 9:
         # Take the first 9 elements:
@@ -347,8 +390,11 @@ def filter_orientation(visu_parse_orientation):
 
 
 def pivot(v):
-    # max in absolute value with original sign or max from origin.
-    # Corresponds to the main direction for each column.
+    """
+    :param v: vector or list
+    :return: max in absolute value with original sign or max from origin.
+    Corresponds to the main direction for each column of an orientation matrix.
+    """
     return v[list(abs(v)).index(abs(v).max())]
 
 
@@ -356,7 +402,7 @@ def compute_affine_from_visu_pars(vc_orientation, vc_position, vc_subject_positi
                                   frame_body_as_frame_head=False, keep_same_det=True,
                                   consider_subject_position=False):
     """
-    How the affine is computed:
+    How the affine is computed (to the understanding acquired so far):
 
     0) resolution, orientation and translation are provided in separate array, we combine them togheter in the
     starndard 4x4 matrix.
@@ -392,8 +438,7 @@ def compute_affine_from_visu_pars(vc_orientation, vc_position, vc_subject_positi
     it invert the direction of the axis anterior-posterior. - do not confuse subject_position with positon (read this
     last as 'translation').
     :param resolution: resolution of the image, output of compute_resolution_from_visu_pars in the same module.
-    :param frame_body_as_frame_head: [False] This standard is the standard for me and my dataset. To get the
-    behaviour described in the manual set to False.
+    :param frame_body_as_frame_head: [False] to parametrise the difference between monkeys [True] and rats [False].
     :param keep_same_det: in case you want the determinant to be the same as the input one. Consider it in particular
     if frame_body_as_frame_head is set to False, and according to the choice of consider_subject_position.
     :param consider_subject_position: [False] The reason why sometimes this must be considered for a correct
@@ -458,6 +503,15 @@ def compute_affine_from_visu_pars(vc_orientation, vc_position, vc_subject_positi
 def obtain_b_vectors_orient_matrix(vc_orientation, vc_subject_position, frame_body_as_frame_head=False,
                                            keep_same_det=True, consider_subject_position=False):
 
+    """
+    See _utils.compute_affine_from_visu_pars help for the same input parameters.
+    :param vc_orientation: VisuCoreOrientation parameter file
+    :param vc_subject_position: VisuCoreSubjectPosition parameter file
+    :param frame_body_as_frame_head:
+    :param keep_same_det:
+    :param consider_subject_position:
+    :return:
+    """
     resolution = np.array([1, 1, 1])
     translation = np.array([0, 0, 0])
 
@@ -469,6 +523,12 @@ def obtain_b_vectors_orient_matrix(vc_orientation, vc_subject_position, frame_bo
 
 
 def normalise_b_vect(b_vect, remove_nan=True):
+    """
+    Normalisation of the b_vector matrix (dim : num b-vectors x 3)
+    :param b_vect: the b_vector matrix (dim : num b-vectors x 3)
+    :param remove_nan: remove nan if appears in the b-vector matrix, applying np.nan_to_num.
+    :return: normalised b-vectors.
+    """
 
     b_vect_normalised = np.zeros_like(b_vect)
     norms = np.linalg.norm(b_vect, axis=1)
@@ -514,16 +574,7 @@ def apply_reorientation_to_b_vects(reorientation_matrix, row_b_vectors_in_rows):
     return b_vectors_in_column_reoriented
 
 
-# -- housekeeping utils --
-
-
-def eliminate_consecutive_duplicates(input_list):
-
-    new_list = [input_list[0]]
-    for k in input_list[1:]:
-        if not list(k) == list(new_list[-1]):
-            new_list.append(k)
-    return new_list
+# -- nibabel-related utils --
 
 
 def set_new_data(image, new_data, new_dtype=None, remove_nan=True):

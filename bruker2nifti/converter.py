@@ -6,28 +6,63 @@ from ._cores import scan2struct, write_struct
 
 
 class Bruker2Nifti(object):
+    """
+    Facade to collect users preferences on the conversion and accessing the core methods for the conversion
+    (scan_to_struct, write_struct).
+
+    Nomenclature:
+    =================
+    study: a series of acquisition related to the same subject, acquired in the same scanning session and usually
+    containing multiple scans. It is provided as a folder structure containing the scans produced with paravision (PV)
+    software. Patient/subject information are embedded in the study (opposed hierarchy as in the DICOM files).
+
+    scan or experiment, sub-scans and sub-volumes: individual folder image acquired with various protocols. To a scan
+    can belong more than one processed image, or reconstruction. Each processed image can be a single volume or can
+    contain more than one sub-volume embedded in the same processed image.
+
+    header: header of the nifti format.
+
+    img_data: data of the nifti format, stored in a 2d or 3d matrix.
+
+    struct: intermediate structure (python dictionary) proposed in this code, aimed at collecting the information from
+    the raw Bruker and to progressively creating the nifti images.
+    """
 
     def __init__(self, pfo_study_bruker_input, pfo_study_nifti_output, study_name=None):
+        """
+        Initialise the Facade class to the converter.
+        :param pfo_study_bruker_input: path to folder (pfo) to the Bruker input data folder.
+        :param pfo_study_nifti_output: path to folder (pfo) where the converted study will be stored.
+        :param study_name: optional name of the study. If None, the name parsed from the Bruker study will be used.
+        """
         self.pfo_study_bruker_input = pfo_study_bruker_input
         self.pfo_study_nifti_output = pfo_study_nifti_output
         self.study_name = study_name
-        self.scans_list = None
-        self.list_new_name_each_scan = None
-        self.list_new_nifti_file_names = None
+        # converter settings for the nifti values
         self.nifti_version = 1
         self.qform_code = 1
         self.sform_code = 2
         self.save_human_readable = True
-        self.save_b0_if_dwi = True
+        self.save_b0_if_dwi = True  # if DWI, it saves the first layer as a single nfti image.
         self.correct_slope = False
         self.verbose = 1
+        # chose to convert extra files:
         self.get_acqp = False
         self.get_method = False
         self.get_reco = False
-
+        # advanced selections:
+        self.scans_list = None  # you can select a subset of scans in the study to be converted.
+        self.list_new_name_each_scan = None  # you can select specific names for the subset self.scans_list.
+        self.list_new_nifti_file_names = None  # possibly redundant with self.list_new_name_each_scan
+        # automatic filling of advanced selections class attributes
         self._get_scans_attributes()
 
     def _get_scans_attributes(self):
+        """
+        Automatic filling of the advanced selections class attributes. These can be bypassed from the user with
+        specific preferences.
+        :return:
+        """
 
         if not os.path.isdir(self.pfo_study_bruker_input):
             raise IOError('Input folder does not exist.')
@@ -70,10 +105,12 @@ class Bruker2Nifti(object):
     def convert_scan(self, pfo_input_scan, pfo_output_converted, nifti_file_name=None,
                      create_output_folder_if_not_exists=True):
         """
-        :param pfo_input_scan: path to folder containing a scan from Bruker.
+        :param pfo_input_scan: path to folder (pfo) containing a scan from Bruker, see documentation for the difference
+        between Bruker 'scan' and Bruker 'study'.
         :param pfo_output_converted: path to the folder where the converted scan will be stored.
-        :param create_output_folder_if_not_exists: [True]
+        :param create_output_folder_if_not_exists: [True] if the output folder does not exist will be created.
         :param nifti_file_name: [None] filename of the nifti image that will be saved into the pfo_output folder.
+        If None, the filename will be obtained from the parameter file of the study.
         :return: [None] save the data parsed from the raw Bruker scan into a folder, including the nifti image.
         """
         if not os.path.isdir(pfo_input_scan):
@@ -102,6 +139,28 @@ class Bruker2Nifti(object):
                          )
 
     def convert(self):
+        """
+        To call the converter, once all the settings of the converter are selected and modified by the user.
+        :return: Convert the Bruker study, whose path is stored in the class variable self.pfo_study_bruker_input
+        in the specified folder stored in self.pfo_study_nifti_output, and according to the other class attributes.
+
+        Example:
+        ===================
+
+        >> bru = Bruker2Nifti('/path/to/my/study', '/path/output', study_name='study1')
+
+        >> bru.show_study_structure
+
+        >> bru.verbose = 2
+        >> bru.correct_slope = True
+        >> bru.get_acqp = False
+        >> bru.get_method = True  # I want to see the method parameter file converted as well.
+        >> bru.get_reco = False
+
+        >> # Convert the study:
+        >> bru.convert()
+
+        """
 
         pfo_nifti_study = os.path.join(self.pfo_study_nifti_output, self.study_name)
         os.system('mkdir -p {0}'.format(pfo_nifti_study))
