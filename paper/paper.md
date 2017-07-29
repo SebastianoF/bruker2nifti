@@ -34,10 +34,10 @@ affiliations:
  - name: Translational Imaging Group, Centre for Medical Image Computing (CMIC), Department of Medical Physics and Bioengineering, University College London, Malet Place Engineering Building, London, WC1E 6BT, UK
    index: 1
 
- - name: Biomedical MRI, Department of Imaging and Pathology, KU Leuven, Belgium.
+ - name: Department of Development and Regeneration, Organ System Cluster, Group Biomedical Sciences, KU Leuven, Belgium.
    index: 2
 
- - name: Department of Development and Regeneration, Organ System Cluster, Group Biomedical Sciences, KU Leuven, Belgium.
+ - name: Biomedical MRI, Department of Imaging and Pathology, KU Leuven, Belgium.
    index: 3
 
 - name: Wellcome/EPSRC Centre for Interventional and Surgical Sciences, University College London, UK.
