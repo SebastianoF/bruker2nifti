@@ -2,7 +2,7 @@ import Tkinter as tk
 import tkFileDialog
 
 from bruker2nifti.converter import Bruker2Nifti
-from bruker2nifti.__definitions import version_bruker2nifti
+from bruker2nifti.__init__ import __version__ as version
 
 
 class BrukerToNiftiGUI(tk.Tk, object):
@@ -15,7 +15,7 @@ class BrukerToNiftiGUI(tk.Tk, object):
 
         # Window settings:
 
-        self.title('From bruker to nifti - interface - version {}'.format(version_bruker2nifti))
+        self.title('From bruker to nifti - interface - version {}'.format(version))
         self.geometry('700x170')
 
         # Widgets:
@@ -113,7 +113,7 @@ class BrukerToNiftiGUI(tk.Tk, object):
 
         del bru
 
-        print('\nbruker2Nifti verision {} - Have a nice day!'.format(version_bruker2nifti))
+        print('\nbruker2Nifti verision {} - Have a nice day!'.format(version))
 
 
 def open_gui(in_pfo_input=None, in_pfo_output=None, in_study_name=None):

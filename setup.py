@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from setuptools import setup, find_packages
 
-from bruker2nifti.__definitions import version_bruker2nifti
+from bruker2nifti.__init__ import __version__ as version
 
 
 def requirements2list(pfi_txt='requirements.txt'):
@@ -14,7 +14,7 @@ def requirements2list(pfi_txt='requirements.txt'):
 
 infos = {
          'name': 'bruker2nifti',
-         'version': version_bruker2nifti,
+         'version': version,
          'description': 'From raw Bruker to nifti, home-made converter.',
          'web_infos' : '',
          'repository': {
