@@ -30,18 +30,21 @@ pip install bruker2nifti
 bruker2nifti_gui
 ```
 
-### Open the GUI with no python learning
+### Open the GUI and convert data without any programming
 Download the repository as a .zip with button **clone or download** in the [repository home page](https://github.com/SebastianoF/bruker2nifti).
 Unzip the donwloaded file and double click on the file `run_setupper_MAC` in the `GUI` folder.
-After the automatic installation, if everything worked, you should see a launcher, a new file called 'OpenGUIbru2nii' in the code structure. 
-The following window and a terminal should appear. Double click on it. The following window should appear:  
+
+After the automatic installation of a virtualenvironment with the required libraries, if everything worked, you should see a new file called 'OpenGUIbru2nii' in the code structure. 
+
+This is a launcher. Double click on it: the following window should appear:  
 
 ![gui_example](https://github.com/SebastianoF/bruker2nifti/blob/master/screenshots/gui_example.jpg)
 
 Keep the terminal open while doing the conversion, as there you will see the steps and the output of the different
 conversion steps.
 The launcher can be moved around in the user system. If you need to move the folder where you donwloaded the code.
-If something went wrong please raise an issue.
+
+If something went wrong please raise an issue in the [issue page of the repository](https://github.com/SebastianoF/bruker2nifti/issues).
 
 ### Testing
 Unit testing with [nosetest](http://pythontesting.net/framework/nose/nose-introduction/):
