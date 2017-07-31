@@ -23,19 +23,25 @@ pip install -e .
 * `python parsers/bruker2nii.py -i path/to/a/bruker/study -o path/to/output/folder`
 Where python is a distribution proivided with the required libraries.
 
-### Open the GUI
+### Open the GUI via pip
+Create a [virtualenvironment](http://python-guide-pt-br.readthedocs.io/en/latest/dev/virtualenvs/), activate it, then type
 ```
-cd path-to-bruker2nifti-repo
-chmod 777 GUI/setupper_MAC.sh
-./GUI/setupper_MAC.sh
+pip install bruker2nifti
+bruker2nifti_gui
 ```
 
-Alternatively double click on 
-`GUI/run_setupper_MAC`.
-After the installation, double-click on the file 'OpenGUIbru2nii' to open the GUI. 
-The launcher can be moved around in the user system.
+### Open the GUI with no python learning
+Download the repository as a .zip with button **clone or download** in the [repository home page](https://github.com/SebastianoF/bruker2nifti).
+Unzip the donwloaded file and double click on the file `run_setupper_MAC` in the `GUI` folder.
+After the automatic installation, if everything worked, you should see a launcher, a new file called 'OpenGUIbru2nii' in the code structure. 
+The following window and a terminal should appear. Double click on it. The following window should appear:  
 
 ![gui_example](https://github.com/SebastianoF/bruker2nifti/blob/master/screenshots/gui_example.jpg)
+
+Keep the terminal open while doing the conversion, as there you will see the steps and the output of the different
+conversion steps.
+The launcher can be moved around in the user system. If you need to move the folder where you donwloaded the code.
+If something went wrong please raise an issue.
 
 ### Testing
 Unit testing with [nosetest](http://pythontesting.net/framework/nose/nose-introduction/):
