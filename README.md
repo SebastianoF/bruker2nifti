@@ -17,7 +17,7 @@ cd path-to-bruker2nifti-repo
 pip install -e .
 ```
 
-### CLI via pip
+### CLI using via pip
 Create a [virtualenvironment](http://python-guide-pt-br.readthedocs.io/en/latest/dev/virtualenvs/), activate it, then type
 ```
 pip install bruker2nifti
@@ -25,7 +25,7 @@ bruker2nifti -h
 ```
 to open the help of the command line utility.
 
-### CLI usage (no installation):
+### CLI using it anyway without pip:
 * `PYTHONPATH="${PYTHONPATH}:path-to-bruker2nifti-repository"`
 * `python parsers/bruker2nii.py -h`
 * `python parsers/bruker2nii.py -i path/to/a/bruker/study -o path/to/output/folder`
