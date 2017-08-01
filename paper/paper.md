@@ -9,40 +9,30 @@ authors:
  - name: Sebastiano Ferraris
    orcid: 0000-0001-9279-4765
    affiliation: 1
-
  - name: Dzhoshkun Ismail Shakir
    orcid: 0000-0003-3009-4178
    affiliation: 1
-
  - name: Johannes Van Der Merwe
    orcid: 0000-0002-1381-4033
    affiliation: 2
-
  - name: Willy Gsell
    orcid: 0000-0001-7334-6107
    affiliation: 3
-
  - name: Jan Deprest
    orcid: 0000-0002-4920-945X
    affiliation: 1,2,4
-
  - name: Tom Vercauteren
    orcid: 0000-0003-1794-0456
    affiliation: 1,2,4
-
 affiliations:
  - name: Translational Imaging Group, Centre for Medical Image Computing (CMIC), Department of Medical Physics and Bioengineering, University College London, Malet Place Engineering Building, London, WC1E 6BT, UK
    index: 1
-
  - name: Department of Development and Regeneration, Organ System Cluster, Group Biomedical Sciences, KU Leuven, Belgium.
    index: 2
-
  - name: Biomedical MRI, Department of Imaging and Pathology, KU Leuven, Belgium.
    index: 3
-
-- name: Wellcome/EPSRC Centre for Interventional and Surgical Sciences, University College London, UK.
+ - name: Wellcome/EPSRC Centre for Interventional and Surgical Sciences, University College London, UK.
    index: 4
-
 date: 28 July 2017
 bibliography: paper.bib
 ---
