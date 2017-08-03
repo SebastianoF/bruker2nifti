@@ -1,0 +1,4 @@
+# MANIFEST input file
+include LICENSE.txt MANIFEST.in setup* README.*
+include Changelog TODO requirements.txt
+recursive-include docs *
