@@ -3,7 +3,7 @@
 Medical image format converter: from raw Brukert ParaVision to nifti, written in Python.
 
 ### Requirements
-* Python 2.7+ provided with the libraries in requirements.txt (generated with pipreqs).
+* Python 2.7+ provided with the libraries in the file `requirements.txt`.
 
 ### Installation
 To install it as a Python library
@@ -59,7 +59,8 @@ If something went wrong please raise an issue in the [issue page of the reposito
 Unit testing with [nosetest](http://pythontesting.net/framework/nose/nose-introduction/):
 * `nosetests`
 Tests are based on an open dataset Bruker images downloadable with the repo, in the folder 
-[test_data](https://github.com/SebastianoF/bruker2nifti/tree/master/test_data)
+[test_data](https://github.com/SebastianoF/bruker2nifti/tree/master/test_data).
+Current deployment version undergoes continuous integration on [travis-ci](https://travis-ci.org/SebastianoF/bruker2nifti).
 
 ### API documentation, further notes and examples <a name="up"></a>
 Essential API documentation can be found [here](bruker2nifti.rtfd.io).
