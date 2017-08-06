@@ -1,5 +1,12 @@
-import Tkinter as tk
-import tkFileDialog
+
+try:
+    # for Python2
+    import Tkinter as tk
+    import tkFileDialog
+except ImportError:
+    # for Python3
+    import tkinter as tk
+    from tkinter import filedialog as tkFileDialog
 
 from bruker2nifti.converter import Bruker2Nifti
 from bruker2nifti.__init__ import __version__ as version
@@ -90,7 +97,7 @@ class BrukerToNiftiGUI(tk.Tk, object):
 
     def convert(self):
 
-        print ' --- GUI bruker2nifti --- '
+        print(' --- GUI bruker2nifti --- ')
         print('Input path: {}'.format(self.entry_pfo_input.get()))
         print('Output path: {}'.format(self.entry_pfo_output.get()))
         print('Study name: {}'.format(self.entry_study_name.get()))
