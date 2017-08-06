@@ -38,7 +38,7 @@ pip install bruker2nifti
 bruker2nifti_gui
 ```
 
-### Open the GUI and convert data without any programming
+### Open the GUI and convert data with no programming knowledge
 Download the repository as a .zip with button **clone or download** in the [repository home page](https://github.com/SebastianoF/bruker2nifti).
 Unzip the donwloaded file and double click on the file `run_setupper_MAC` in the `GUI` folder.
 
@@ -50,7 +50,8 @@ This is a launcher. Double click on it: the following window should appear:
 
 Keep the terminal open while doing the conversion, as there you will see the steps and the output of the different
 conversion steps.
-The launcher can be moved around in the user system. If you need to move the folder where you donwloaded the code.
+The launcher can be moved around in the user system. If you need to move the folder where you donwloaded the code, you will need to re-create the 
+launcher from the new code location.
 
 If something went wrong please raise an issue in the [issue page of the repository](https://github.com/SebastianoF/bruker2nifti/issues).
 
