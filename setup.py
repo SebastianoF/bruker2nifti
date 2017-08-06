@@ -1,11 +1,13 @@
 #!/usr/bin/env python
+import os
 from setuptools import setup, find_packages
 
 from bruker2nifti.__init__ import __version__ as version
 
 
 def requirements2list(pfi_txt='requirements.txt'):
-    f = open(pfi_txt, 'r')
+    here = os.path.dirname(os.path.realpath(__file__))
+    f = open(os.path.join(here, pfi_txt), 'r')
     l = []
     for line in f.readlines():
         l.append(line.replace('\n', ''))
