@@ -10,7 +10,7 @@ def main():
     $ python2 bruker2nifti_study -i input_file_path -o output_file_path
     """
 
-    parser = argparse.ArgumentParser(version=0.0)
+    parser = argparse.ArgumentParser()
 
     # pfo_input_scan
     parser.add_argument('-i', '--input_scan_folder',
