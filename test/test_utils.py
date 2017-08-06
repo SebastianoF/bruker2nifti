@@ -254,7 +254,7 @@ def test_eliminate_consecutive_duplicates():
     assert_equal(m, n)
 
 
-def test_set_new_data_baisc():
+def test_set_new_data_basic():
 
     data_1 = np.random.normal(5, 10, [10, 10, 5])
     affine_1 = np.diag([1, 2, 3, 1])
@@ -268,7 +268,7 @@ def test_set_new_data_baisc():
 
     assert_array_equal(im_data_2.get_data(), data_2)
     assert_array_equal(im_data_2.get_affine(), affine_1)
-    assert_equal(im_data_2.header['descrip'], 'Spam')
+    assert_equal(im_data_2.header['descrip'], b'Spam')
     assert_equal(im_data_1.get_data_dtype(), np.uint8)
     assert_equal(im_data_2.get_data_dtype(), np.float32)
 

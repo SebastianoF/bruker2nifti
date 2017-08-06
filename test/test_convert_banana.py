@@ -60,9 +60,6 @@ def test_convert_the_banana_no_name(open_converted=False):
             subprocess.Popen(["xdg-open", pfo_study_out])
 
 
-test_convert_the_banana_no_name(open_converted=False)
-
-
 def test_warning_banana_bad_n():
 
     for n in ['1', '2', '3']:
@@ -79,5 +76,5 @@ def test_warning_banana_bad_n():
             bru.verbose = 2
             bru.convert()
 
-            assert len(wa) == 1
+            assert len(wa) > 0
             assert issubclass(wa[-1].category, Warning)
