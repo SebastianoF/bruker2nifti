@@ -26,3 +26,4 @@ _templates
 #docs/bruker2nifti.parsers.rst
 #docs/bruker2nifti.rst
 #docs/modules.rst
+.coverage
