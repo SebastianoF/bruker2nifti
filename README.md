@@ -1,3 +1,6 @@
+[![status](http://joss.theoj.org/papers/2ee6a3a3b1a4d8df1633f601bf2b0ffe/status.svg)](http://joss.theoj.org/papers/2ee6a3a3b1a4d8df1633f601bf2b0ffe)
+
+
 ## Bruker2nifti
 
 Medical image format converter: from raw Brukert ParaVision to nifti, written in Python.
