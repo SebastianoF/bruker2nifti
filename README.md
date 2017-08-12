@@ -6,19 +6,26 @@
 Medical image format converter: from raw Brukert ParaVision to nifti, written in Python.
 
 ### Requirements
-* Python 2.7+ provided with the libraries in the file `requirements.txt`.
+* Python 2.7+ and the libraries listed in the file [requirements.txt](https://github.com/SebastianoF/bruker2nifti/blob/master/requirements.txt).
 
-### Installation
+### Installation - latest release
 To install it as a Python library
 ```
 pip install bruker2nifti
 ```
 
-### To install in development mode:
+### To install in development mode
+To install the latest committed version
 ```
-cd path-to-bruker2nifti-repo
+git clone https://github.com/SebastianoF/bruker2nifti.git
+cd bruker2nifti-master
 pip install -e .
 ```
+This command will install Bruker2Nifti in 
+[*development mode*](https://packaging.python.org/tutorials/distributing-packages/#working-in-development-mode): 
+it will create a .egg-link in the deployment directory to the project 
+source code directory. Suggested in case you want to make some modifications to the code, and see the effects without 
+re-installing each time.
 
 ### CLI using via pip
 Create a [virtualenvironment](http://docs.python-guide.org/en/latest/dev/virtualenvs/), activate it, then type
