@@ -21,7 +21,7 @@ pip install -e .
 ```
 
 ### CLI using via pip
-Create a [virtualenvironment](http://python-guide-pt-br.readthedocs.io/en/latest/dev/virtualenvs/), activate it, then type
+Create a [virtualenvironment](http://docs.python-guide.org/en/latest/dev/virtualenvs/), activate it, then type
 ```
 pip install bruker2nifti
 bruker2nifti -h
@@ -35,7 +35,7 @@ to open the help of the command line utility.
 Where python is a distribution proivided with the required libraries.
 
 ### Open the GUI via pip
-Create a [virtualenvironment](http://python-guide-pt-br.readthedocs.io/en/latest/dev/virtualenvs/), activate it, then type
+Create a [virtualenvironment](http://docs.python-guide.org/en/latest/dev/virtualenvs/), activate it, then type
 ```
 pip install bruker2nifti
 bruker2nifti_gui
@@ -66,7 +66,7 @@ Tests are based on an open dataset Bruker images downloadable with the repo, in 
 Current deployment version undergoes continuous integration on [travis-ci](https://travis-ci.org/SebastianoF/bruker2nifti).
 
 ### API documentation, further notes and examples <a name="up"></a>
-Essential API documentation can be found [here](bruker2nifti.rtfd.io).
+Essential API documentation can be found [here](http://bruker2nifti.readthedocs.io/en/latest/).
 Additional documentation and examples can be found in the [bruker2nifti wiki pages](https://github.com/SebastianoF/bruker2nifti/wiki).
 
 ### Useful links and related software <a name="utilities"></a>
@@ -92,4 +92,4 @@ Thanks to
 Bernard Siow (Centre for Advanced Biomedical Imaging, University College London), 
 Chris Rorden (McCausland Center for Brain Imaging, University of South Carolina) 
 and 
-Mattew Brett (Berkeley Brain Imaging Center).
+Matthew Brett (Berkeley Brain Imaging Center).
