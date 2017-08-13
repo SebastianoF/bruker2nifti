@@ -16,7 +16,6 @@ matrix:
   include:
     - python: 2.7
       env:
-#        - COVERAGE=1
         - DOCTESTS=1
         - DOC_DOCTEST=1
     # Absolute minimum dependencies
@@ -34,6 +33,7 @@ matrix:
 #        - INSTALL_TYPE=sdist
     - python: 2.7
       env:
+        - COVERAGE=1
         - DEPENDS=
         - INSTALL_TYPE=wheel
     - python: 2.7
@@ -51,12 +51,12 @@ before_install:
     - if [ -n "$DEPENDS" ]; then
         pip install $EXTRA_PIP_FLAGS $DEPENDS;
       fi;
-    #- if [ "${COVERAGE}" == "1" ]; then
-    #    pip install coverage;
-    #    pip install coveralls;
-    #  fi
-    - pip install coverage;
-    - pip install coveralls;
+    - if [ "${COVERAGE}" == "1" ]; then
+        pip install coverage;
+        pip install coveralls;
+      fi
+#    - pip install coverage;
+#    - pip install coveralls;
     - if [ "${DOC_DOCTEST}" == "1" ]; then
         pip install sphinx;
       fi
@@ -86,11 +86,9 @@ script:
     # Change into an innocuous directory and find tests from installation
     - mkdir for_testing
     - cd for_testing
-#    - if [ "${COVERAGE}" == "1" ]; then
-#      cp ../.coveragerc .;
-#      COVER_ARGS="--with-coverage --cover-package bruker2nifti";
-#      fi
-    - nosetests --with-coverage
+    - if [ "${COVERAGE}" == "1" ]; then
+      nosetests --with-coverage
+      fi
     - if [ "${DOCTESTS}" == "1" ]; then
       DOCTEST_ARGS="--with-doctest";
       fi
@@ -101,7 +99,7 @@ script:
       fi
 
 after_success:
-#    - if [ "${COVERAGE}" == "1" ]; then coveralls; fi
-    - coveralls
+    - if [ "${COVERAGE}" == "1" ]; then coveralls; fi
+#    - coveralls
 notifications:
   email: false
