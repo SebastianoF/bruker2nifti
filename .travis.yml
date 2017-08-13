@@ -79,13 +79,12 @@ install:
 
 script:
 
-    - nosetests --with-coverage
+    - nosetests --with-coverage test
     - mkdir for_testing
     - cd for_testing
     - if [ "${DOCTESTS}" == "1" ]; then
       DOCTEST_ARGS="--with-doctest";
       fi
-    - nosetests $COVER_ARGS $DOCTEST_ARGS ../test
     - if [ "${DOC_DOCTEST}" == "1" ]; then
       cd ../docs ;
       sphinx-build -b html . _build/html ;
