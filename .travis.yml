@@ -29,9 +29,9 @@ matrix:
     - python: 2.7
       env:
         - INSTALL_TYPE=setup
-    - python: 2.7
-      env:
-        - INSTALL_TYPE=sdist
+#    - python: 2.7
+#      env:
+#        - INSTALL_TYPE=sdist
     - python: 2.7
       env:
         - DEPENDS=
