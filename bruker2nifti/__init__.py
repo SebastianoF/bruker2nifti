@@ -12,4 +12,4 @@ version_buf = check_output(command_git).rstrip()
 
 # Exclude the 'v' for PEP440 conformity, see
 # https://www.python.org/dev/peps/pep-0440/#public-version-identifiers
-__version__ = version_buf[1:]
+__version__ = version_buf[1:].decode("utf-8")
