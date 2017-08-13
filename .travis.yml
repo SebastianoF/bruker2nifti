@@ -85,14 +85,11 @@ install:
       fi
 
 script:
-    # Change into an innocuous directory and find tests from installation
+    - if [ "${COVERAGE}" == "1" ]; then
+       nosetests --with-coverage
+      fi
     - mkdir for_testing
     - cd for_testing
-    - if [ "${COVERAGE}" == "1" ]; then
-       cp ../.coveragerc .;
-       COVER_ARGS="--with-coverage --cover-package bruker2nifti";
-       nosetests --with-doctest $COVER_ARGS
-      fi
     - if [ "${DOCTESTS}" == "1" ]; then
       DOCTEST_ARGS="--with-doctest";
       fi
