@@ -16,9 +16,6 @@ matrix:
   include:
     - python: 2.7
       env:
-        - COVERAGE=1
-    - python: 2.7
-      env:
         - DOCTESTS=1
         - DOC_DOCTEST=1
     # Absolute minimum dependencies
@@ -53,12 +50,8 @@ before_install:
     - if [ -n "$DEPENDS" ]; then
         pip install $EXTRA_PIP_FLAGS $DEPENDS;
       fi;
-    - if [ "${COVERAGE}" == "1" ]; then
-        pip install coverage;
-        pip install coveralls;
-      fi
-#    - pip install coverage;
-#    - pip install coveralls;
+    - pip install coverage;
+    - pip install coveralls;
     - if [ "${DOC_DOCTEST}" == "1" ]; then
         pip install sphinx;
       fi
@@ -85,9 +78,8 @@ install:
       fi
 
 script:
-    - if [ "${COVERAGE}" == "1" ]; then
-       nosetests --with-coverage
-      fi
+
+    - nosetests --with-coverage
     - mkdir for_testing
     - cd for_testing
     - if [ "${DOCTESTS}" == "1" ]; then
@@ -100,7 +92,6 @@ script:
       fi
 
 after_success:
-    - if [ "${COVERAGE}" == "1" ]; then coveralls; fi
-#    - coveralls
+    - coveralls
 notifications:
   email: false
