@@ -98,3 +98,5 @@ script:
 
 after_success:
     - if [ "${COVERAGE}" == "1" ]; then coveralls; fi
+notifications:
+  email: false
