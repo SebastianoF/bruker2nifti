@@ -197,9 +197,9 @@ def write_struct(bruker_struct,
     """
     The core method of the converter has 2 parts.
     1) parsing the Bruker scan folder structure into an internal dictionary called struct.
-    2) writing the infrormation parsed in struct into folders.
+    2) writing the information parsed in struct into folders.
     -------
-    write_struct is the econd part of the bridge -
+    write_struct is the second part of the bridge -
     :param bruker_struct: output of scan2struct
     :param pfo_output: path-to-folder where the converted structure will be saved.
     :param fin_scan: filename of the scan

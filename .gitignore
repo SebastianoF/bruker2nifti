@@ -28,3 +28,4 @@ _templates
 #docs/modules.rst
 .coverage
 #MANIFEST.in
+write_struct_here
