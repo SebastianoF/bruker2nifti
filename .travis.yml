@@ -16,6 +16,9 @@ matrix:
   include:
     - python: 2.7
       env:
+        - COVERAGE=1
+    - python: 2.7
+      env:
         - DOCTESTS=1
         - DOC_DOCTEST=1
     # Absolute minimum dependencies
@@ -33,7 +36,6 @@ matrix:
 #        - INSTALL_TYPE=sdist
     - python: 2.7
       env:
-        - COVERAGE=1
         - DEPENDS=
         - INSTALL_TYPE=wheel
     - python: 2.7
@@ -87,7 +89,9 @@ script:
     - mkdir for_testing
     - cd for_testing
     - if [ "${COVERAGE}" == "1" ]; then
-      nosetests --with-coverage
+       cp ../.coveragerc .;
+       COVER_ARGS="--with-coverage --cover-package bruker2nifti";
+       nosetests --with-doctest $COVER_ARGS
       fi
     - if [ "${DOCTESTS}" == "1" ]; then
       DOCTEST_ARGS="--with-doctest";
