@@ -100,7 +100,7 @@ script:
       fi
 
 after_success:
-    - if [ "${COVERAGE}" == "1" ]; then coveralls; fi
-
+#    - if [ "${COVERAGE}" == "1" ]; then coveralls; fi
+    - coveralls
 notifications:
   email: false
