@@ -16,7 +16,7 @@ matrix:
   include:
     - python: 2.7
       env:
-        - COVERAGE=1
+#        - COVERAGE=1
         - DOCTESTS=1
         - DOC_DOCTEST=1
     # Absolute minimum dependencies
@@ -86,10 +86,11 @@ script:
     # Change into an innocuous directory and find tests from installation
     - mkdir for_testing
     - cd for_testing
-    - if [ "${COVERAGE}" == "1" ]; then
-      cp ../.coveragerc .;
-      COVER_ARGS="--with-coverage --cover-package bruker2nifti";
-      fi
+#    - if [ "${COVERAGE}" == "1" ]; then
+#      cp ../.coveragerc .;
+#      COVER_ARGS="--with-coverage --cover-package bruker2nifti";
+#      fi
+    - nosetests --with-coverage
     - if [ "${DOCTESTS}" == "1" ]; then
       DOCTEST_ARGS="--with-doctest";
       fi
