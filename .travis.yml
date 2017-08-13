@@ -51,10 +51,12 @@ before_install:
     - if [ -n "$DEPENDS" ]; then
         pip install $EXTRA_PIP_FLAGS $DEPENDS;
       fi;
-    - if [ "${COVERAGE}" == "1" ]; then
-        pip install coverage;
-        pip install coveralls;
-      fi
+    #- if [ "${COVERAGE}" == "1" ]; then
+    #    pip install coverage;
+    #    pip install coveralls;
+    #  fi
+    - pip install coverage;
+    - pip install coveralls;
     - if [ "${DOC_DOCTEST}" == "1" ]; then
         pip install sphinx;
       fi
