@@ -1,3 +1,11 @@
+[run]
+source = bruker2nifti
+include = */bruker2nifti/*
+omit =
+    */python?.?/*
+    */site-packages/nose/*
+    *__init__*
+
 [report]
 omit =
     */python?.?/*

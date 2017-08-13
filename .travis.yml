@@ -16,6 +16,7 @@ matrix:
   include:
     - python: 2.7
       env:
+        - COVERAGE=1
         - DOCTESTS=1
         - DOC_DOCTEST=1
     # Absolute minimum dependencies
@@ -50,8 +51,10 @@ before_install:
     - if [ -n "$DEPENDS" ]; then
         pip install $EXTRA_PIP_FLAGS $DEPENDS;
       fi;
-    - pip install coverage;
-    - pip install coveralls;
+    - if [ "${COVERAGE}" == "1" ]; then
+        pip install coverage;
+        pip install coveralls;
+      fi
     - if [ "${DOC_DOCTEST}" == "1" ]; then
         pip install sphinx;
       fi
@@ -76,21 +79,22 @@ install:
           pip install $EXTRA_PIP_FLAGS -r requirements.txt
           pip install .
       fi
-
 script:
-
-    - nosetests --with-coverage test
+    # Change into an innocuous directory and find tests from installation
     - mkdir for_testing
     - cd for_testing
+    - if [ "${COVERAGE}" == "1" ]; then
+      cp ../.coveragerc .;
+      COVER_ARGS="--with-coverage --cover-package bruker2nifti";
+      fi
     - if [ "${DOCTESTS}" == "1" ]; then
       DOCTEST_ARGS="--with-doctest";
       fi
+    - nosetests $COVER_ARGS $DOCTEST_ARGS ../test
     - if [ "${DOC_DOCTEST}" == "1" ]; then
       cd ../docs ;
       sphinx-build -b html . _build/html ;
       fi
 
 after_success:
-    - coveralls
-notifications:
-  email: false
+    - if [ "${COVERAGE}" == "1" ]; then coveralls; fi
