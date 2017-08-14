@@ -8,6 +8,8 @@ except ImportError:
     import tkinter as tk
     from tkinter import filedialog as tkFileDialog
 
+import webbrowser
+
 from bruker2nifti.converter import Bruker2Nifti
 from bruker2nifti.__init__ import __version__ as version
 
@@ -23,7 +25,7 @@ class BrukerToNiftiGUI(tk.Tk, object):
         # Window settings:
 
         self.title('From bruker to nifti - interface - version {}'.format(version))
-        self.geometry('700x170')
+        self.geometry('715x180')
 
         # Widgets:
 
@@ -59,6 +61,7 @@ class BrukerToNiftiGUI(tk.Tk, object):
 
         self.button_browse_input = tk.Button(self, text='Browse', command=self.button_browse_callback_pfo_input)
         self.button_browse_output = tk.Button(self, text='Browse', command=self.button_browse_callback_pfo_output)
+        self.button_help = tk.Button(self, text=' Help ', command=self.open_help)
         self.button_convert = tk.Button(self, text='Convert', command=self.convert)
 
         # geometry
@@ -81,7 +84,8 @@ class BrukerToNiftiGUI(tk.Tk, object):
         self.radio_button_get_method.grid(row=4, column=2)
         self.radio_button_get_reco.grid(row=4, column=3)
 
-        self.button_convert.grid(row=5, column=2)
+        self.button_convert.grid(row=5, column=4)
+        self.button_help.grid(row=4, column=4)
 
     # main commands
 
@@ -94,6 +98,10 @@ class BrukerToNiftiGUI(tk.Tk, object):
         filename = tkFileDialog.askdirectory()
         self.entry_pfo_output.delete(0, tk.END)
         self.entry_pfo_output.insert(0, filename)
+
+    @staticmethod
+    def open_help():
+        webbrowser.open('https://github.com/SebastianoF/bruker2nifti/wiki/Examples')
 
     def convert(self):
 
