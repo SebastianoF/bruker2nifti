@@ -6,7 +6,7 @@ In any study using MR Bruker scanners, there are multiple scanner settings,
 ParaVision versions and MRI protocol. Therefore an open source collaborative environment is the best 
 place where to build an optimal converter that takes into account as many variations as possible.
 
-
+<!--
 #### Table Of Contents
 
 [Code of Conduct](#code-of-conduct)
@@ -18,7 +18,7 @@ place where to build an optimal converter that takes into account as many variat
 [How to contribute?](#how-to-contribute)
 
 [Styleguides](#styleguides)
-
+-->
 
 
 ### Code of Conduct
