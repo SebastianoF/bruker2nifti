@@ -29,7 +29,7 @@ class BrukerToNiftiGUI(tk.Tk, object):
 
         # Widgets:
 
-        self.header = tk.Label(self, text=' Bruker 2 nifti Converter ', font = "Verdana 14")
+        self.header = tk.Label(self, text=' Bruker 2 nifti Converter ', font="Verdana 14")
 
         self.label_pfo_input = tk.Label(self, text='Folder path input')
         self.entry_pfo_input = tk.Entry(self, bd=2, width=50)
