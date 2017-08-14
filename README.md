@@ -3,72 +3,93 @@
 
 ## Bruker2nifti
 
-Medical image format converter: from raw Brukert ParaVision to nifti, written in Python.
+Medical image format converter: from raw [Bruker](http://imaging.mrc-cbu.cam.ac.uk/imaging/FormatBruker) 
+ParaVision to [NifTi](https://nifti.nimh.nih.gov/nifti-1), written in Python.
+
+Further information about the code can be found [here](https://github.com/SebastianoF/bruker2nifti/tree/master/paper).
+
+Code repository can be found [here](https://github.com/SebastianoF/bruker2nifti)
 
 ### Requirements
 * Python 2.7+ and the libraries listed in the file [requirements.txt](https://github.com/SebastianoF/bruker2nifti/blob/master/requirements.txt).
 
-### Installation - latest release
-To install it as a Python library
+### Installation
+To install the latest (stable) release as a python library via pip, type 
 ```
 pip install bruker2nifti
 ```
+To install the development version, please see the 
+[wiki-installing](https://github.com/SebastianoF/bruker2nifti/wiki/Installing-latest-updates-and-in-development-mode) page. 
 
-### To install in development mode
-To install the latest committed version
-```
-git clone https://github.com/SebastianoF/bruker2nifti.git
-cd bruker2nifti-master
-pip install -e .
-```
-This command will install Bruker2Nifti in 
-[*development mode*](https://packaging.python.org/tutorials/distributing-packages/#working-in-development-mode): 
-it will create a .egg-link in the deployment directory to the project 
-source code directory. Suggested in case you want to make some modifications to the code, and see the effects without 
-re-installing each time.
+### Usage:
 
-### CLI using via pip
-Create a [virtualenvironment](http://docs.python-guide.org/en/latest/dev/virtualenvs/), activate it, then type
-```
-pip install bruker2nifti
-bruker2nifti -h
-```
-to open the help of the command line utility.
+The converter can be accessed via: 
++ Python command shell, 
++ Command Line Utility (CLI) to integrate it in a bash script,
++ Graphical User Interface (GUI)
+Moreover, a launcher can be automatically created to access the GUI with no Python knowledge.  
 
-### CLI using it anyway without pip:
-* `PYTHONPATH="${PYTHONPATH}:path-to-bruker2nifti-repository"`
-* `python parsers/bruker2nii.py -h`
-* `python parsers/bruker2nii.py -i path/to/a/bruker/study -o path/to/output/folder`
-Where python is a distribution proivided with the required libraries.
-
-### Open the GUI via pip
-Create a [virtualenvironment](http://docs.python-guide.org/en/latest/dev/virtualenvs/), activate it, then type
+#### Python command shell
+Create a [virtualenvironment](http://docs.python-guide.org/en/latest/dev/virtualenvs/), activate it, and install
+the stable release `pip install bruker2nifti`.
+Access the Python command shell typing `python` (or `ipython` if the 
+[interactive command](https://en.wikipedia.org/wiki/IPython) shell is preferred), then import bruker2nifti with
 ```
-pip install bruker2nifti
+import bruker2nifti
+```
+An example can be found in [wiki-example](https://github.com/SebastianoF/bruker2nifti/wiki/Examples) 
+
+#### Command Line utility
+After installing bruker2nifti with `pip install bruker2nifti`, type `bruker2nifti -h` at the prompt to access the
+ help of the CLI.
+
+<!--
+#### Accessing the Command Line Utility without installing
+If you prefer to access the command line utility without installing the library on your python environment,
+you can download the [latest release](https://github.com/SebastianoF/bruker2nifti/releases) or the 
+[development version](https://github.com/SebastianoF/bruker2nifti) on your system, then add it to the python path
+with `PYTHONPATH="${PYTHONPATH}:path-to-bruker2nifti-repository"` and access the help of the CLI via  
+
++ `python parsers/bruker2nii.py -h`
+
+Where the invoked Python is a distribution provided with the [required libraries](https://github.com/SebastianoF/bruker2nifti/blob/master/requirements.txt). .
+-->
+
+#### Open the Graphical User Interface (GUI)
+After installing bruker2nifti with `pip install bruker2nifti`, type `bruker2nifti -h` at the prompt to access the
+ help of the CLI.
+```
 bruker2nifti_gui
 ```
-
-### Open the GUI and convert data with no programming knowledge
-Download the repository as a .zip with button **clone or download** in the [repository home page](https://github.com/SebastianoF/bruker2nifti).
-Unzip the donwloaded file and double click on the file `run_setupper_MAC` in the `GUI` folder.
-
-After the automatic installation of a virtualenvironment with the required libraries, if everything worked, you should see a new file called 'OpenGUIbru2nii' in the code structure. 
-
-This is a launcher. Double click on it: the following window should appear:  
+This will open the graphical user interface:
 
 ![gui_example](https://github.com/SebastianoF/bruker2nifti/blob/master/screenshots/gui_example.jpg)
+
+#### Open the GUI and convert data for non-Python developers
+Download the repository as a .zip from the [release page](https://github.com/SebastianoF/bruker2nifti/releases) 
+for the stable version or from the [repository home page](https://github.com/SebastianoF/bruker2nifti) for the latest 
+development version via **clone or download** green button.
+Unzip the donwloaded file and double click on the file `run_setupper_MAC` in the `GUI` folder inside the project.
+
+After the automatic installation of a virtualenvironment with the required libraries, if everything worked 
+(see below for troubleshooting), you will find a new file called 'OpenGUIbru2nii' in the code structure. 
+
+Double click on this launcher: will open the graphical user interface. 
 
 Keep the terminal open while doing the conversion, as there you will see the steps and the output of the different
 conversion steps.
 The launcher can be moved around in the user system. If you need to move the folder where you donwloaded the code, you will need to re-create the 
 launcher from the new code location.
 
+#### Further examples and troubleshooting:
+
+Please check the [wiki](https://github.com/SebastianoF/bruker2nifti/wiki) page for more examples.
 If something went wrong please raise an issue in the [issue page of the repository](https://github.com/SebastianoF/bruker2nifti/issues).
 
 ### Testing
-Unit testing with [nosetest](http://pythontesting.net/framework/nose/nose-introduction/):
-* `nosetests`
-Tests are based on an open dataset Bruker images downloadable with the repo, in the folder 
+Unit testing with [nosetest](http://pythontesting.net/framework/nose/nose-introduction/).
+After installing the latest development version, type `nosetests` to run the tests.   
+Some of the tests are based on an open dataset Bruker images downloadable with the repo, in the folder 
 [test_data](https://github.com/SebastianoF/bruker2nifti/tree/master/test_data).
 Current deployment version undergoes continuous integration on [travis-ci](https://travis-ci.org/SebastianoF/bruker2nifti).
 
@@ -88,7 +109,6 @@ information about Bruker format, other than the official documentation stored un
 + [mpi](https://github.com/francopestilli/mpi): from Bruker to Vistasoft or Analyze in Matlab. Conversion is based on the parameters contained in the **reco** parameter file. This
 parameter file exists only if the image was created using ParaVision reconstruction.
 + [Bruker2nifti](https://github.com/CristinaChavarrias/Bruker2nifti): from Bruker to Nifti, Matlab (not maintained anymore?).
-
 
 ### Copyright and Licence 
 Copyright (c) 2017, Sebastiano Ferraris.
