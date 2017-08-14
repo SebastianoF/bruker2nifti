@@ -7,8 +7,8 @@ __licence__    = "MIT"
 __repository__ = "https://github.com/SebastianoF/bruker2nifti"
 __all__ = ['_cores', '_getters', '_utils', 'converter', 'open_GUI']
 
-here = os.path.abspath(os.path.dirname(__file__))
-git_dir = os.path.dirname(here)
+# here = os.path.abspath(os.path.dirname(__file__))
+# git_dir = os.path.dirname(here)
 
 # Describe the version relative to last tag
 # command_git = ['git', 'describe', '--match', 'v[0-9]*']
@@ -16,4 +16,4 @@ git_dir = os.path.dirname(here)
 
 # Exclude the 'v' for PEP440 conformity, see
 # https://www.python.org/dev/peps/pep-0440/#public-version-identifiers
-__version__ = '1.0.0'  # version_buf[1:].decode("utf-8")
+__version__ = '1.0.0dev'  # version_buf[1:].decode("utf-8")

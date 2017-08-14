@@ -61,8 +61,13 @@ class BrukerToNiftiGUI(tk.Tk, object):
 
         self.button_browse_input = tk.Button(self, text='Browse', command=self.button_browse_callback_pfo_input)
         self.button_browse_output = tk.Button(self, text='Browse', command=self.button_browse_callback_pfo_output)
-        self.button_help = tk.Button(self, text=' Help ', command=self.open_help)
-        self.button_convert = tk.Button(self, text='Convert', command=self.convert)
+        self.button_help = tk.Button(self, text='?', command=self.open_help)  # highlightbackground = "#1291E9"
+        self.button_convert = tk.Button(self, text='Convert', command=self.convert, highlightbackground = "#1291E9")
+
+        self.label_option_menu = tk.Label(self, text='Output NifTi version:', compound='right')
+        self.option_menu_value = tk.StringVar(self)
+        self.option_menu_value.set('1')
+        self.option_menu = tk.OptionMenu(self, self.option_menu_value, '1', '2')
 
         # geometry
 
@@ -85,7 +90,11 @@ class BrukerToNiftiGUI(tk.Tk, object):
         self.radio_button_get_reco.grid(row=4, column=3)
 
         self.button_convert.grid(row=5, column=4)
-        self.button_help.grid(row=4, column=4)
+        # self.button_help.place(relx=.941, rely=.001)
+        self.button_help.grid(row=0, column=4)
+
+        self.label_option_menu.grid(row=5, column=0)
+        self.option_menu.grid(row=5, column=1)
 
     # main commands
 
@@ -114,6 +123,7 @@ class BrukerToNiftiGUI(tk.Tk, object):
         print('Get acpq      : {}'.format(self.CheckVar_ac.get()))
         print('get method    : {}'.format(self.CheckVar_me.get()))
         print('get reco      : {}'.format(self.CheckVar_rc.get()))
+        print('get NifTi-    : {}'.format(self.option_menu_value.get()))
 
         bru = Bruker2Nifti(self.entry_pfo_input.get(),
                            self.entry_pfo_output.get(),
@@ -123,6 +133,7 @@ class BrukerToNiftiGUI(tk.Tk, object):
         bru.get_acqp = self.CheckVar_ac.get()
         bru.get_method = self.CheckVar_me.get()
         bru.get_reco = self.CheckVar_rc.get()
+        bru.nifti_version = int(self.option_menu_value.get())
 
         bru.convert()
 
