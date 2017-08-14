@@ -52,7 +52,7 @@ Bruker2nifti is intended to be a tool to access the data structure and to parse 
 
 This work was supported by Wellcome / Engineering and Physical Sciences Research Council (EPSRC) [WT101957; NS/A000027/1; 203145Z/16/Z]. Sebastiano Ferraris is supported by the EPSRC-funded UCL Centre for Doctoral Training in Medical Imaging (EP/L016478/1) and Doctoral Training Grant (EP/M506448/1).
 Hannes Van Der Merwe is co-funded with support of the Erasmus + Programme of the European Union (Framework Agreement number: 2013-0040). This publication reflects the views only of the author, and the Commission cannot be held responsible for any use which may be made of the information contained therein. 
-We would also like to thank all the people who directly contributed to bruker2nifti with offline hints and suggestions: Bernard Siow (Centre for Advanced Biomedical Imaging, University College London), Chris Rorden (McCausland Center for Brain Imaging, University of South Carolina) and Mattew Brett (Berkeley Brain Imaging Center).
+We would also like to thank all the people who directly contributed to bruker2nifti with offline hints and suggestions: Bernard Siow (Centre for Advanced Biomedical Imaging, University College London), Chris Rorden (McCausland Center for Brain Imaging, University of South Carolina) and Matthew Brett (Berkeley Brain Imaging Center).
 
 
 # References

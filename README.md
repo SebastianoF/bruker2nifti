@@ -17,7 +17,9 @@ To install the latest (stable) release as a python library via pip, type
 ```
 pip install bruker2nifti
 ```
-To install the development version, please see the 
+(install the library inside a [virtualenvironment](http://docs.python-guide.org/en/latest/dev/virtualenvs/) is warmly recommended).
+
+To install the current development version, please see the 
 [wiki-installing](https://github.com/SebastianoF/bruker2nifti/wiki/Installing-latest-updates-and-in-development-mode) page. 
 
 ### Usage:
@@ -30,9 +32,7 @@ The converter can be accessed via:
 Moreover, a launcher can be automatically created to access the GUI with no-Python knowledge required.  
 
 #### Python command shell
-Create a [virtualenvironment](http://docs.python-guide.org/en/latest/dev/virtualenvs/), activate it, and install
-the stable release `pip install bruker2nifti`.
-Access the Python command shell typing `python` (or `ipython` if the 
+After installing the stable release with `pip install bruker2nifti`, access the Python command shell typing `python` (or `ipython` if the 
 [interactive command](https://en.wikipedia.org/wiki/IPython) shell is preferred), then import bruker2nifti with
 ```
 import bruker2nifti
