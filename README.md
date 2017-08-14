@@ -17,7 +17,7 @@ To install the latest (stable) release as a python library via pip, type
 ```
 pip install bruker2nifti
 ```
-(install the library inside a [virtualenvironment](http://docs.python-guide.org/en/latest/dev/virtualenvs/) is warmly recommended).
+(installing the library inside a [virtualenvironment](http://docs.python-guide.org/en/latest/dev/virtualenvs/) is warmly recommended).
 
 To install the current development version, please see the 
 [wiki-installing](https://github.com/SebastianoF/bruker2nifti/wiki/Installing-latest-updates-and-in-development-mode) page. 
