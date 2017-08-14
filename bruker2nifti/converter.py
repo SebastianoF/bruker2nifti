@@ -71,6 +71,9 @@ class Bruker2Nifti(object):
         if self.scans_list is None:
             self.scans_list = get_list_scans(self.pfo_study_bruker_input, print_structure=False)
             assert isinstance(self.scans_list, list)
+            msg = 'No scans found, are you sure the input folder contains a Bruker study?'
+            if not len(self.scans_list) > 0:
+                raise IOError(msg)
         if self.study_name is None or self.study_name is '':
             _study_name = get_subject_name(self.pfo_study_bruker_input).replace(' ', '_')
             self.study_name = ''.join(e for e in _study_name if e.isalnum())

@@ -29,7 +29,7 @@ class BrukerToNiftiGUI(tk.Tk, object):
 
         # Widgets:
 
-        self.header = tk.Label(self, text=' Bruker 2 nifti Converter ')
+        self.header = tk.Label(self, text=' Bruker 2 nifti Converter ', font = "Verdana 14")
 
         self.label_pfo_input = tk.Label(self, text='Folder path input')
         self.entry_pfo_input = tk.Entry(self, bd=2, width=50)
@@ -61,8 +61,8 @@ class BrukerToNiftiGUI(tk.Tk, object):
 
         self.button_browse_input = tk.Button(self, text='Browse', command=self.button_browse_callback_pfo_input)
         self.button_browse_output = tk.Button(self, text='Browse', command=self.button_browse_callback_pfo_output)
-        self.button_help = tk.Button(self, text='?', command=self.open_help)  # highlightbackground = "#1291E9"
-        self.button_convert = tk.Button(self, text='Convert', command=self.convert, highlightbackground = "#1291E9")
+        self.button_help = tk.Button(self, text='?', command=self.open_help, fg='blue', font="times 14 bold")
+        self.button_convert = tk.Button(self, text='Convert', command=self.convert, highlightbackground="#1291E9")
 
         self.label_option_menu = tk.Label(self, text='Output NifTi version:', compound='right')
         self.option_menu_value = tk.StringVar(self)
