@@ -32,3 +32,4 @@ _templates
 .coverage
 #MANIFEST.in
 write_struct_here
+*.key
