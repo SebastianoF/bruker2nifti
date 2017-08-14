@@ -6,6 +6,7 @@ z_*
 zz_*
 dist
 *.egg-info
+#docs
 make.bat
 Makefile
 build
