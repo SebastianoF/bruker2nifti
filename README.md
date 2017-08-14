@@ -7,7 +7,7 @@ Medical image format converter: from raw [Bruker](http://imaging.mrc-cbu.cam.ac.
 ParaVision to [NifTi](https://nifti.nimh.nih.gov/nifti-1), written in Python.
 
 Further information about the motivation can be found [here](https://github.com/SebastianoF/bruker2nifti/tree/master/paper).
-Code repository can be found [here](https://github.com/SebastianoF/bruker2nifti)
+Code repository can be found [here](https://github.com/SebastianoF/bruker2nifti).
 
 ### Requirements
 * Python 2.7+ and the libraries listed in the file [requirements.txt](https://github.com/SebastianoF/bruker2nifti/blob/master/requirements.txt).

@@ -39,11 +39,6 @@ def main():
                         dest='list_new_name_each_scan',
                         default=None)
 
-    # list_new_nifti_file_names = None,
-    parser.add_argument('-list_new_nifti_file_names',
-                        dest='list_new_nifti_file_names',
-                        default=None)
-
     # nifti_version = 1,
     parser.add_argument('-nifti_version',
                         dest='nifti_version',
@@ -84,9 +79,10 @@ def main():
                            args.pfo_output,
                            study_name=args.study_name)
 
-    bruconv.scans_list = args.scans_list
-    bruconv.list_new_name_each_scan = args.list_new_name_each_scan
-    bruconv.list_new_nifti_file_names = args.list_new_nifti_file_names
+    if args.scans_list is not None:
+        bruconv.scans_list = args.scans_list
+    if args.list_new_name_each_scan is not None:
+        bruconv.list_new_name_each_scan = args.list_new_name_each_scan
     bruconv.nifti_version = args.nifti_version
     bruconv.qform_code = args.qform_code
     bruconv.sform_code = args.sform_code
@@ -98,3 +94,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
