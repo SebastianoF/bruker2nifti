@@ -27,7 +27,7 @@ The converter can be accessed via:
 + Command Line Utility (CLI) to integrate it in a bash script,
 + Graphical User Interface (GUI).
 
-Moreover, a launcher can be automatically created to access the GUI with no Python knowledge.  
+Moreover, a launcher can be automatically created to access the GUI with no-Python knowledge required.  
 
 #### Python command shell
 Create a [virtualenvironment](http://docs.python-guide.org/en/latest/dev/virtualenvs/), activate it, and install

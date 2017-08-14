@@ -44,7 +44,7 @@ In clinical and pre-clinical research involving medical images, the first step f
 The [Bruker ParaVision](https://www.bruker.com/products/mr/preclinical-mri/software/service-support.html) proprietary software is not currently providing the tools for the data conversion to a suitable open formats for research, such as nifti [@cox2004sort], for which most of the available tools for medical image analysis are implemented. 
 
 For this purpose we have designed and developed [bruker2nifti](https://github.com/SebastianoF/bruker2nifti), a pip-installable Python tool provided with a Graphical User Interface to convert from the native MRI Bruker format 
-to the nifti format, without any intermediate step through the DICOM standard formats [@mustra2008overview].
+to the nifti format, without any intermediate step through the DICOM standard formats [@Mildenberger2002].
 
 Bruker2nifti is intended to be a tool to access the data structure and to parse every Parameter Files of the Bruker ParaVision format into python dictionaries, to select the relevant information to fill the Nifti header and data volume. Lastly it is meant to be a starting point where to integrate possible future variations in Bruker hardware and ParaVision software future releases.
 

@@ -20,6 +20,8 @@ paper.blg
 paper.log
 paper.out
 paper.synctex.gz
+paper.pdf
+paper.tex
 _build
 _static
 _templates
