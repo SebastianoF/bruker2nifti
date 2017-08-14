@@ -110,7 +110,7 @@ class BrukerToNiftiGUI(tk.Tk, object):
 
     @staticmethod
     def open_help():
-        webbrowser.open('https://github.com/SebastianoF/bruker2nifti/wiki/Examples')
+        webbrowser.open('https://github.com/SebastianoF/bruker2nifti/wiki/Graphical-User-Interface-Examples')
 
     def convert(self):
 

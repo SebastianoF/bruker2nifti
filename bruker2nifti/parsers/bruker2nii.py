@@ -62,12 +62,6 @@ def main():
                         type=int,
                         default=1)
 
-    # axis_direction = (-1, -1, 1),
-    parser.add_argument('-axis_direction',
-                        dest='axis_direction',
-                        type=tuple,
-                        default=(-1, -1, 1))
-
     # save_human_readable = True,
     parser.add_argument('-save_human_readable',
                         dest='save_human_readable',
