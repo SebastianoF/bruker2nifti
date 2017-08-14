@@ -26,7 +26,8 @@ To install the development version, please see the
 The converter can be accessed via: 
 + Python command shell, 
 + Command Line Utility (CLI) to integrate it in a bash script,
-+ Graphical User Interface (GUI)
++ Graphical User Interface (GUI).
+
 Moreover, a launcher can be automatically created to access the GUI with no Python knowledge.  
 
 #### Python command shell
@@ -83,7 +84,7 @@ launcher from the new code location.
 
 #### Further examples and troubleshooting:
 
-Please check the [wiki](https://github.com/SebastianoF/bruker2nifti/wiki) page for more examples.
+Please check the [wiki](https://github.com/SebastianoF/bruker2nifti/wiki) page for more examples and real data applications.
 If something went wrong please raise an issue in the [issue page of the repository](https://github.com/SebastianoF/bruker2nifti/issues).
 
 ### Testing
