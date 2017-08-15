@@ -54,7 +54,7 @@ Copyright (c) 2017, Sebastiano Ferraris.
 Bruker2nifti is available as free open-source software under [MIT License](https://github.com/SebastianoF/bruker2nifti/blob/master/LICENCE.txt).
 
 ## Acknowledgements
-+ This repository is developed within the [gift-SURG research project](www.gift-surg.ac.uk).
++ This repository is developed within the [gift-SURG research project](http://www.gift-surg.ac.uk).
 + Funding sources and authors list can be found in the [JOSS submission paper](https://github.com/SebastianoF/bruker2nifti/blob/master/paper/paper.md). 
 + Thanks to 
 Bernard Siow (Centre for Advanced Biomedical Imaging, University College London), 
