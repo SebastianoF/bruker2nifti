@@ -34,7 +34,7 @@ Please note that the stable release is compatible only with **Python 2**. The de
 ## API documentation, additional notes, examples and list of Bruker converter
 + [API documentation](http://bruker2nifti.readthedocs.io/en/latest/).
 + [Wiki documentation with additional notes and examples](https://github.com/SebastianoF/bruker2nifti/wiki).
-+ [Useful links and list of available Bruker converter](https://github.com/SebastianoF/bruker2nifti/wiki/References).
++ [Links and list of available Bruker converter](https://github.com/SebastianoF/bruker2nifti/wiki/References).
 
 ## Code Testing and Continuous Integration
 Unit testing is implemented with [nosetest](http://pythontesting.net/framework/nose/nose-introduction/).
