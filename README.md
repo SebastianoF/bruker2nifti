@@ -24,13 +24,12 @@ Please note that the stable release is compatible only with **Python 2**. The de
     - [Command Line Utility (CLI)](https://github.com/SebastianoF/bruker2nifti/wiki/Example:-use-bruker2nifti-via-Command-Line-Utility).
     - [Graphical User Interface (GUI)](https://github.com/SebastianoF/bruker2nifti/wiki/Graphical-User-Interface-Examples).
 
-
-![gui_example](https://github.com/SebastianoF/bruker2nifti/blob/master/screenshots/gui_example.jpg)
-
 ## Accessing only the Graphical User Interface (GUI) with no python knowledge required
 + [To access the Graphical User interface and convert some data with no python knowledge required](https://github.com/SebastianoF/bruker2nifti/wiki/Up-and-running-for-non-Python-developers)
-+ [GUI instuction and real data examples](https://github.com/SebastianoF/bruker2nifti/wiki/Graphical-User-Interface-Examples)
++ [GUI instructions and real data examples](https://github.com/SebastianoF/bruker2nifti/wiki/Graphical-User-Interface-Examples)
 
+
+![gui_example](https://github.com/SebastianoF/bruker2nifti/blob/master/screenshots/gui_example2.jpg)
 
 ## API documentation, further notes and examples
 + [API documentation](http://bruker2nifti.readthedocs.io/en/latest/).
