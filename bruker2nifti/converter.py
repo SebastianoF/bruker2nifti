@@ -169,9 +169,6 @@ class Bruker2Nifti(object):
 
         print('\nStudy conversion \n{}\nstarted:\n'.format(self.pfo_study_bruker_input))
 
-        print self.scans_list
-        print self.list_new_name_each_scan
-
         for bruker_scan_name, scan_name in zip(self.scans_list, self.list_new_name_each_scan):
             pfo_scan_bruker = os.path.join(self.pfo_study_bruker_input, bruker_scan_name)
             pfo_scan_nifti = os.path.join(pfo_nifti_study, scan_name)
