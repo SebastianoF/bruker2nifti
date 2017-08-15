@@ -25,8 +25,8 @@ Please note that the stable release is compatible only with **Python 2**. The de
     - [Graphical User Interface (GUI)](https://github.com/SebastianoF/bruker2nifti/wiki/Graphical-User-Interface-Examples).
 
 ## Accessing only the GUI with no Python knowledge required
-+ [To access the Graphical User interface and convert some data with no python knowledge required](https://github.com/SebastianoF/bruker2nifti/wiki/Up-and-running-for-non-Python-developers)
-+ [GUI instructions and real data examples](https://github.com/SebastianoF/bruker2nifti/wiki/Graphical-User-Interface-Examples)
++ [To access the Graphical User interface and convert some data with no python knowledge required](https://github.com/SebastianoF/bruker2nifti/wiki/Up-and-running-for-non-Python-developers).
++ [GUI instructions and real data examples](https://github.com/SebastianoF/bruker2nifti/wiki/Graphical-User-Interface-Examples).
 
 
 ![gui_example](https://github.com/SebastianoF/bruker2nifti/blob/master/screenshots/gui_example2.jpg)
@@ -41,11 +41,12 @@ Unit testing is implemented with [nosetest](http://pythontesting.net/framework/n
 After installing the latest development version, type `nosetests` to run the tests.   
 Some of the tests are based on an open dataset Bruker images downloadable with the repo, in the folder 
 [test_data](https://github.com/SebastianoF/bruker2nifti/tree/master/test_data).
+[Bruker2nifti_qa](https://gitlab.com/naveau/bruker2nifti_qa/tree/master) provides more Bruker raw data for further experiments.
 Current deployment version undergoes continuous integration on [travis-ci](https://travis-ci.org/SebastianoF/bruker2nifti).
 
 ## Support and contributions
 Please see the [contribution guideline](https://github.com/SebastianoF/bruker2nifti/blob/master/CONTRIBUTE.md) for bugs report,
-feature requests and code styling.
+feature requests and code style.
 
 ## Copyright and Licence 
 Copyright (c) 2017, Sebastiano Ferraris.
