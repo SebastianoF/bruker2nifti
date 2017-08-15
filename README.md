@@ -16,7 +16,7 @@ Please note that the stable release is compatible only with **Python 2**. The de
     - Libraries in [requirements.txt](https://github.com/SebastianoF/bruker2nifti/blob/master/requirements.txt).
 
 + Installation
-    - Install the latest stable release with `pip install bruker2nifti`.
+    - Install the [latest stable release](https://github.com/SebastianoF/bruker2nifti/releases) with `pip install bruker2nifti`.
     - [Install the latest development version](https://github.com/SebastianoF/bruker2nifti/wiki/Installing-stable-version-and-development-version).
 
 + Real data examples
@@ -24,7 +24,7 @@ Please note that the stable release is compatible only with **Python 2**. The de
     - [Command Line Utility (CLI)](https://github.com/SebastianoF/bruker2nifti/wiki/Example:-use-bruker2nifti-via-Command-Line-Utility).
     - [Graphical User Interface (GUI)](https://github.com/SebastianoF/bruker2nifti/wiki/Graphical-User-Interface-Examples).
 
-## Accessing only the Graphical User Interface (GUI) with no python knowledge required
+## Accessing only the GUI with no Python knowledge required
 + [To access the Graphical User interface and convert some data with no python knowledge required](https://github.com/SebastianoF/bruker2nifti/wiki/Up-and-running-for-non-Python-developers)
 + [GUI instructions and real data examples](https://github.com/SebastianoF/bruker2nifti/wiki/Graphical-User-Interface-Examples)
 
@@ -34,7 +34,7 @@ Please note that the stable release is compatible only with **Python 2**. The de
 ## API documentation, further notes and examples
 + [API documentation](http://bruker2nifti.readthedocs.io/en/latest/).
 + [Wiki documentation](https://github.com/SebastianoF/bruker2nifti/wiki).
-+ [Useful links and available Bruker converter](https://github.com/SebastianoF/bruker2nifti/wiki/References)
++ [Useful links and list of available Bruker converter](https://github.com/SebastianoF/bruker2nifti/wiki/References).
 
 ## Code Testing
 Unit testing is implemented with [nosetest](http://pythontesting.net/framework/nose/nose-introduction/).
@@ -52,7 +52,8 @@ Copyright (c) 2017, Sebastiano Ferraris.
 Bruker2nifti is available as free open-source software under [MIT License](https://github.com/SebastianoF/bruker2nifti/blob/master/LICENCE.txt).
 
 ## Acknowledgements
-+ [Fundings](https://github.com/SebastianoF/bruker2nifti/blob/master/paper/paper.md)
++ This repository is developed within the [gift-SURG research project](www.gift-surg.ac.uk).
++ [Funders list](https://github.com/SebastianoF/bruker2nifti/blob/master/paper/paper.md)
 + Thanks to 
 Bernard Siow (Centre for Advanced Biomedical Imaging, University College London), 
 Chris Rorden (McCausland Center for Brain Imaging, University of South Carolina) 
