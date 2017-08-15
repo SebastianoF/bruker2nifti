@@ -411,8 +411,8 @@ def compute_affine_from_visu_pars(vc_orientation, vc_position, vc_subject_positi
     """
     How the affine is computed (to the understanding acquired so far):
 
-    0) resolution, orientation and translation are provided in separate array, we combine them togheter in the
-    starndard 4x4 matrix.
+    0) resolution, orientation and translation are provided in separate array, we combine them together in a
+    standard 4x4 matrix.
 
     1) We invert the resulting matrix - according to conventions ParaVision (scanner to image frame)
        and DICOM/Nifti (image to scanner frame).
@@ -437,7 +437,7 @@ def compute_affine_from_visu_pars(vc_orientation, vc_position, vc_subject_positi
 
     5) keep_same_det: Finally, for safety, we can impose the same determinant as the input matrix.
 
-    (If there is any b-vectors list, this should be modified accordingly).
+    (If there is any b-vectors list, this is modified accordingly).
 
     :param vc_orientation: visu core orientation parameter.
     :param vc_position: visu core position parameter. -  corresponds to the translational part of the matrix.
