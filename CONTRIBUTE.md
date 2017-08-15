@@ -17,7 +17,8 @@ format.
 A starting point can be the links in the [README](https://github.com/SebastianoF/bruker2nifti/blob/master/README.md) 
 and the [wiki page](https://github.com/SebastianoF/bruker2nifti/wiki).
 
-The bruker2nifti code structure and API is as simple as possible, see in particular this 
+The bruker2nifti code structure and API is as simple and straight as possible and the
+ code is as commented as possible to make collaboration easier. See in particular this 
 [wiki-page](https://github.com/SebastianoF/bruker2nifti/wiki/Code-rationale,-definitions-and-structure). 
 
 ## Contributions: Questions, bugs, issues and new features 
@@ -27,10 +28,11 @@ The bruker2nifti code structure and API is as simple as possible, see in particu
 
 + Propose here as well improvements suggestions and new features.
 
-+ **Please use a new issue for each thread.** Issue re-usable by other users that may have a similar problem.
++ **Please use a new issue for each thread:** make your issue re-usable and reachable by other users that may have 
+encountered a similar problem.
 
-+ To contribute in a coherent way please follow the 
-[proposed code structure and nomenclature](https://github.com/SebastianoF/bruker2nifti/wiki/Code-rationale,-definitions-and-structure), .
++ When raise an issue, please follow the 
+[proposed definitions](https://github.com/SebastianoF/bruker2nifti/wiki/Code-rationale,-definitions-and-structure).
 
 + If you forked the repository and made some contributions that you would like to integrate in the git master branch, you can do a 
 [git pull request](https://yangsu.github.io/pull-request-tutorial/). 
