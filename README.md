@@ -4,9 +4,9 @@
 # Bruker2nifti
 
 [Bruker2nifti](https://github.com/SebastianoF/bruker2nifti) is an open source medical image format converter from raw [Bruker](http://imaging.mrc-cbu.cam.ac.uk/imaging/FormatBruker) 
-ParaVision to [NifTi](https://nifti.nimh.nih.gov/nifti-1), without any intermediate step through the DICOM standard formats.
+ParaVision to [NifTi](https://nifti.nimh.nih.gov/nifti-1), without any intermediate step through the [DICOM](http://dicom.nema.org/standard.html) standard formats.
 
-Bruker2nifti is a pip-installable Python tool provided with a Graphical User Interface and a Command Line Utility.
+Bruker2nifti is a pip-installable Python tool provided with a Graphical User Interface and a Command Line Utility to access the conversion method.
 
 Please note that the stable release is compatible only with **Python 2**. The development release is Python 2 and Python 3 compatible.
 
@@ -36,12 +36,13 @@ Please note that the stable release is compatible only with **Python 2**. The de
 + [Wiki documentation](https://github.com/SebastianoF/bruker2nifti/wiki).
 + [Useful links and list of available Bruker converter](https://github.com/SebastianoF/bruker2nifti/wiki/References).
 
-## Code Testing
+## Code Testing and Continuos Integration
 Unit testing is implemented with [nosetest](http://pythontesting.net/framework/nose/nose-introduction/).
 After installing the latest development version, type `nosetests` to run the tests.   
 Some of the tests are based on an open dataset Bruker images downloadable with the repo, in the folder 
 [test_data](https://github.com/SebastianoF/bruker2nifti/tree/master/test_data).
 [Bruker2nifti_qa](https://gitlab.com/naveau/bruker2nifti_qa/tree/master) provides more Bruker raw data for further experiments.
+
 Current deployment version undergoes continuous integration on [travis-ci](https://travis-ci.org/SebastianoF/bruker2nifti).
 
 ## Support and contributions
@@ -54,7 +55,7 @@ Bruker2nifti is available as free open-source software under [MIT License](https
 
 ## Acknowledgements
 + This repository is developed within the [gift-SURG research project](www.gift-surg.ac.uk).
-+ [Funders list](https://github.com/SebastianoF/bruker2nifti/blob/master/paper/paper.md)
++ Funding sources and authors list can be found in the [JOSS submission paper](https://github.com/SebastianoF/bruker2nifti/blob/master/paper/paper.md). 
 + Thanks to 
 Bernard Siow (Centre for Advanced Biomedical Imaging, University College London), 
 Chris Rorden (McCausland Center for Brain Imaging, University of South Carolina) 
