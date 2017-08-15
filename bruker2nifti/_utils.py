@@ -411,7 +411,7 @@ def compute_affine_from_visu_pars(vc_orientation, vc_position, vc_subject_positi
     """
     How the affine is computed (to the understanding acquired so far):
 
-    0) resolution, orientation and translation are provided in separate array, we combine them together in a
+    0) resolution, orientation and translation are provided in separate arrays, we combine them together in a
     standard 4x4 matrix.
 
     1) We invert the resulting matrix - according to conventions ParaVision (scanner to image frame)
