@@ -31,12 +31,12 @@ Please note that the stable release is compatible only with **Python 2**. The de
 
 ![gui_example](https://github.com/SebastianoF/bruker2nifti/blob/master/screenshots/gui_example2.jpg)
 
-## API documentation, further notes and examples
+## API documentation, additional notes, examples and list of Bruker converter
 + [API documentation](http://bruker2nifti.readthedocs.io/en/latest/).
-+ [Wiki documentation](https://github.com/SebastianoF/bruker2nifti/wiki).
++ [Wiki documentation with additional notes and examples](https://github.com/SebastianoF/bruker2nifti/wiki).
 + [Useful links and list of available Bruker converter](https://github.com/SebastianoF/bruker2nifti/wiki/References).
 
-## Code Testing and Continuos Integration
+## Code Testing and Continuous Integration
 Unit testing is implemented with [nosetest](http://pythontesting.net/framework/nose/nose-introduction/).
 After installing the latest development version, type `nosetests` to run the tests.   
 Some of the tests are based on an open dataset Bruker images downloadable with the repo, in the folder 
