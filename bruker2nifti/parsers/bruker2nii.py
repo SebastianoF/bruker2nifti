@@ -92,7 +92,9 @@ def main():
     bruconv.verbose = args.verbose
 
     if parser.add_argument > 0:
-        print('Converter parameters: ')
+        print('\nConverter input parameters: ')
+        print('-------------------------------------------------------- ')
+        print('Study name           : {}'.format(bruconv.study_name))
         print('List of scans        : {}'.format(bruconv.scans_list))
         print('List of scans names  : {}'.format(bruconv.list_new_name_each_scan))
         print('Output NifTi version : {}'.format(bruconv.nifti_version))
@@ -100,7 +102,7 @@ def main():
         print('Output NifTi s-form  : {}'.format(bruconv.sform_code))
         print('Save human readable  : {}'.format(bruconv.save_human_readable))
         print('Correct the slope    : {}'.format(bruconv.correct_slope))
-
+        print('-------------------------------------------------------- ')
     bruconv.convert()
 
 if __name__ == "__main__":

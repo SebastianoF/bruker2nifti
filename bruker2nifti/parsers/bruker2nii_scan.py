@@ -4,7 +4,7 @@ import os
 from bruker2nifti.converter import Bruker2Nifti
 
 
-def main():
+def main_scan():
     """
     Parser from terminal with
     $ python2 bruker2nifti_study -i input_file_path -o output_file_path
@@ -46,30 +46,20 @@ def main():
                         type=int,
                         default=1)
 
-    # save_human_readable = True,
-    parser.add_argument('-save_human_readable',
-                        dest='save_human_readable',
+    # do_not_save_human_readable = False,
+    parser.add_argument('-do_not_save_human_readable',
+                        dest='do_not_save_human_readable',
                         action='store_true')
-    # normalise_b_vectors_if_dwi = True,
-    parser.add_argument('-normalise_b_vectors_if_dwi',
-                        dest='normalise_b_vectors_if_dwi',
-                        action='store_true')
+
     # correct_slope = False,
     parser.add_argument('-correct_slope',
                         dest='correct_slope',
-                        action='store_false')
-    # verbose = 1
-    parser.add_argument('-verbose',
-                        dest='verbose',
                         action='store_true')
-    # -info_only
-    parser.add_argument('-info_only',
-                        dest='info_only',
-                        action='store_false')
-    # -nifti_only
-    parser.add_argument('-nifti_only',
-                        dest='nifti_only',
-                        action='store_false')
+    # verbose = 1
+    parser.add_argument('-verbose', '-v',
+                        dest='verbose',
+                        type=int,
+                        default=1)
 
     args = parser.parse_args()
 
@@ -79,13 +69,26 @@ def main():
     bruconv.nifti_version = args.nifti_version
     bruconv.qform_code = args.qform_code
     bruconv.sform_code = args.sform_code
-    bruconv.save_human_readable = args.save_human_readable
+    bruconv.save_human_readable = not args.do_not_save_human_readable
     bruconv.correct_slope = args.correct_slope
     bruconv.verbose = args.verbose
+
+    if parser.add_argument > 0:
+        print('\nConverter parameters: ')
+        print('-------------------------------------------------------- ')
+        print('Study Folder         : {}'.format(os.path.dirname(args.pfo_input)))
+        print('Scan to convert      : {}'.format(os.path.basename(args.pfo_input)))
+        print('List of scans        : {}'.format(bruconv.scans_list))
+        print('Output NifTi version : {}'.format(bruconv.nifti_version))
+        print('Output NifTi q-form  : {}'.format(bruconv.qform_code))
+        print('Output NifTi s-form  : {}'.format(bruconv.sform_code))
+        print('Save human readable  : {}'.format(bruconv.save_human_readable))
+        print('Correct the slope    : {}'.format(bruconv.correct_slope))
+        print('-------------------------------------------------------- ')
     # convert the single:
     bruconv.convert_scan(args.pfo_input, args.pfo_output, nifti_file_name=args.fin_output,
                          create_output_folder_if_not_exists=True)
 
 
 if __name__ == "__main__":
-    main()
+    main_scan()
