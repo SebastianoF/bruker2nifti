@@ -5,7 +5,8 @@ from bruker2nifti.converter import Bruker2Nifti
 def main():
     """
     Parser from terminal with:
-    $ python2 bruker2nifti_study -i input_file_path -o output_file_path
+    $ python2 bruker2nifti -h
+    $ python2 bruker2nifti -i input_file_path -o output_file_path
     """
 
     parser = argparse.ArgumentParser()
@@ -105,6 +106,6 @@ def main():
         print('-------------------------------------------------------- ')
     bruconv.convert()
 
+
 if __name__ == "__main__":
     main()
-
