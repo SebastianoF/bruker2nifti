@@ -9,9 +9,9 @@ Welcome to bruker2nifti's documentation!
 Medical image format converter: from raw `Bruker <http://imaging.mrc-cbu.cam.ac.uk/imaging/FormatBruker>`_
 ParaVision to `NifTi <https://nifti.nimh.nih.gov/nifti-1>`_, written in Python.
 
-* `Code repository <https://github.com/SebastianoF/bruker2nifti>`_
-* `Wiki page and examples <https://github.com/SebastianoF/bruker2nifti/wiki>`_
-* `Open issues <https://github.com/SebastianoF/bruker2nifti/issues>`_
++ Code repository `link <https://github.com/SebastianoF/bruker2nifti>`_
++ Wiki page and examples `link <https://github.com/SebastianoF/bruker2nifti/wiki>`_
++ Open issues `link <https://github.com/SebastianoF/bruker2nifti/issues>`_
 
 .. toctree::
    :maxdepth: 2
