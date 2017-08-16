@@ -661,11 +661,11 @@ def apply_orientation_matrix_to_image(pfi_nifti_image, affine_transformation_lef
 
         if bvects_ext == 'txt':
             b_vects = np.loadtxt(pfi_b_vects)
-            new_bvects = apply_reorientation_to_b_vects(affine_transformation_left, b_vects)
-            np.savetxt(pfi_new_bvects, new_bvects)
+            new_bvects = apply_reorientation_to_b_vects(affine_transformation_left[:3, :3], b_vects)
+            np.savetxt(pfi_new_bvects, new_bvects, fmt='%10.14f')
         else:
             b_vects = np.load(pfi_b_vects)
-            new_bvects = apply_reorientation_to_b_vects(affine_transformation_left, b_vects)
+            new_bvects = apply_reorientation_to_b_vects(affine_transformation_left[:3, :3], b_vects)
             np.save(pfi_new_bvects, new_bvects)
 
     if verbose > 0:
