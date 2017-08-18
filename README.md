@@ -37,13 +37,13 @@ Please note that the stable release is compatible only with **Python 2**. The de
 + [Links and list of available Bruker converter](https://github.com/SebastianoF/bruker2nifti/wiki/References).
 
 ## Code Testing and Continuous Integration
-Unit testing is implemented with [nosetest](http://pythontesting.net/framework/nose/nose-introduction/).
-After installing the latest development version, type `nosetests` to run the tests.   
-Some of the tests are based on an open dataset Bruker images downloadable with the repo, in the folder 
-[test_data](https://github.com/SebastianoF/bruker2nifti/tree/master/test_data).
-[Bruker2nifti_qa](https://gitlab.com/naveau/bruker2nifti_qa/tree/master) provides more Bruker raw data for further experiments.
 
-Current deployment version undergoes continuous integration on [travis-ci](https://travis-ci.org/SebastianoF/bruker2nifti).
++ Unit testing with [nosetest](http://pythontesting.net/framework/nose/nose-introduction/). 
+Type `nosetests` in the cloned repository.
++ Tests are based on the open dataset in the folder 
+[test_data](https://github.com/SebastianoF/bruker2nifti/tree/master/test_data).
++ [Bruker2nifti_qa](https://gitlab.com/naveau/bruker2nifti_qa/tree/master) provides more Bruker raw data for further experiments.
++ Current deployment version undergoes continuous integration on [travis-ci](https://travis-ci.org/SebastianoF/bruker2nifti).
 
 ## Support and contributions
 Please see the [contribution guideline](https://github.com/SebastianoF/bruker2nifti/blob/master/CONTRIBUTE.md) for bugs report,
