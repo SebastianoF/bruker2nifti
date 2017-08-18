@@ -158,7 +158,7 @@ def nifti_getter(img_data_vol,
         # ideally an external function read VisuFGOrderDesc should provide the sh and the choice between # A and # B
         # while testing for exception.
 
-        if 'VisuFGOrderDescDim' in visu_pars.keys():  # see D-2-73
+        if 'VisuFGOrderDescDim' in visu_pars.keys():  # see manuals D-2-73
             if visu_pars['VisuFGOrderDescDim'] > 0:
                 if isinstance(visu_pars['VisuFGOrderDesc'], list):
                     if len(visu_pars['VisuFGOrderDesc']) > 1:
@@ -175,7 +175,7 @@ def nifti_getter(img_data_vol,
                             if '<FG_MOVIE>' in descr[d]:
                                 fg_movie = d
                         if fg_slice_pos == -1:
-                            raise IOError('FG_SLICE not found in the order descriptor, dunno the order.')
+                            raise IOError('FG_SLICE not found in the order descriptor, can not tell the ordering.')
 
                         descr[fg_slice_pos], descr[0] = descr[0], descr[fg_slice_pos]
 
@@ -197,10 +197,10 @@ def nifti_getter(img_data_vol,
                             # B
                             elif fg_movie > -1:
                                 # DTI
-                                vol_data = img_data_vol.reshape(sh, order='F')
+                                vol_data = vol_data.reshape(sh, order='F')
                             else:
                                 # Else ?
-                                vol_data = img_data_vol.reshape(sh, order='F')
+                                vol_data = vol_data.reshape(sh, order='F')
 
         # get resolution
         resolution = compute_resolution_from_visu_pars(visu_pars['VisuCoreExtent'],
