@@ -50,7 +50,7 @@ Please see the [contribution guideline](https://github.com/SebastianoF/bruker2ni
 feature requests and code style.
 
 ## Copyright and Licence 
-Copyright (c) 2017, Sebastiano Ferraris.
+Copyright (c) 2017, Sebastiano Ferraris, University College London.
 Bruker2nifti is available as free open-source software under [MIT License](https://github.com/SebastianoF/bruker2nifti/blob/master/LICENCE.txt).
 
 ## Acknowledgements
