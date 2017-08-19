@@ -90,10 +90,10 @@ def bruker_read_files(param_file, data_path, sub_scan_num='1'):
     :return: dict_info dictionary with the parsed information from the input file.
     """
     if param_file.lower() == 'reco':
-        if os.path.exists(jph(data_path, 'pdata', '1', 'reco')):
-            f = open(jph(data_path, 'pdata', '1', 'reco'), 'r')
+        if os.path.exists(jph(data_path, 'pdata', sub_scan_num, 'reco')):
+            f = open(jph(data_path, 'pdata', sub_scan_num, 'reco'), 'r')
         else:
-            print('File {} does not exists'.format(jph(data_path, 'pdata', '1', 'reco')))
+            print('File {} does not exists'.format(jph(data_path, 'pdata', sub_scan_num, 'reco')))
             return {}
     elif param_file.lower() == 'acqp':
         if os.path.exists(jph(data_path, 'acqp')):
@@ -253,24 +253,24 @@ def eliminate_consecutive_duplicates(input_list):
         return output_list
 
 
-def slope_corrector(data, slope, num_initial_dir_to_skip=None, dtype=np.float64):
+def visu_slope_corrector(data, visu_slope, num_initial_dir_to_skip=None, dtype=np.float32):
     """
-    Slope is a float or a vector that needs to be multiplied to the data, to obtain the data as they are acquired.
+    Visu_slope is a float or a vector that needs to be multiplied to the data, to obtain the data as they are acquired.
     To reduce the weight of an image, each slice can be divided by a common float factor, so that at each voxel only the
     integer remaining is stored:
 
-    real_value_acquired[slice_j][x] = data_integer_reminder[slice_j][x] * float_slope[slice_j][x]
+    real_value_acquired[slice_j][x] = data_integer_reminder[slice_j][x] * float_visu_slope[slice_j][x]
 
     (where = is an almost equal, where the small loss of accuracy is justified by the huge amount of space saved)
 
     :param data: data as parsed from the data structure.
-    :param slope: slope as parsed from the data structure
+    :param visu_slope: visu_slope as parsed from the data structure in VisuCoreDataSlope
     :param num_initial_dir_to_skip: in some cases (as some DWI) the number of slices in the image is higher than the
-    provided slope length. Usually it is because the initial directions have no weighted and the first element in the
-     slope can correct them all. If num_initial_direction_to_skip=j the slope correction starts after j slices, and
+    provided visu_slope length. Usually it is because the initial directions have no weighted and the first element in the
+     visu_slope can correct them all. If num_initial_direction_to_skip=j the visu_slope correction starts after j slices, and
      the initial j timepoint are trimmed by j.
-    :param dtype: [np.float64] output datatype.
-    :return: data after the slope correction.
+    :param dtype: [np.float32] output datatype.
+    :return: data after the visu_slope correction.
     """
 
     if len(data.shape) > 5:
@@ -279,62 +279,148 @@ def slope_corrector(data, slope, num_initial_dir_to_skip=None, dtype=np.float64)
     data = data.astype(dtype)
 
     if num_initial_dir_to_skip is not None:
-        slope = slope[num_initial_dir_to_skip:]
+        visu_slope = visu_slope[num_initial_dir_to_skip:]
         data = data[..., num_initial_dir_to_skip:]
 
-    # Check compatibility slope and data and if necessarily correct for possible consecutive duplicates
-    # (as in some cases, when the size of the slope is larger than any timepoint or spatial point, the problem can
-    # be in the fact that there are duplicates in the slope vector. This has been seein only in PV5.1).
-    if not (isinstance(slope, int) or isinstance(slope, float)):
-        if slope.ndim == 1:
-            if not slope.size == data.shape[-1] and not slope.size == data.shape[-2]:
-                slope = np.array(eliminate_consecutive_duplicates(list(slope)), dtype=np.float64)
-                if not slope.size == data.shape[-1] and not slope.size == data.shape[-2]:
-                    msg = 'Slope shape {0} and data shape {1} appears to be not compatible'.format(slope.shape,
+    # Check compatibility visu_slope and data and if necessarily correct for possible consecutive duplicates
+    # (as in some cases, when the size of the visu_slope is larger than any timepoint or spatial point, the problem can
+    # be in the fact that there are duplicates in the visu_slope vector. This has been seein only in PV5.1).
+    if not (isinstance(visu_slope, int) or isinstance(visu_slope, float)):
+        if visu_slope.ndim == 1:
+            if not visu_slope.size == data.shape[-1] and not visu_slope.size == data.shape[-2]:
+                visu_slope = np.array(eliminate_consecutive_duplicates(list(visu_slope)), dtype=np.float32)
+                if not visu_slope.size == data.shape[-1] and not visu_slope.size == data.shape[-2]:
+                    msg = 'Visu_slope shape {0} and data shape {1} appears to be not compatible'.format(visu_slope.shape,
                                                                                                    data.shape)
                     raise IOError(msg)
 
-    if isinstance(slope, int) or isinstance(slope, float):
-        # scalar slope times nd array data
-        data *= slope
+    if isinstance(visu_slope, int) or isinstance(visu_slope, float):
+        # scalar visu_slope times nd array data
+        data *= visu_slope
 
-    elif slope.size == 1:
-        # scalar slope embedded in a singleton times nd array data
-        data *= slope[0]
+    elif visu_slope.size == 1:
+        # scalar visu_slope embedded in a singleton times nd array data
+        data *= visu_slope[0]
 
-    elif len(data.shape) == 3 and len(slope.shape) == 1:
-        # each slice of the 3d image is multiplied an element of the slope consecutively
-        if data.shape[2] == slope.shape[0]:
-            for t, sl in enumerate(slope):
+    elif len(data.shape) == 3 and len(visu_slope.shape) == 1:
+        # each slice of the 3d image is multiplied an element of the visu_slope consecutively
+        if data.shape[2] == visu_slope.shape[0]:
+            for t, sl in enumerate(visu_slope):
                 data[..., t] = data[..., t] * sl
         else:
-            raise IOError('Shape of the 2d image and slope dimensions are not consistent')
+            raise IOError('Shape of the 2d image and visu_slope dimensions are not consistent')
 
-    elif len(data.shape) == 4 and len(slope.shape) == 1 and slope.shape[0] == data.shape[2]:
-        # each slice of the 4d image, taken from the third dim, is multiplied by each element of the slope in sequence.
-        if slope.size == data.shape[2]:
+    elif len(data.shape) == 4 and len(visu_slope.shape) == 1 and visu_slope.shape[0] == data.shape[2]:
+        # each slice of the 4d image, taken from the third dim, is multiplied by each element of the visu_slope in sequence.
+        if visu_slope.size == data.shape[2]:
             for t in range(data.shape[3]):
-                for k in range(slope.size):
-                    data[..., k, t] = data[..., k, t] * slope[k]
+                for k in range(visu_slope.size):
+                    data[..., k, t] = data[..., k, t] * visu_slope[k]
         else:
             raise IOError('If you are here, your case cannot be converted. Further investigations required.')
 
-    elif len(data.shape) == 5 and len(slope.shape) == 1 and slope.shape[0] == data.shape[3]:
-        # each slice of the 5d image, taken from the fourth dim, is multiplied by each element of the slope in sequence.
-        if slope.size == data.shape[3]:
+    elif len(data.shape) == 5 and len(visu_slope.shape) == 1 and visu_slope.shape[0] == data.shape[3]:
+        # each slice of the 5d image, taken from the fourth dim, is multiplied by each element of the visu_slope in sequence.
+        if visu_slope.size == data.shape[3]:
             for t in range(data.shape[4]):
-                for k in range(slope.size):
-                    data[..., k, t] = data[..., k, t] * slope[k]
+                for k in range(visu_slope.size):
+                    data[..., k, t] = data[..., k, t] * visu_slope[k]
         else:
             raise IOError('If you are here, your case cannot be converted. Further investigations required.')
 
     else:
-        # each slice of the nd image, taken from the last dimension, is multiplied by each element of the slope.
-        if slope.size == data.shape[-1]:
+        # each slice of the nd image, taken from the last dimension, is multiplied by each element of the visu_slope.
+        if visu_slope.size == data.shape[-1]:
             for t in range(data.shape[-1]):
-                data[..., t] = data[..., t] * slope[t]
+                data[..., t] = data[..., t] * visu_slope[t]
         else:
-            msg = 'Slope shape {0} and data shape {1} appears to be not compatible'.format(slope.shape, data.shape)
+            msg = 'Visu slope shape {0} and data shape {1} appears to be not compatible'.format(visu_slope.shape, data.shape)
+            raise IOError(msg)
+
+    return data
+
+def reco_slope_corrector(data, reco_slope, num_initial_dir_to_skip=None, dtype=np.float32):
+    """
+    Reco slope is a float or a vector that needs to be multiplied to the data, to obtain the data as they are acquired.
+    To reduce the weight of an image, each slice can be divided by a common float factor, so that at each voxel only the
+    integer remaining is stored:
+
+    real_value_acquired[slice_j][x] = data_integer_reminder[slice_j][x] * float_reco_slope[slice_j][x]
+
+    (where = is an almost equal, where the small loss of accuracy is justified by the huge amount of space saved)
+
+    :param data: data as parsed from the data structure.
+    :param reco_slope: reco slope as parsed from the data structure in RECO_map_slope
+    :param num_initial_dir_to_skip: in some cases (as some DWI) the number of slices in the image is higher than the
+    provided reco_slope length. Usually it is because the initial directions have no weighted and the first element in the
+     reco_slope can correct them all. If num_initial_direction_to_skip=j the reco_slope correction starts after j slices, and
+     the initial j timepoint are trimmed by j.
+    :param dtype: [np.float64] output datatype.
+    :return: data after the reco_slope correction.
+    """
+        
+    if len(data.shape) > 5:
+        raise IOError('4d or lower dimensional images allowed. Input data has shape {} '.format(data.shape))
+
+    data = data.astype(dtype)
+
+    if num_initial_dir_to_skip is not None:
+        reco_slope = reco_slope[num_initial_dir_to_skip:]
+        data = data[..., num_initial_dir_to_skip:]
+
+    # Check compatibility reco_slope and data and if necessarily correct for possible consecutive duplicates
+    # (as in some cases, when the size of the reco_slope is larger than any timepoint or spatial point, the problem can
+    # be in the fact that there are duplicates in the reco_slope vector. This has been seein only in PV5.1).
+    if not (isinstance(reco_slope, int) or isinstance(reco_slope, float)):
+        if reco_slope.ndim == 1:
+            if not reco_slope.size == data.shape[-1] and not reco_slope.size == data.shape[-2]:
+                reco_slope = np.array(eliminate_consecutive_duplicates(list(reco_slope)), dtype=np.float32)
+                if not reco_slope.size == data.shape[-1] and not reco_slope.size == data.shape[-2]:
+                    msg = 'Reco slope shape {0} and data shape {1} appears to be not compatible'.format(reco_slope.shape,
+                                                                                                   data.shape)
+                    raise IOError(msg)
+
+    if isinstance(reco_slope, int) or isinstance(reco_slope, float):
+        # scalar reco_slope times nd array data
+        data *= reco_slope
+
+    elif reco_slope.size == 1:
+        # scalar reco_slope embedded in a singleton times nd array data
+        data *= reco_slope[0]
+
+    elif len(data.shape) == 3 and len(reco_slope.shape) == 1:
+        # each slice of the 3d image is multiplied by an element of the reco_slope consecutively
+        if data.shape[2] == reco_slope.shape[0]:
+            for t, sl in enumerate(reco_slope):
+                data[..., t] = data[..., t] * sl
+        else:
+            raise IOError('Shape of the 2d image and reco_slope dimensions are not consistent')
+
+    elif len(data.shape) == 4 and len(reco_slope.shape) == 1 and reco_slope.shape[0] == data.shape[2]:
+        # each slice of the 4d image, taken from the third dim, is multiplied by each element of the reco_slope in sequence.
+        if reco_slope.size == data.shape[2]:
+            for t in range(data.shape[3]):
+                for k in range(reco_slope.size):
+                    data[..., k, t] = data[..., k, t] * reco_slope[k]
+        else:
+            raise IOError('If you are here, your case cannot be converted. Further investigations required.')
+
+    elif len(data.shape) == 5 and len(reco_slope.shape) == 1 and reco_slope.shape[0] == data.shape[3]:
+        # each slice of the 5d image, taken from the fourth dim, is multiplied by each element of the reco_slope in sequence.
+        if reco_slope.size == data.shape[3]:
+            for t in range(data.shape[4]):
+                for k in range(reco_slope.size):
+                    data[..., k, t] = data[..., k, t] * reco_slope[k]
+        else:
+            raise IOError('If you are here, your case cannot be converted. Further investigations required.')
+
+    else:
+        # each slice of the nd image, taken from the last dimension, is multiplied by each element of the reco_slope.
+        if reco_slope.size == data.shape[-1]:
+            for t in range(data.shape[-1]):
+                data[..., t] = data[..., t] * reco_slope[t]
+        else:
+            msg = 'Reco_slope shape {0} and data shape {1} appears to be not compatible'.format(reco_slope.shape, data.shape)
             raise IOError(msg)
 
     return data
@@ -621,7 +707,6 @@ def set_new_data(image, new_data, new_dtype=None, remove_nan=True):
 def apply_orientation_matrix_to_image(pfi_nifti_image, affine_transformation_left,
                                       pfo_output=None, pfi_b_vects=None, suffix='new', verbose=1):
     """
-
     :param pfi_nifti_image: path to file to a nifti image.
     :param affine_transformation_left: a reorientation matrix.
     :param pfo_output: path to folder where the output will be stored
@@ -674,3 +759,49 @@ def apply_orientation_matrix_to_image(pfi_nifti_image, affine_transformation_lef
         print(im.get_affine())
         print('Affine after transformation: \n')
         print(new_im.get_affine())
+
+def apply_matrix_to_image(im, affine_transformation_left, verbose=1):
+    """
+    :param im: nifti image as returned by nib.load(pfi_nifti_image)
+    :param affine_transformation_left: a reorientation matrix.
+    :param verbose:
+    :return: None. image transformed according to a matrix.
+    """
+    assert isinstance(affine_transformation_left, np.ndarray)
+
+    new_affine = im.affine.dot(affine_transformation_left)
+
+    if im.header['sizeof_hdr'] == 348:
+        new_im = nib.Nifti1Image(im.get_data(), new_affine, header=im.get_header())
+    elif im.header['sizeof_hdr'] == 540:
+        new_im = nib.Nifti2Image(im.get_data(), new_affine, header=im.get_header())
+    else:
+        raise IOError
+
+    # sanity check
+    msg = 'Is the input matrix a re-orientation matrix?'
+    np.testing.assert_almost_equal(np.linalg.det(new_affine), np.linalg.det(im.get_affine()), err_msg=msg)
+
+    if verbose > 0:
+        # print intermediate results
+        print('Affine input image: \n')
+        print(im.get_affine())
+        print('Affine after transformation: \n')
+        print(new_im.get_affine())
+
+    # return new image
+    return new_im
+
+def apply_matrix_to_bvecs(b_vects, affine_transformation_left, verbose=1):
+    """
+    :param b_vects: b_vects as returned by np.loadtxt(pfi_b_vects) or np.load(pfi_b_vects)
+    :param affine_transformation_left: a reorientation matrix.
+    :param verbose:
+    :return: b-vectors transformed according to a matrix.
+    """
+    assert isinstance(affine_transformation_left, np.ndarray)
+
+    new_bvects = apply_reorientation_to_b_vects(affine_transformation_left[:3, :3], b_vects)
+
+    # return new b_vects
+    return new_bvects

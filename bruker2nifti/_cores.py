@@ -8,11 +8,12 @@ from os.path import join as jph
 
 from ._getters import get_list_scans, nifti_getter
 from ._utils import bruker_read_files, normalise_b_vect, from_dict_to_txt_sorted, set_new_data, \
-    apply_reorientation_to_b_vects, obtain_b_vectors_orient_matrix
+    apply_reorientation_to_b_vects, obtain_b_vectors_orient_matrix, apply_matrix_to_bvecs
 
 
 def scan2struct(pfo_scan,
-                correct_slope=True,
+                correct_visu_slope=True,
+                correct_reco_slope=True,
                 nifti_version=1,
                 qform_code=1,
                 sform_code=2,
@@ -21,7 +22,8 @@ def scan2struct(pfo_scan,
                 get_reco=False,
                 frame_body_as_frame_head=False,
                 keep_same_det=True,
-                consider_subject_position=False
+                consider_subject_position=False,
+                user_matrix=None
                 ):
     """
     The core method of the converter has 2 parts.
@@ -33,7 +35,8 @@ def scan2struct(pfo_scan,
     Data are parsed in the intermediate dictionary struct containing the final scan(s) converted in nibabel
     image, with additional infos.
     :param pfo_scan: path to folder containing the scan
-    :param correct_slope: [True] if you want to correct the slope of the values.
+    :param correct_visu_slope: [True] if you want to correct the visu_slope of the values.
+    :param correct_reco_slope: [True] if you want to correct the reco_slope of the values.
     :param nifti_version: [1] output nifti version can be version 1 or version 2 (see nibabel documentation)
     :param qform_code: [1] qform of the final nifti image
     :param sform_code: [2] sform of the final nifti image
@@ -71,8 +74,17 @@ def scan2struct(pfo_scan,
 
     for id_sub_scan in list_sub_scans:
 
-        visu_pars = bruker_read_files('visu_pars', pfo_scan, sub_scan_num=id_sub_scan)
+        print "Processing scan", id_sub_scan
+        
+        reco = {}
+        reco = bruker_read_files('reco', pfo_scan, sub_scan_num=id_sub_scan)
+        if reco == {}:
+            warn_msg = "Warning: No 'reco' file to parse in scan "+id_sub_scan
+            warnings.warn(warn_msg)
+            correct_reco_slope = False
 
+        visu_pars = {}
+        visu_pars = bruker_read_files('visu_pars', pfo_scan, sub_scan_num=id_sub_scan)
         if visu_pars == {}:
             warn_msg = "\nNo 'visu_pars' data found here: \n{}. \nAre you sure the input folder contains a " \
                        "proper Bruker scan?\n".format(jph(pfo_scan, 'pdata', id_sub_scan))
@@ -119,24 +131,31 @@ def scan2struct(pfo_scan,
         is_dwi = 'dtiepi' in visu_pars_acq_sequence_name.lower()
 
         if is_dwi:
-            # Force to not correcting the slope, if true. Diffusion weighted images must be slope corrected before the
+            # Force to not correcting the visu_slope, if true. Diffusion weighted images must be slope corrected before the
             # DTI analysis. They will be to heavy otherwise.
-            correct_slope = False
-            # Force method to be parsed. Useful infos in this file to process the DWI.
+            # (for reco_slope, the user decision is not changed)
+            correct_visu_slope = False
+
+            # Force method file to be parsed. Useful infos in this file to process the DWI.
             get_method = True
+            # Force reco file to be parsed. Useful infos in this file to process the DWI.
+            get_reco   = True
 
         # ------------------------------------------------------ #
         # ------ Generate the nifti image using visu_pars. ----- #
         # ------------------------------------------------------ #
         nib_im = nifti_getter(img_data_vol,
                               visu_pars,
-                              correct_slope,
+                              reco,
+                              correct_visu_slope,
+                              correct_reco_slope,
                               nifti_version,
                               qform_code,
                               sform_code,
                               frame_body_as_frame_head=frame_body_as_frame_head,
                               keep_same_det=keep_same_det,
-                              consider_subject_position=consider_subject_position
+                              consider_subject_position=consider_subject_position,
+                              user_matrix=user_matrix
                               )
         # ------------------------------------------------------ #
         # ------------------------------------------------------ #
@@ -193,6 +212,7 @@ def write_struct(bruker_struct,
                  frame_body_as_frame_head=False,
                  keep_same_det=True,
                  consider_subject_position=False,
+                 user_matrix=None,
                  ):
     """
     The core method of the converter has 2 parts.
@@ -209,6 +229,7 @@ def write_struct(bruker_struct,
     :param frame_body_as_frame_head: according to the animal. If True monkey, if False rat-rabbit
     :param keep_same_det: force the initial determinant to be the same as the final one
     :param consider_subject_position: Attribute manually set, or left blank, by the lab experts. False by default
+    :param user_matrix: Apply a user provided transformation matrix to the b_vects. Empty by default
     :return: save the bruker_struct parsed in scan2struct in the specified folder, with the specified parameters.
     """
 
@@ -248,6 +269,11 @@ def write_struct(bruker_struct,
         dw_grad_vec = apply_reorientation_to_b_vects(reorientation_matrix, dw_grad_vec)
         # normalise:
         dw_grad_vec = normalise_b_vect(dw_grad_vec)
+
+        # apply user affine transformation matrix if present
+        if not user_matrix is None:
+            user_affine = np.loadtxt(user_matrix)
+            dw_grad_vec = apply_matrix_to_bvecs(dw_grad_vec,user_affine)
 
         np.save(jph(pfo_output, fin_scan + '_DwGradVec.npy'), dw_grad_vec)
 
@@ -301,8 +327,8 @@ def write_struct(bruker_struct,
         # A) Save visu_pars for each sub-scan:
         np.save(jph(pfo_output, fin_scan + i_label + 'visu_pars.npy'), bruker_struct['visu_pars_list'][i])
 
-        # B) Save single slope data for each sub-scan (from visu_pars):
-        np.save(jph(pfo_output, fin_scan + i_label + 'slope.npy'),
+        # B) Save single visu_slope data for each sub-scan (from visu_pars):
+        np.save(jph(pfo_output, fin_scan + i_label + 'visu_slope.npy'),
                 bruker_struct['visu_pars_list'][i]['VisuCoreDataSlope'])
 
         # A and B) save them both in .txt if human readable version of data is required.
@@ -310,10 +336,10 @@ def write_struct(bruker_struct,
             from_dict_to_txt_sorted(bruker_struct['visu_pars_list'][i],
                                     jph(pfo_output, fin_scan + i_label + 'visu_pars.txt'))
 
-            slope = bruker_struct['visu_pars_list'][i]['VisuCoreDataSlope']
-            if not isinstance(slope, np.ndarray):
-                slope = np.atleast_2d(slope)
-            np.savetxt(jph(pfo_output, fin_scan + i_label + 'slope.txt'), slope, fmt='%.14f')
+            visu_slope = bruker_struct['visu_pars_list'][i]['VisuCoreDataSlope']
+            if not isinstance(visu_slope, np.ndarray):
+                visu_slope = np.atleast_2d(visu_slope)
+            np.savetxt(jph(pfo_output, fin_scan + i_label + 'visu_slope.txt'), visu_slope, fmt='%.14f')
 
         # Update summary dictionary:
         summary_info_i = {i_label[1:] + "visu_pars['VisuUid']"
