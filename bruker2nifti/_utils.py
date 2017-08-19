@@ -389,10 +389,10 @@ def reco_slope_corrector(data, reco_slope, num_initial_dir_to_skip=None, dtype=n
         data *= reco_slope[0]
 
     elif len(data.shape) == 3 and len(reco_slope.shape) == 1:
-        # each slice of the 3d image is multiplied an element of the reco_slope consecutively
+        # each slice of the 3d image is multiplied by an element of the reco_slope consecutively
         if data.shape[2] == reco_slope.shape[0]:
             for t, sl in enumerate(reco_slope):
-                data[..., t] = data[..., t] / sl
+                data[..., t] = data[..., t] * sl
         else:
             raise IOError('Shape of the 2d image and reco_slope dimensions are not consistent')
 
