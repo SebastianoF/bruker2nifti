@@ -197,10 +197,10 @@ def nifti_getter(img_data_vol,
                             # B
                             elif fg_movie > -1:
                                 # DTI
-                                vol_data = img_data_vol.reshape(sh, order='F')
+                                vol_data = vol_data.reshape(sh, order='F')
                             else:
                                 # Else ?
-                                vol_data = img_data_vol.reshape(sh, order='F')
+                                vol_data = vol_data.reshape(sh, order='F')
 
         # get resolution
         resolution = compute_resolution_from_visu_pars(visu_pars['VisuCoreExtent'],
