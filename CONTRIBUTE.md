@@ -34,9 +34,10 @@ encountered a similar problem.
 + When raise an issue, please follow the 
 [proposed definitions](https://github.com/SebastianoF/bruker2nifti/wiki/Code-rationale,-definitions-and-structure).
 
-+ If you forked the repository and made some contributions that you would like to integrate in the git master branch, you can do a 
-[git pull request](https://yangsu.github.io/pull-request-tutorial/). 
- 
++ If you forked the repository and made some contributions that you would like to integrate in the git master branch, 
+you can do a [git pull request](https://yangsu.github.io/pull-request-tutorial/). Please **check tests are all passed** 
+before this (type nosetests in the code root folder).
+
 ## New feature guidelines
 
 bruker2nifti converts a Bruker ParaVision data structure into an initial nifti image, with the less possible 
