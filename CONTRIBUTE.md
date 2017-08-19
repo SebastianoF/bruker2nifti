@@ -37,8 +37,32 @@ encountered a similar problem.
 + If you forked the repository and made some contributions that you would like to integrate in the git master branch, you can do a 
 [git pull request](https://yangsu.github.io/pull-request-tutorial/). 
  
+## New feature guidelines
 
+bruker2nifti converts a Bruker ParaVision data structure into an initial nifti image, with the less possible 
+extra input from the user. It is intended to provides the first step for a subsequent image processing pipeline. 
+
+Every extra processing after the conversion, that are typically integrated into a pipeline, such as:
++ Bias field correction,
++ Intensities normalisation,
++ Automatic segmentation or skull stripping,
++ Otsu background thresholding,
++ Specific reorientation,
++ ... 
+
+are not considered part of the converter, as too dependent on the specific-user needs.
+
+By new feature we mean the possibility of converting data from ParaVision versions different from the one considered,
+  modalities different from the one considered, providing different decision options that the one currently provided,
+  as well as correcting bugs and improving the testing.
+  
 ## Styleguides
 
 + The code follows the [PEP-8](https://www.python.org/dev/peps/pep-0008/) style convention. 
 + Please follow the [ITK standard prefix commit message convention](https://itk.org/Wiki/ITK/Git/Develop) for commit messages. 
++ Please use the prefix `pfi_` and `pfo_` for the variable names containing path to files and path to folders respectively
+
+## To-Do list
+
+See the [todo wiki-page](https://github.com/SebastianoF/bruker2nifti/wiki/Work-in-progress-and--Future-work) 
+for the directions the next releases are oriented to go.
