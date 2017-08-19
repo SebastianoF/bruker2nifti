@@ -25,10 +25,10 @@ def test_convert_the_banana(open_converted=False):
     bru = Bruker2Nifti(pfo_study_in, pfo_study_out, study_name='banana')
 
     bru.verbose = 2
-    bru.correct_slope = True
-    bru.get_acqp = False
-    bru.get_method = False
-    bru.get_reco = False
+    bru.correct_visu_slope = True
+    bru.get_acqp           = False
+    bru.get_method         = False
+    bru.get_reco           = False
 
     bru.convert()
 
@@ -59,11 +59,11 @@ def test_convert_the_banana_no_name(open_converted=False):
 
     bru = Bruker2Nifti(pfo_study_in, pfo_study_out)
 
-    bru.verbose       = 2,
-    bru.correct_slope = True,
-    bru.get_acqp      = False,
-    bru.get_method    = False,
-    bru.get_reco      = False
+    bru.verbose            = 2,
+    bru.correct_visu_slope = True,
+    bru.get_acqp           = False,
+    bru.get_method         = False,
+    bru.get_reco           = False
     bru.convert()
 
     if open_converted:
@@ -93,7 +93,7 @@ def test_warning_banana_bad_n():
             warnings.simplefilter('always')
 
             bru = Bruker2Nifti(pfo_study_in, pfo_study_out, study_name='banana')
-            bru.correct_slope = True
+            bru.correct_visu_slope = True
             bru.verbose = 2
             bru.convert()
 

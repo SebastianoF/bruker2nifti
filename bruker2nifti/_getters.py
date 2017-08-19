@@ -2,8 +2,9 @@ import os
 import nibabel as nib
 import numpy as np
 
-from ._utils import bruker_read_files, eliminate_consecutive_duplicates, slope_corrector, \
-    compute_affine_from_visu_pars, compute_resolution_from_visu_pars
+from ._utils import bruker_read_files, eliminate_consecutive_duplicates, \
+    visu_slope_corrector, reco_slope_corrector, compute_affine_from_visu_pars, \
+    compute_resolution_from_visu_pars, apply_matrix_to_image, apply_matrix_to_bvecs
 
 
 def get_list_scans(start_path, print_structure=True):
@@ -56,7 +57,9 @@ def get_subject_name(pfo_study):
 
 def nifti_getter(img_data_vol,
                  visu_pars,
-                 correct_slope,
+                 reco,
+                 correct_visu_slope,
+                 correct_reco_slope,
                  nifti_version,
                  qform_code,
                  sform_code,
@@ -68,7 +71,8 @@ def nifti_getter(img_data_vol,
     Passage method to get a nifti image from the volume and the element contained into visu_pars.
     :param img_data_vol: volume of the image.
     :param visu_pars: corresponding dictionary to the 'visu_pars' data file.
-    :param correct_slope: [True/False] if you want to correct the slope.
+    :param correct_visu_slope: [True/False] if you want to correct the visu_slope.
+    :param correct_reco_slope: [True/False] if you want to correct the reco_slope.
     :param nifti_version: [1/2] according to the required nifti output
     :param qform_code: required nifti ouptut qform code.
     :param sform_code: required nifti ouput sform code
@@ -82,7 +86,7 @@ def nifti_getter(img_data_vol,
         # if the UoM is not mm, change here. Add other measurements and refer to xyzt_units from nibabel convention.
         print('Warning, measurement not in mm. This version of the converter deals with data in mm only.')
 
-    # get pre-shape and re-shape volume: (pre-shape is the shape compatible with the slope).
+    # get pre-shape and re-shape volume: (pre-shape is the shape compatible with the visu_slope).
     vol_pre_shape = [int(i) for i in visu_pars['VisuCoreSize']]
     if int(visu_pars['VisuCoreFrameCount']) > 1:
         vol_pre_shape += [int(visu_pars['VisuCoreFrameCount'])]
@@ -94,9 +98,17 @@ def nifti_getter(img_data_vol,
         vol_pre_shape += [echo]
         vol_data = img_data_vol.reshape(vol_pre_shape, order='F')
 
-    # correct slope if required
-    if correct_slope:
-        vol_data = slope_corrector(vol_data, visu_pars['VisuCoreDataSlope'])
+    # correct visu_slope if required
+    if correct_visu_slope:
+        vol_data = visu_slope_corrector(vol_data, visu_pars['VisuCoreDataSlope'])
+
+    # correct reco_slope if required
+    if correct_reco_slope:
+        tmp = reco_slope_corrector(vol_data, reco['RECO_map_slope'])
+        if tmp.size:
+            vol_data = tmp
+        else:
+            print "No reco file in scan: skipping reco_slope correction"
 
     # get number sub-volumes
     num_vols = len(eliminate_consecutive_duplicates(list(visu_pars['VisuCoreOrientation'])))
@@ -212,6 +224,7 @@ def nifti_getter(img_data_vol,
                                                       list(visu_pars['VisuCorePosition'])[0],
                                                       visu_pars['VisuSubjectPosition'],
                                                       resolution)
+            
 
         if nifti_version == 1:
             output_nifti = nib.Nifti1Image(vol_data, affine=affine_transf)

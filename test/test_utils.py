@@ -4,9 +4,9 @@ import nibabel as nib
 from nose.tools import assert_equal, assert_true, assert_almost_equals, assert_raises
 from numpy.testing import assert_array_equal
 
-from bruker2nifti._utils import indians_file_parser, normalise_b_vect, slope_corrector, \
-    eliminate_consecutive_duplicates, compute_resolution_from_visu_pars, compute_affine_from_visu_pars, \
-    apply_reorientation_to_b_vects, set_new_data, obtain_b_vectors_orient_matrix
+from bruker2nifti._utils import indians_file_parser, normalise_b_vect, visu_slope_corrector, \
+    reco_slope_corrector, eliminate_consecutive_duplicates, compute_resolution_from_visu_pars, \
+    compute_affine_from_visu_pars, apply_reorientation_to_b_vects, set_new_data, obtain_b_vectors_orient_matrix
 
 
 # --- TEST text-files utils ---
@@ -86,14 +86,14 @@ def test_indians_file_parser_D():
 # --- TEST slope correction utils ---
 
 
-def test_slope_corrector_int_float_slope():
+def test_visu_slope_corrector_int_float_slope():
 
     in_data = np.random.normal(5, 10, [3, 4, 5])
     sl1 = 5
     sl2 = 5.3
 
-    out_data1 = slope_corrector(in_data, sl1, dtype=np.float64)
-    out_data2 = slope_corrector(in_data, sl2, dtype=np.float64)
+    out_data1 = visu_slope_corrector(in_data, sl1, dtype=np.float64)
+    out_data2 = visu_slope_corrector(in_data, sl2, dtype=np.float64)
 
     assert_equal(out_data1.dtype, np.float64)
     assert_equal(out_data2.dtype, np.float64)
@@ -101,65 +101,65 @@ def test_slope_corrector_int_float_slope():
     assert_array_equal(out_data2, sl2 * in_data)
 
 
-def test_slope_corrector_slice_wise_slope_3d():
+def test_visu_slope_corrector_slice_wise_slope_3d():
 
     in_data = np.random.normal(5, 10, [4, 5, 3])
     sl = np.random.normal(5, 10, 3)
 
-    out_data = slope_corrector(in_data, sl, dtype=np.float64)
+    out_data = visu_slope_corrector(in_data, sl, dtype=np.float64)
 
     for k in range(3):
         assert_array_equal(out_data[..., k], in_data[..., k]*sl[k])
 
 
-def test_slope_corrector_slice_wise_slope_3d_fail():
+def test_visu_slope_corrector_slice_wise_slope_3d_fail():
 
     in_data = np.random.normal(5, 10, [4, 5, 3])
     sl = np.random.normal(5, 10, 5)
 
     with assert_raises(IOError):
-        slope_corrector(in_data, sl)
+        visu_slope_corrector(in_data, sl)
 
 
-def test_slope_corrector_slice_wise_slope_4d():
+def test_visu_slope_corrector_slice_wise_slope_4d():
 
     in_data = np.random.normal(5, 10, [2, 3, 4, 5])
     sl = np.random.normal(5, 10, 4)
-    out_data = slope_corrector(in_data, sl, dtype=np.float64)
+    out_data = visu_slope_corrector(in_data, sl, dtype=np.float64)
 
     for t in range(5):
         for k in range(4):
             assert_array_equal(out_data[..., k, t], in_data[..., k, t] * sl[k])
 
-# def test_slope_corrector_slice_wise_slope_4d_fail():
+# def test_visu_slope_corrector_slice_wise_slope_4d_fail():
 #
 #     in_data = np.random.normal(5, 10, [2, 3, 4, 5])
 #     sl = np.random.normal(5, 10, 5)
 #
 #     with assert_raises(IOError):
-#         slope_corrector(in_data, sl)
+#         visu_slope_corrector(in_data, sl)
 
 
-def test_slope_corrector_slice_wise_slope_5d():
+def test_visu_slope_corrector_slice_wise_slope_5d():
 
     in_data = np.random.normal(5, 10, [2, 3, 4, 5, 6])
     sl = np.random.normal(5, 10, 5)
-    out_data = slope_corrector(in_data, sl, dtype=np.float64)
+    out_data = visu_slope_corrector(in_data, sl, dtype=np.float64)
 
     for t in range(6):
         for k in range(5):
             assert_array_equal(out_data[..., k, t], in_data[..., k, t] * sl[k])
 
 
-def test_slope_corrector_slice_wise_slope_5d_fail():
+def test_visu_slope_corrector_slice_wise_slope_5d_fail():
 
     in_data = np.random.normal(5, 10, [2, 3, 4, 5, 6])
     sl = np.random.normal(5, 10, 7)
 
     with assert_raises(IOError):
-        slope_corrector(in_data, sl)
+        visu_slope_corrector(in_data, sl)
 
-test_slope_corrector_slice_wise_slope_5d_fail()
+test_visu_slope_corrector_slice_wise_slope_5d_fail()
 
 
 # -- TEST nifti affine matrix utils --

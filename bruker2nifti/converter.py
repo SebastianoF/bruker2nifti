@@ -44,7 +44,8 @@ class Bruker2Nifti(object):
         self.sform_code = 2
         self.save_human_readable = True
         self.save_b0_if_dwi = True  # if DWI, it saves the first layer as a single nfti image.
-        self.correct_slope = False
+        self.correct_visu_slope = False
+        self.correct_reco_slope = False
         self.verbose = 1
         # chose to convert extra files:
         self.get_acqp = False
@@ -123,7 +124,8 @@ class Bruker2Nifti(object):
             os.system('mkdir -p {}'.format(pfo_output_converted))
 
         struct_scan = scan2struct(pfo_input_scan,
-                                  correct_slope=self.correct_slope,
+                                  correct_visu_slope=self.correct_visu_slope,
+                                  correct_reco_slope=self.correct_reco_slope,
                                   nifti_version=self.nifti_version,
                                   qform_code=self.qform_code,
                                   sform_code=self.sform_code,
@@ -154,7 +156,8 @@ class Bruker2Nifti(object):
         >> bru.show_study_structure
 
         >> bru.verbose = 2
-        >> bru.correct_slope = True
+        >> bru.correct_visu_slope = True
+        >> bru.correct_reco_slope = True
         >> bru.get_acqp = False
         >> bru.get_method = True  # I want to see the method parameter file converted as well.
         >> bru.get_reco = False
@@ -178,6 +181,7 @@ class Bruker2Nifti(object):
             self.convert_scan(pfo_scan_bruker,
                                pfo_scan_nifti,
                                create_output_folder_if_not_exists=True,
-                               nifti_file_name=scan_name)
+                               nifti_file_name=scan_name,
+                               )
 
         print('\nStudy converted and saved in \n{}'.format(self.pfo_study_nifti_output))
