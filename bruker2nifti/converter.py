@@ -57,6 +57,7 @@ class Bruker2Nifti(object):
         # self.list_new_nifti_file_names = None  # possibly redundant with self.list_new_name_each_scan
         # automatic filling of advanced selections class attributes
         self._get_scans_attributes()
+        self.user_matrix = None
 
     def _get_scans_attributes(self):
         """
@@ -132,6 +133,7 @@ class Bruker2Nifti(object):
                                   get_acqp=self.get_acqp,
                                   get_method=self.get_method,
                                   get_reco=self.get_reco,
+                                  user_matrix=self.user_matrix,
                                   )
 
         if not struct_scan == 'no data':
@@ -141,6 +143,7 @@ class Bruker2Nifti(object):
                          save_human_readable=self.save_human_readable,
                          save_b0_if_dwi=self.save_b0_if_dwi,
                          verbose=self.verbose,
+                         user_matrix=self.user_matrix
                          )
 
     def convert(self):

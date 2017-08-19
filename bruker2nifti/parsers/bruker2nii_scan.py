@@ -61,6 +61,13 @@ def main_scan():
     parser.add_argument('-correct_reco_slope',
                         dest='correct_reco_slope',
                         action='store_true')
+
+    # user_matrix = None,
+    parser.add_argument('-apply_matrix',
+                        dest='user_matrix',
+                        type=str,
+                        default=None)
+
     # verbose = 1
     parser.add_argument('-verbose', '-v',
                         dest='verbose',
@@ -78,6 +85,7 @@ def main_scan():
     bruconv.save_human_readable = not args.do_not_save_human_readable
     bruconv.correct_visu_slope = args.correct_visu_slope
     bruconv.correct_reco_slope = args.correct_reco_slope
+    bruconv.user_matrix = args.user_matrix
     bruconv.verbose = args.verbose
 
     if parser.add_argument > 0:
@@ -92,6 +100,7 @@ def main_scan():
         print('Save human readable    : {}'.format(bruconv.save_human_readable))
         print('Correct the visu_slope : {}'.format(bruconv.correct_visu_slope))
         print('Correct the reco_slope : {}'.format(bruconv.correct_reco_slope))
+        print('Apply matrix           : {}'.format(bruconv.user_matrix))
         print('-------------------------------------------------------- ')
     # convert the single:
     bruconv.convert_scan(args.pfo_input, args.pfo_output, nifti_file_name=args.fin_output,

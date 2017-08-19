@@ -759,3 +759,49 @@ def apply_orientation_matrix_to_image(pfi_nifti_image, affine_transformation_lef
         print(im.get_affine())
         print('Affine after transformation: \n')
         print(new_im.get_affine())
+
+def apply_matrix_to_image(im, affine_transformation_left, verbose=1):
+    """
+    :param im: nifti image as returned by nib.load(pfi_nifti_image)
+    :param affine_transformation_left: a reorientation matrix.
+    :param verbose:
+    :return: None. image transformed according to a matrix.
+    """
+    assert isinstance(affine_transformation_left, np.ndarray)
+
+    new_affine = im.affine.dot(affine_transformation_left)
+
+    if im.header['sizeof_hdr'] == 348:
+        new_im = nib.Nifti1Image(im.get_data(), new_affine, header=im.get_header())
+    elif im.header['sizeof_hdr'] == 540:
+        new_im = nib.Nifti2Image(im.get_data(), new_affine, header=im.get_header())
+    else:
+        raise IOError
+
+    # sanity check
+    msg = 'Is the input matrix a re-orientation matrix?'
+    np.testing.assert_almost_equal(np.linalg.det(new_affine), np.linalg.det(im.get_affine()), err_msg=msg)
+
+    if verbose > 0:
+        # print intermediate results
+        print('Affine input image: \n')
+        print(im.get_affine())
+        print('Affine after transformation: \n')
+        print(new_im.get_affine())
+
+    # return new image
+    return new_im
+
+def apply_matrix_to_bvecs(b_vects, affine_transformation_left, verbose=1):
+    """
+    :param b_vects: b_vects as returned by np.loadtxt(pfi_b_vects) or np.load(pfi_b_vects)
+    :param affine_transformation_left: a reorientation matrix.
+    :param verbose:
+    :return: b-vectors transformed according to a matrix.
+    """
+    assert isinstance(affine_transformation_left, np.ndarray)
+
+    new_bvects = apply_reorientation_to_b_vects(affine_transformation_left[:3, :3], b_vects)
+
+    # return new b_vects
+    return new_bvects

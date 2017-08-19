@@ -65,7 +65,8 @@ def nifti_getter(img_data_vol,
                  sform_code,
                  frame_body_as_frame_head=False,
                  keep_same_det=True,
-                 consider_subject_position=False
+                 consider_subject_position=False,
+                 user_matrix=None,
                  ):
     """
     Passage method to get a nifti image from the volume and the element contained into visu_pars.
@@ -233,9 +234,14 @@ def nifti_getter(img_data_vol,
         else:
             raise IOError('Nifti versions allowed are 1 or 2.')
 
+        # apply user affine transformation if required
+        if not user_matrix is None:
+            user_affine = np.loadtxt(user_matrix)
+            output_nifti=apply_matrix_to_image(output_nifti,user_affine)
+
         hdr_sub_vol = output_nifti.header
-        hdr_sub_vol.set_qform(affine_transf, code=qform_code)
-        hdr_sub_vol.set_sform(affine_transf, code=sform_code)
+        hdr_sub_vol.set_qform(output_nifti.affine, code=qform_code)
+        hdr_sub_vol.set_sform(output_nifti.affine, code=sform_code)
         hdr_sub_vol['xyzt_units'] = 10
         output_nifti.update_header()
 

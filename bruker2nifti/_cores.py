@@ -8,7 +8,7 @@ from os.path import join as jph
 
 from ._getters import get_list_scans, nifti_getter
 from ._utils import bruker_read_files, normalise_b_vect, from_dict_to_txt_sorted, set_new_data, \
-    apply_reorientation_to_b_vects, obtain_b_vectors_orient_matrix
+    apply_reorientation_to_b_vects, obtain_b_vectors_orient_matrix, apply_matrix_to_bvecs
 
 
 def scan2struct(pfo_scan,
@@ -22,7 +22,8 @@ def scan2struct(pfo_scan,
                 get_reco=False,
                 frame_body_as_frame_head=False,
                 keep_same_det=True,
-                consider_subject_position=False
+                consider_subject_position=False,
+                user_matrix=None
                 ):
     """
     The core method of the converter has 2 parts.
@@ -153,7 +154,8 @@ def scan2struct(pfo_scan,
                               sform_code,
                               frame_body_as_frame_head=frame_body_as_frame_head,
                               keep_same_det=keep_same_det,
-                              consider_subject_position=consider_subject_position
+                              consider_subject_position=consider_subject_position,
+                              user_matrix=user_matrix
                               )
         # ------------------------------------------------------ #
         # ------------------------------------------------------ #
@@ -210,6 +212,7 @@ def write_struct(bruker_struct,
                  frame_body_as_frame_head=False,
                  keep_same_det=True,
                  consider_subject_position=False,
+                 user_matrix=None,
                  ):
     """
     The core method of the converter has 2 parts.
@@ -226,6 +229,7 @@ def write_struct(bruker_struct,
     :param frame_body_as_frame_head: according to the animal. If True monkey, if False rat-rabbit
     :param keep_same_det: force the initial determinant to be the same as the final one
     :param consider_subject_position: Attribute manually set, or left blank, by the lab experts. False by default
+    :param user_matrix: Apply a user provided transformation matrix to the b_vects. Empty by default
     :return: save the bruker_struct parsed in scan2struct in the specified folder, with the specified parameters.
     """
 
@@ -265,6 +269,11 @@ def write_struct(bruker_struct,
         dw_grad_vec = apply_reorientation_to_b_vects(reorientation_matrix, dw_grad_vec)
         # normalise:
         dw_grad_vec = normalise_b_vect(dw_grad_vec)
+
+        # apply user affine transformation matrix if present
+        if not user_matrix is None:
+            user_affine = np.loadtxt(user_matrix)
+            dw_grad_vec = apply_matrix_to_bvecs(dw_grad_vec,user_affine)
 
         np.save(jph(pfo_output, fin_scan + '_DwGradVec.npy'), dw_grad_vec)
 

@@ -73,6 +73,12 @@ def main():
                         dest='correct_reco_slope',
                         action='store_true')
 
+    # user_matrix = None,
+    parser.add_argument('-apply_matrix',
+                        dest='user_matrix',
+                        type=str,
+                        default=None)
+
     # verbose = 1
     parser.add_argument('-verbose', '-v',
                         dest='verbose',
@@ -97,6 +103,7 @@ def main():
     bruconv.save_human_readable = not args.do_not_save_human_readable
     bruconv.correct_visu_slope = args.correct_visu_slope
     bruconv.correct_reco_slope = args.correct_reco_slope
+    bruconv.user_matrix = args.user_matrix
     bruconv.verbose = args.verbose
 
     if parser.add_argument > 0:
@@ -111,6 +118,7 @@ def main():
         print('Save human readable    : {}'.format(bruconv.save_human_readable))
         print('Correct the visu slope : {}'.format(bruconv.correct_visu_slope))
         print('Correct the reco slope : {}'.format(bruconv.correct_reco_slope))
+        print('Apply matrix           : {}'.format(bruconv.user_matrix))
         print('-------------------------------------------------------- ')
     bruconv.convert()
 
