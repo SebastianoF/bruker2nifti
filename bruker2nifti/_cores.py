@@ -26,7 +26,7 @@ def scan2struct(pfo_scan,
     """
     The core method of the converter has 2 parts.
     1) parsing the Bruker scan folder structure into an internal dictionary called struct.
-    2) writing the infrormation parsed in struct into folders.
+    2) writing the information parsed in struct into folders.
     ----
     scan2struct is the first part of the bridge. Info required to fill nifti header are in the visu_pars file.
     The user may want to parse as well acqp, method (must when EpiDti) and reco parameter files.

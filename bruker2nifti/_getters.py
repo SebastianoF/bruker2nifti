@@ -54,6 +54,75 @@ def get_subject_name(pfo_study):
         return visu_pars['VisuSubjectId']
 
 
+def get_stack_direction_from_VisuCorePosition(visu_core_position, num_sub_volumes=1):
+    """
+    To be used when the acquisition is 2D: it returns the stack orientation and direction encoded in a string.
+
+    :param visu_core_position: visu_pars parameter file parsed into a dictionary.
+    :param num_sub_volumes: [1] for when there is more than one volume embedded in the same scan
+    (see num_vols variable of the method nifti_getter)
+    :return: stack direction and axis of the 2D image. If more than one sub-volume is included, returns
+    the sequence of string-encoded orientations and directions.
+    ----------
+    Example:
+
+    visu_core_position -> corresponding output:
+    [[  -4. -20.  20.] [ -2. -20.  20.] [ 0. -20.  20.] [ 2. -20.  20.] [ 4. -20.  20.]]    -> 'x+'
+    [[  4. -20.  20.]  [ 2. -20.  20.]   [ 0. -20.  20.] [ -2. -20.  20.]  [-4. -20.  20.]] -> 'x-'
+    [[-20.  -4.  20.] [-20.  -2.  20.] [-20.   0.  20.] [-20.  2.  20.] [-20.  4.  20.]]    -> 'y+'
+    [[-20.   4.  20.] [-20.   2.  20.] [-20.   0.  20.] [-20.  -2.  20.] [-20.  -4.  20.]]  -> 'y-'
+    [[-20. -20.  -4.] [-20. -20.  -2.] [-20. -20.   0.] [-20. -20.   2.] [-20. -20.   4.]]  -> 'z+'
+    [[-20. -20.  4.] [-20. -20.  2.] [-20. -20.   0.] [-20. -20.   -2.] [-20. -20.   -4.]]  -> 'z-'
+
+    visu_core_position = [[-20. -20.  -4.]
+                          [-20. -20.  -2.]
+                          [-20. -20.   0.]
+                          [-20. -20.   2.]
+                          [-20. -20.   4.]
+                          [  4. -20.  20.]
+                          [  2. -20.  20.]
+                          [  0. -20.  20.]
+                          [ -2. -20.  20.]
+                          [ -4. -20.  20.]]
+    num_sub_volumes = 2 -> 'z-x-'
+
+    """
+    sh = visu_core_position.shape
+    if not len(sh) == 2:
+        msg = 'The input VisuCorePosition must be from a 2D acquisition. Input shape {}'.format(sh)
+        raise IOError(msg)
+    if not sh[0] > 1:
+        msg = 'The input VisuCorePosition must be from a 2D acquisition. Needs to have more than one row. ' \
+              'Input shape {}'.format(sh)
+        raise IOError(msg)
+
+    rows, cols = sh
+    if not cols == 3:
+        raise IOError('VisuCorePosition should have three columns.')
+
+    slices_per_vol, reminder = int(rows // num_sub_volumes), rows % num_sub_volumes
+    if not reminder == 0:
+        raise IOError('Number of subvolumes not compatible with VisuCorePosition.')
+
+    res = ''
+    for v in range(num_sub_volumes):
+        first_slice_each_vol = slices_per_vol * v
+        s_diff = visu_core_position[first_slice_each_vol + 1, :] - visu_core_position[first_slice_each_vol, :]
+        pos = [i for i in range(3) if np.abs(s_diff[i]) > 0][0]
+        val = s_diff[pos]
+        if pos == 0:
+            res += 'x'
+        elif pos == 1:
+            res += 'y'
+        elif pos == 2:
+            res += 'z'
+        if val > 0:
+            res += '+'
+        else:
+            res += '-'
+    return res
+
+
 def nifti_getter(img_data_vol,
                  visu_pars,
                  correct_slope,
@@ -99,7 +168,7 @@ def nifti_getter(img_data_vol,
         vol_data = slope_corrector(vol_data, visu_pars['VisuCoreDataSlope'])
 
     # get number sub-volumes
-    num_vols = len(eliminate_consecutive_duplicates(list(visu_pars['VisuCoreOrientation'])))
+    num_sub_volumes = len(eliminate_consecutive_duplicates(list(visu_pars['VisuCoreOrientation'])))
 
     # get the default parameters when not filled in the parameter files. - Not used but may be useful in future vers.
     # if 'VisuCoreTransposition' not in visu_pars.keys():
@@ -107,19 +176,19 @@ def nifti_getter(img_data_vol,
     # else:
     #     visu_core_transposition = visu_pars['VisuCoreTransposition']
 
-    if num_vols > 1:
+    if num_sub_volumes > 1:
 
         output_nifti = []
 
-        assert vol_pre_shape[2] % num_vols == 0
-        vol_shape = vol_pre_shape[0], vol_pre_shape[1], int(vol_pre_shape[2] / num_vols)
+        assert vol_pre_shape[2] % num_sub_volumes == 0
+        vol_shape = vol_pre_shape[0], vol_pre_shape[1], int(vol_pre_shape[2] / num_sub_volumes)
 
         # get resolution - same for all sub-volumes.
         resolution = compute_resolution_from_visu_pars(visu_pars['VisuCoreExtent'],
                                                        visu_pars['VisuCoreSize'],
                                                        visu_pars['VisuCoreFrameThickness'])
 
-        for id_sub_vol in range(num_vols):
+        for id_sub_vol in range(num_sub_volumes):
 
             # compute affine
             affine_transf = compute_affine_from_visu_pars(
