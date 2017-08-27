@@ -49,9 +49,10 @@ Type `nosetests` in the cloned repository.
 Please see the [contribution guideline](https://github.com/SebastianoF/bruker2nifti/blob/master/CONTRIBUTE.md) for bugs report,
 feature requests and code style.
 
-## Copyright and Licence 
-Copyright (c) 2017, Sebastiano Ferraris, University College London.
-Bruker2nifti is available as free open-source software under [MIT License](https://github.com/SebastianoF/bruker2nifti/blob/master/LICENCE.txt).
+## Copyright, Licence and Citations 
++ Copyright (c) 2017, Sebastiano Ferraris, University College London.
++ Bruker2nifti is available as free open-source software under [MIT License](https://github.com/SebastianoF/bruker2nifti/blob/master/LICENCE.txt).
++ To cite the code please follow [this link](http://joss.theoj.org/papers/2ee6a3a3b1a4d8df1633f601bf2b0ffe).
 
 ## Acknowledgements
 + This repository is developed within the [gift-SURG research project](http://www.gift-surg.ac.uk).
