@@ -170,12 +170,6 @@ def nifti_getter(img_data_vol,
     # get number sub-volumes
     num_sub_volumes = len(eliminate_consecutive_duplicates(list(visu_pars['VisuCoreOrientation'])))
 
-    # get the default parameters when not filled in the parameter files. - Not used but may be useful in future vers.
-    # if 'VisuCoreTransposition' not in visu_pars.keys():
-    #     visu_core_transposition = [0, ] * vol_pre_shape[2]
-    # else:
-    #     visu_core_transposition = visu_pars['VisuCoreTransposition']
-
     if num_sub_volumes > 1:
 
         output_nifti = []
@@ -189,6 +183,12 @@ def nifti_getter(img_data_vol,
                                                        visu_pars['VisuCoreFrameThickness'])
 
         for id_sub_vol in range(num_sub_volumes):
+
+            # get the default parameters when not filled in the parameter files. - Not used but may be useful in future vers.
+            # if 'VisuCoreTransposition' not in visu_pars.keys():
+            #     visu_core_transposition = [0, ] * vol_pre_shape[2]
+            # else:
+            #     visu_core_transposition = visu_pars['VisuCoreTransposition']
 
             # compute affine
             affine_transf = compute_affine_from_visu_pars(

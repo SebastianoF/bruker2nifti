@@ -424,7 +424,7 @@ def compute_affine_from_visu_pars(vc_orientation, vc_position, vc_subject_positi
     -------- optional changes ----------
 
     3) frame_body_as_frame_head: Switching the last 2 columns of the rotational part, no matter the value of
-    VisuCoreTransposition - According to the fact we are dealing with quadrupeds and not with humans,
+    VisuCorePosition - According to the fact we are dealing with quadrupeds and not with humans,
     we need to switch the Anterior-Posterior with the Inferior-Superior direction.
     Set frame_body_as_frame_head=True to set the biped orientation.
 
