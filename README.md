@@ -29,7 +29,7 @@ Please note that the stable release is compatible only with **Python 2**. The de
 + [GUI instructions and real data examples](https://github.com/SebastianoF/bruker2nifti/wiki/Graphical-User-Interface-Examples).
 
 
-![gui_example](https://github.com/SebastianoF/bruker2nifti/blob/master/screenshots/gui_example2.jpg)
+![gui_example](https://github.com/SebastianoF/bruker2nifti/blob/master/screenshots/gui_version_101.jpg)
 
 ## API documentation, additional notes, examples and list of Bruker converter
 + [API documentation](http://bruker2nifti.readthedocs.io/en/latest/).
