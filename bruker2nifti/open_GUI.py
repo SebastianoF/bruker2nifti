@@ -16,7 +16,7 @@ from bruker2nifti.__init__ import __version__ as version
 
 class BrukerToNiftiGUI(tk.Tk, object):
     """
-    Graphical user inerface class to access Bruker to Nifti converter.
+    Graphical user interface class to access Bruker to Nifti converter.
     """
     def __init__(self, in_pfo_input=None, in_pfo_output=None, in_study_name=None):
 
