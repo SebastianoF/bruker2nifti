@@ -88,8 +88,9 @@ script:
     - cd for_testing
     - if [ "${COVERAGE}" == "1" ]; then
       cp ../.coveragerc .;
-      COVER_ARGS="--with-coverage --cover-package bruker2nifti";
+      COVER_ARGS="--with-coverage -I=.coveragerc";
       fi
+    - DOCTEST_ARGS=""
     - if [ "${DOCTESTS}" == "1" ]; then
       DOCTEST_ARGS="--with-doctest";
       fi
@@ -100,7 +101,7 @@ script:
       fi
 
 after_success:
-    # - if [ "${COVERAGE}" == "1" ]; then coveralls; fi
-    - coveralls
+    - if [ "${COVERAGE}" == "1" ]; then coveralls; fi
+    # - coveralls
 notifications:
   email: false
