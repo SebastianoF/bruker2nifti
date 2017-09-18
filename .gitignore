@@ -2,6 +2,7 @@
 .idea/
 __pycache__
 *.pyc
+.z_*
 z_*
 zz_*
 dist
@@ -33,3 +34,4 @@ _templates
 #MANIFEST.in
 write_struct_here
 *.key
+cover

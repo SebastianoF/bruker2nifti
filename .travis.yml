@@ -58,9 +58,6 @@ before_install:
     - if [ "${DOC_DOCTEST}" == "1" ]; then
         pip install sphinx;
       fi
-    # added when COVERAGE has been commented
-    - pip install coverage;
-    - pip install coveralls;
 
 install:
     - |
@@ -102,6 +99,11 @@ script:
 
 after_success:
     # - if [ "${COVERAGE}" == "1" ]; then coveralls; fi
-    - coveralls
+    # coverage stats disentagled from web services and moved to 
+    # local cover/index.html
+    # - nosetests --with-coverage --cover-package=bruker2nifti --cover-erase --cover-html
+    # - open cover/index.html 
+    # run 
+    # nosetests --with-coverage --cover-package=bruker2nifti &> nose_coverage.txt
 notifications:
   email: false

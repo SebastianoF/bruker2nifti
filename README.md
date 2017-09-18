@@ -43,6 +43,17 @@ Type `nosetests` in the cloned repository.
 + Tests are based on the open dataset in the folder 
 [test_data](https://github.com/SebastianoF/bruker2nifti/tree/master/test_data).
 + [Bruker2nifti_qa](https://gitlab.com/naveau/bruker2nifti_qa/tree/master) provides more Bruker raw data for further experiments.
++ [Coverage percentage](https://github.com/SebastianoF/bruker2nifti/blob/master/nose_coverage.txt). Created with:
+```
+nosetests --with-coverage --cover-package=bruker2nifti &> nose_coverage.txt
+```
+Use
+```
+nosetests --with-coverage --cover-package=bruker2nifti --cover-erase --cover-html
+open cover/index.html 
+```
+to see the HTML output.
+
 + Current deployment version undergoes continuous integration on [travis-ci](https://travis-ci.org/SebastianoF/bruker2nifti).
 
 ## Support and contributions

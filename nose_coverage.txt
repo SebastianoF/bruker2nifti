@@ -1,14 +1,13 @@
-nosetests --with-coverage -I=.coveragerc
 .............................
 Name                        Stmts   Miss  Cover
 -----------------------------------------------
 bruker2nifti/_cores.py        174     66    62%
-bruker2nifti/_getters.py      135     46    66%
+bruker2nifti/_getters.py      135     56    59%
 bruker2nifti/_utils.py        250     60    76%
-bruker2nifti/converter.py      71     11    85%
+bruker2nifti/converter.py      71     16    77%
 -----------------------------------------------
-TOTAL                         630    183    71%
------------------------------------------------
-Ran 29 tests in 0.522s
+TOTAL                         630    198    69%
+----------------------------------------------------------------------
+Ran 29 tests in 0.528s
 
 OK
