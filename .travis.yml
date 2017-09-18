@@ -58,6 +58,9 @@ before_install:
     - if [ "${DOC_DOCTEST}" == "1" ]; then
         pip install sphinx;
       fi
+    # added when COVERAGE has been commented
+    - pip install coverage;
+    - pip install coveralls;
 
 install:
     - |
