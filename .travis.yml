@@ -14,11 +14,11 @@ python:
 
 matrix:
   include:
-    - python: 2.7
-      env:
-        - COVERAGE=1
-        - DOCTESTS=1
-        - DOC_DOCTEST=1
+    # - python: 2.7
+    #   env:
+    #     - COVERAGE=1
+    #     - DOCTESTS=1
+    #     - DOC_DOCTEST=1
     # Absolute minimum dependencies
     - python: 2.7
       env:
@@ -29,9 +29,9 @@ matrix:
     - python: 2.7
       env:
         - INSTALL_TYPE=setup
-#    - python: 2.7
-#      env:
-#        - INSTALL_TYPE=sdist
+    - python: 2.7
+      env:
+        - INSTALL_TYPE=sdist
     - python: 2.7
       env:
         - DEPENDS=
