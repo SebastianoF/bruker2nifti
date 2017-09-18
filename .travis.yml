@@ -14,12 +14,12 @@ python:
 
 matrix:
   include:
-#    - python: 2.7
-#      env:
-#        - COVERAGE=1
-#        - DOCTESTS=1
-#        - DOC_DOCTEST=1
-    # Absolute minimum dependencies
+   - python: 2.7
+     env:
+       - COVERAGE=1
+       - DOCTESTS=1
+       - DOC_DOCTEST=1
+    Absolute minimum dependencies
     - python: 2.7
       env:
         - DEPENDS="numpy==1.12.1 nibabel==2.1.0"
@@ -97,6 +97,7 @@ script:
       fi
 
 after_success:
-    - if [ "${COVERAGE}" == "1" ]; then coveralls; fi
+    # - if [ "${COVERAGE}" == "1" ]; then coveralls; fi
+    - coveralls
 notifications:
   email: false
