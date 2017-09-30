@@ -8,11 +8,9 @@ ParaVision to [NifTi](https://nifti.nimh.nih.gov/nifti-1), without any intermedi
 
 Bruker2nifti is a pip-installable Python tool provided with a Graphical User Interface and a Command Line Utility to access the conversion method.
 
-Please note that the stable release is compatible only with **Python 2**. The development release is Python 2 and Python 3 compatible.
-
 ## Getting Started
 + Requirements
-    - Python 2.7+ 
+    - Python 3 backward compatible with python 2.7
     - Libraries in [requirements.txt](https://github.com/SebastianoF/bruker2nifti/blob/master/requirements.txt).
 
 + Installation
@@ -39,10 +37,10 @@ Please note that the stable release is compatible only with **Python 2**. The de
 ## Code Testing and Continuous Integration
 
 + Unit testing with [nosetest](http://pythontesting.net/framework/nose/nose-introduction/). 
-Type `nosetests` in the cloned repository.
+Type `nosetests` in a terminal at the cloned repository.
 + Tests are based on the open dataset in the folder 
 [test_data](https://github.com/SebastianoF/bruker2nifti/tree/master/test_data).
-+ [Bruker2nifti_qa](https://gitlab.com/naveau/bruker2nifti_qa/tree/master) provides more Bruker raw data for further experiments.
++ [Bruker2nifti_qa](https://gitlab.com/naveau/bruker2nifti_qa/tree/master) provides more Bruker raw data for further experiments (thanks to Mikaël Naveau).
 + [Coverage percentage](https://github.com/SebastianoF/bruker2nifti/blob/master/nose_coverage.txt). Created with:
 ```
 nosetests --with-coverage --cover-package=bruker2nifti &> nose_coverage.txt
