@@ -99,6 +99,7 @@ script:
 
 after_success:
     # - if [ "${COVERAGE}" == "1" ]; then coveralls; fi
+    -  coveralls
     # coverage stats disentagled from web services and moved to 
     # local cover/index.html
     # - nosetests --with-coverage --cover-package=bruker2nifti --cover-erase --cover-html
