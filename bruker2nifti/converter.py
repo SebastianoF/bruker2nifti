@@ -135,7 +135,7 @@ class Bruker2Nifti(object):
                                   get_reco=self.get_reco,
                                   )
 
-        if not struct_scan == 'no data':
+        if struct_scan is not None:
             write_struct(struct_scan,
                          pfo_output_converted,
                          fin_scan=nifti_file_name,

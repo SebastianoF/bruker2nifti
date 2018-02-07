@@ -79,6 +79,13 @@ def scan2struct(pfo_scan,
             warnings.warn(warn_msg)
             return None
 
+        # In some cases we cannot deal with, VisuPars['VisuCoreSize'] can be a float. No conversion in this case.
+        if not (isinstance(visu_pars['VisuCoreSize'], np.ndarray) or isinstance(visu_pars['VisuCoreSize'], list)):
+            warnings.warn("\nWarning, VisuCoreSize in VisuPars parameter file {} \n"
+                          "is not a list or a vector in. The study cannot be converted. \n"
+                          "".format(jph(pfo_scan, 'pdata', id_sub_scan)))
+            return None
+
         # Get data endian_nes - default big!!
         if visu_pars['VisuCoreByteOrder'] == 'littleEndian':
             data_endian_ness = 'little'
