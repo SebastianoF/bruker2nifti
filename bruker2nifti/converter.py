@@ -120,7 +120,10 @@ class Bruker2Nifti(object):
             raise IOError('Input folder does not exist.')
 
         if create_output_folder_if_not_exists:
-            os.system('mkdir -p {}'.format(pfo_output_converted))
+            if 'win' in os.name:
+                os.system('mkdir {}'.format(pfo_output_converted))
+            else:
+                os.system('mkdir -p {}'.format(pfo_output_converted))
 
         struct_scan = scan2struct(pfo_input_scan,
                                   correct_slope=self.correct_slope,

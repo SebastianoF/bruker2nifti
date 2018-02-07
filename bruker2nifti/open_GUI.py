@@ -1,3 +1,4 @@
+import os
 
 try:
     # for Python2
@@ -100,11 +101,13 @@ class BrukerToNiftiGUI(tk.Tk, object):
 
     def button_browse_callback_pfo_input(self):
         filename = tkFileDialog.askdirectory()
+        filename = os.path.abspath(filename)
         self.entry_pfo_input.delete(0, tk.END)
         self.entry_pfo_input.insert(0, filename)
 
     def button_browse_callback_pfo_output(self):
         filename = tkFileDialog.askdirectory()
+        filename = os.path.abspath(filename)
         self.entry_pfo_output.delete(0, tk.END)
         self.entry_pfo_output.insert(0, filename)
 
