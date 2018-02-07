@@ -16,4 +16,4 @@ __all__ = ['_cores', '_getters', '_utils', 'converter', 'open_GUI']
 
 # Exclude the 'v' for PEP440 conformity, see
 # https://www.python.org/dev/peps/pep-0440/#public-version-identifiers
-__version__ = '1.0.1'  # version_buf[1:].decode("utf-8")
+__version__ = '1.0.2'  # version_buf[1:].decode("utf-8")
