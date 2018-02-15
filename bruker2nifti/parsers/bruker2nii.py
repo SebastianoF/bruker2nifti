@@ -63,10 +63,16 @@ def main():
                         dest='do_not_save_human_readable',
                         action='store_true')
 
-    # correct_slope = False,
+    # correct_slope = True,
     parser.add_argument('-correct_slope',
                         dest='correct_slope',
                         action='store_true')
+
+    # correct_offset = True,
+    parser.add_argument('-correct_offset',
+                        dest='correct_offset',
+                        action='store_true')
+
     # verbose = 1
     parser.add_argument('-verbose', '-v',
                         dest='verbose',
@@ -90,6 +96,7 @@ def main():
     bruconv.sform_code = args.sform_code
     bruconv.save_human_readable = not args.do_not_save_human_readable
     bruconv.correct_slope = args.correct_slope
+    bruconv.correct_offset = args.correct_offset
     bruconv.verbose = args.verbose
 
     if parser.add_argument > 0:
@@ -103,6 +110,7 @@ def main():
         print('Output NifTi s-form  : {}'.format(bruconv.sform_code))
         print('Save human readable  : {}'.format(bruconv.save_human_readable))
         print('Correct the slope    : {}'.format(bruconv.correct_slope))
+        print('Correct the offset   : {}'.format(bruconv.correct_offset))
         print('-------------------------------------------------------- ')
     bruconv.convert()
 
