@@ -13,6 +13,7 @@ from ._utils import bruker_read_files, normalise_b_vect, from_dict_to_txt_sorted
 
 def scan2struct(pfo_scan,
                 correct_slope=True,
+                correct_offset=True,
                 nifti_version=1,
                 qform_code=1,
                 sform_code=2,
@@ -34,6 +35,7 @@ def scan2struct(pfo_scan,
     image, with additional infos.
     :param pfo_scan: path to folder containing the scan
     :param correct_slope: [True] if you want to correct the slope of the values.
+    :param correct_offset: [True] if you want to correct the offset of the values.
     :param nifti_version: [1] output nifti version can be version 1 or version 2 (see nibabel documentation)
     :param qform_code: [1] qform of the final nifti image
     :param sform_code: [2] sform of the final nifti image
@@ -129,6 +131,7 @@ def scan2struct(pfo_scan,
             # Force to not correcting the slope, if true. Diffusion weighted images must be slope corrected before the
             # DTI analysis. They will be to heavy otherwise.
             correct_slope = False
+            correct_offset = False
             # Force method to be parsed. Useful infos in this file to process the DWI.
             get_method = True
 
@@ -138,6 +141,7 @@ def scan2struct(pfo_scan,
         nib_im = nifti_getter(img_data_vol,
                               visu_pars,
                               correct_slope,
+                              correct_offset,
                               nifti_version,
                               qform_code,
                               sform_code,

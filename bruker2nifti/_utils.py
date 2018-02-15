@@ -253,7 +253,7 @@ def eliminate_consecutive_duplicates(input_list):
         return output_list
 
 
-def slope_corrector(data, slope, num_initial_dir_to_skip=None, dtype=np.float64):
+def data_corrector(data, factors, kind='slope', num_initial_dir_to_skip=None, dtype=np.float64):
     """
     Slope is a float or a vector that needs to be multiplied to the data, to obtain the data as they are acquired.
     To reduce the weight of an image, each slice can be divided by a common float factor, so that at each voxel only the
@@ -264,77 +264,100 @@ def slope_corrector(data, slope, num_initial_dir_to_skip=None, dtype=np.float64)
     (where = is an almost equal, where the small loss of accuracy is justified by the huge amount of space saved)
 
     :param data: data as parsed from the data structure.
-    :param slope: slope as parsed from the data structure
+    :param factors: can be the slope or the offset as parsed from the data structure
+    :param kind: is a string that can be 'slope' (multiplicative factor) or 'offset' additive factor.
     :param num_initial_dir_to_skip: in some cases (as some DWI) the number of slices in the image is higher than the
-    provided slope length. Usually it is because the initial directions have no weighted and the first element in the
-     slope can correct them all. If num_initial_direction_to_skip=j the slope correction starts after j slices, and
-     the initial j timepoint are trimmed by j.
+    provided slope/offset length. Usually it is because the initial directions have no weighted and the first element
+    in the slope/offset can correct them all. If num_initial_direction_to_skip=j the slope/offset correction starts
+    after j slices, and the initial j timepoint are trimmed by j.
     :param dtype: [np.float64] output datatype.
-    :return: data after the slope correction.
+    :return: data after the slope/offset correction.
+    ---
+    NOTE 1: if used in sequence to correct for slope and offset, correct FIRST slope, then OFFSET.
+    NOTE 2: when read 'factor' think slope or offset. The two are embeded in the same method to avoid code repetition.
     """
 
     if len(data.shape) > 5:
         raise IOError('4d or lower dimensional images allowed. Input data has shape {} '.format(data.shape))
+    assert kind in ('slope', 'offset')
 
     data = data.astype(dtype)
 
     if num_initial_dir_to_skip is not None:
-        slope = slope[num_initial_dir_to_skip:]
+        factors = factors[num_initial_dir_to_skip:]
         data = data[..., num_initial_dir_to_skip:]
 
     # Check compatibility slope and data and if necessarily correct for possible consecutive duplicates
     # (as in some cases, when the size of the slope is larger than any timepoint or spatial point, the problem can
     # be in the fact that there are duplicates in the slope vector. This has been seein only in PV5.1).
-    if not (isinstance(slope, int) or isinstance(slope, float)):
-        if slope.ndim == 1:
-            if not slope.size == data.shape[-1] and not slope.size == data.shape[-2]:
-                slope = np.array(eliminate_consecutive_duplicates(list(slope)), dtype=np.float64)
-                if not slope.size == data.shape[-1] and not slope.size == data.shape[-2]:
-                    msg = 'Slope shape {0} and data shape {1} appears to be not compatible'.format(slope.shape,
-                                                                                                   data.shape)
+    if not (isinstance(factors, int) or isinstance(factors, float)):
+        if factors.ndim == 1:
+            if not factors.size == data.shape[-1] and not factors.size == data.shape[-2]:
+                factors = np.array(eliminate_consecutive_duplicates(list(factors)), dtype=np.float64)
+                if not factors.size == data.shape[-1] and not factors.size == data.shape[-2]:
+                    msg = 'Slope shape {0} and data shape {1} appears to be not compatible'.format(
+                        factors.shape, data.shape)
                     raise IOError(msg)
 
-    if isinstance(slope, int) or isinstance(slope, float):
-        # scalar slope times nd array data
-        data *= slope
+    if isinstance(factors, int) or isinstance(factors, float):
+        # scalar slope/offset times nd array data
+        if kind == 'slope':
+            data *= factors
+        elif kind == 'offset':
+            data += factors
 
-    elif slope.size == 1:
-        # scalar slope embedded in a singleton times nd array data
-        data *= slope[0]
+    elif factors.size == 1:
+        # scalar slope/offset embedded in a singleton times nd array data
+        if kind == 'slope':
+            data *= factors[0]
+        else:
+            data += factors[0]
 
-    elif len(data.shape) == 3 and len(slope.shape) == 1:
+    elif len(data.shape) == 3 and len(factors.shape) == 1:
         # each slice of the 3d image is multiplied an element of the slope consecutively
-        if data.shape[2] == slope.shape[0]:
-            for t, sl in enumerate(slope):
-                data[..., t] = data[..., t] * sl
+        if data.shape[2] == factors.shape[0]:
+            for t, fa in enumerate(factors):
+                if kind == 'slope':
+                    data[..., t] = data[..., t] * fa
+                elif kind == 'offset':
+                    data[..., t] = data[..., t] + fa
         else:
             raise IOError('Shape of the 2d image and slope dimensions are not consistent')
 
-    elif len(data.shape) == 4 and len(slope.shape) == 1 and slope.shape[0] == data.shape[2]:
+    elif len(data.shape) == 4 and len(factors.shape) == 1 and factors.shape[0] == data.shape[2]:
         # each slice of the 4d image, taken from the third dim, is multiplied by each element of the slope in sequence.
-        if slope.size == data.shape[2]:
+        if factors.size == data.shape[2]:
             for t in range(data.shape[3]):
-                for k in range(slope.size):
-                    data[..., k, t] = data[..., k, t] * slope[k]
+                for k in range(factors.size):
+                    if kind == 'slope':
+                        data[..., k, t] = data[..., k, t] * factors[k]
+                    elif kind == 'offset':
+                        data[..., k, t] = data[..., k, t] + factors[k]
         else:
             raise IOError('If you are here, your case cannot be converted. Further investigations required.')
 
-    elif len(data.shape) == 5 and len(slope.shape) == 1 and slope.shape[0] == data.shape[3]:
+    elif len(data.shape) == 5 and len(factors.shape) == 1 and factors.shape[0] == data.shape[3]:
         # each slice of the 5d image, taken from the fourth dim, is multiplied by each element of the slope in sequence.
-        if slope.size == data.shape[3]:
+        if factors.size == data.shape[3]:
             for t in range(data.shape[4]):
-                for k in range(slope.size):
-                    data[..., k, t] = data[..., k, t] * slope[k]
+                for k in range(factors.size):
+                    if kind == 'slope':
+                        data[..., k, t] = data[..., k, t] * factors[k]
+                    elif kind == 'offset':
+                        data[..., k, t] = data[..., k, t] + factors[k]
         else:
             raise IOError('If you are here, your case cannot be converted. Further investigations required.')
 
     else:
         # each slice of the nd image, taken from the last dimension, is multiplied by each element of the slope.
-        if slope.size == data.shape[-1]:
+        if factors.size == data.shape[-1]:
             for t in range(data.shape[-1]):
-                data[..., t] = data[..., t] * slope[t]
+                if kind == 'slope':
+                    data[..., t] = data[..., t] * factors[t]
+                elif kind == 'offset':
+                    data[..., t] = data[..., t] + factors[t]
         else:
-            msg = 'Slope shape {0} and data shape {1} appears to be not compatible'.format(slope.shape, data.shape)
+            msg = 'Slope shape {0} and data shape {1} appears to be not compatible'.format(factors.shape, data.shape)
             raise IOError(msg)
 
     return data

@@ -2,7 +2,7 @@ import os
 import nibabel as nib
 import numpy as np
 
-from ._utils import bruker_read_files, eliminate_consecutive_duplicates, slope_corrector, \
+from ._utils import bruker_read_files, eliminate_consecutive_duplicates, data_corrector, \
     compute_affine_from_visu_pars, compute_resolution_from_visu_pars
 
 
@@ -126,6 +126,7 @@ def get_stack_direction_from_VisuCorePosition(visu_core_position, num_sub_volume
 def nifti_getter(img_data_vol,
                  visu_pars,
                  correct_slope,
+                 correct_offset,
                  nifti_version,
                  qform_code,
                  sform_code,
@@ -138,6 +139,7 @@ def nifti_getter(img_data_vol,
     :param img_data_vol: volume of the image.
     :param visu_pars: corresponding dictionary to the 'visu_pars' data file.
     :param correct_slope: [True/False] if you want to correct the slope.
+    :param correct_offset: [True/False] if you want to correct the offset.
     :param nifti_version: [1/2] according to the required nifti output
     :param qform_code: required nifti ouptut qform code.
     :param sform_code: required nifti ouput sform code
@@ -165,7 +167,10 @@ def nifti_getter(img_data_vol,
 
     # correct slope if required
     if correct_slope:
-        vol_data = slope_corrector(vol_data, visu_pars['VisuCoreDataSlope'])
+        vol_data = data_corrector(vol_data, visu_pars['VisuCoreDataSlope'], kind='slope')
+    # correct offset (AFTER slope) if required
+    if correct_offset:
+        vol_data = data_corrector(vol_data, visu_pars['VisuCoreDataOffs'], kind='offset')
 
     # get number sub-volumes
     num_sub_volumes = len(eliminate_consecutive_duplicates(list(visu_pars['VisuCoreOrientation'])))
