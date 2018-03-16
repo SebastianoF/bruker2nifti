@@ -168,7 +168,6 @@ class Bruker2Nifti(object):
         >> bru.convert()
 
         """
-
         pfo_nifti_study = os.path.join(self.pfo_study_nifti_output, self.study_name)
         os.system('mkdir -p {0}'.format(pfo_nifti_study))
 

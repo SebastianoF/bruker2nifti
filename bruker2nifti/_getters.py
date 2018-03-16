@@ -45,7 +45,7 @@ def get_subject_name(pfo_study):
     # (1) 'subject' at the study level is present
     if os.path.exists(os.path.join(pfo_study, 'subject')):
         subject = bruker_read_files('subject', pfo_study)
-        return subject['SUBJECT_study_name']
+        return subject['SUBJECT_id']
     # (2) 'subject' at the study level is not present, we use 'VisuSubjectId' from visu_pars of the first scan.
     # Longer solution as at the end 'visu_pars' will be unavoidably scanned twice.
     else:
