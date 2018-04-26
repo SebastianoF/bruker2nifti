@@ -100,8 +100,6 @@ def test_slope_corrector_int_float_slope():
     assert_array_equal(out_data1, sl1 * in_data)
     assert_array_equal(out_data2, sl2 * in_data)
 
-test_slope_corrector_int_float_slope()
-
 
 def test_slope_corrector_slice_wise_slope_3d():
 
