@@ -1,10 +1,17 @@
 import numpy as np
 import os
 import nibabel as nib
+import warnings
 from os.path import join as jph
 
 
 # --- text-files utils ---
+
+def unique_words_in_string(in_string):
+    ulist = []
+    [ulist.append(s) for s in in_string.split() if s not in ulist]
+    return ulist[0]
+
 
 def indians_file_parser(s, sh=None):
     """
@@ -15,6 +22,7 @@ def indians_file_parser(s, sh=None):
     according to the information that can be parsed in the file:
     A - list of vectors transformed into a list
     B - list of numbers, transformed into a np.ndarray, or single number stored as a float.
+    B bis - string of 'inf' repeated n times that will be transformed in a numpy array of 'inf'.
     C - list of strings separated by <>.
     D - everything else becomes a string.
 
@@ -37,6 +45,13 @@ def indians_file_parser(s, sh=None):
                 a = a.reshape(sh)
         else:
             a = float(s)
+    # B-bis
+    elif 'inf' in s:
+        if 'inf' == unique_words_in_string(s):
+            num_occurrences = sum('inf' == word for word in s.split())
+            a = [np.inf, ] * num_occurrences
+        else:
+            a = s[:]
     # C
     elif ('<' in s) and ('>' in s):
         s = s[1:-1]  # removes initial and final < >
@@ -280,6 +295,12 @@ def data_corrector(data, factors, kind='slope', num_initial_dir_to_skip=None, dt
     if len(data.shape) > 5:
         raise IOError('4d or lower dimensional images allowed. Input data has shape {} '.format(data.shape))
     assert kind in ('slope', 'offset')
+
+    if hasattr(factors, '__contains__'):
+        if np.inf in factors:
+            warnings.warn('bruker2nifti - Vector corresponding to {} has some inf values. Can not correct it.'.
+                          format(kind), UserWarning)
+            return data
 
     data = data.astype(dtype)
 
