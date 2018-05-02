@@ -99,19 +99,18 @@ def main():
     bruconv.correct_offset = args.correct_offset
     bruconv.verbose = args.verbose
 
-    if parser.add_argument > 0:
-        print('\nConverter input parameters: ')
-        print('-------------------------------------------------------- ')
-        print('Study name           : {}'.format(bruconv.study_name))
-        print('List of scans        : {}'.format(bruconv.scans_list))
-        print('List of scans names  : {}'.format(bruconv.list_new_name_each_scan))
-        print('Output NifTi version : {}'.format(bruconv.nifti_version))
-        print('Output NifTi q-form  : {}'.format(bruconv.qform_code))
-        print('Output NifTi s-form  : {}'.format(bruconv.sform_code))
-        print('Save human readable  : {}'.format(bruconv.save_human_readable))
-        print('Correct the slope    : {}'.format(bruconv.correct_slope))
-        print('Correct the offset   : {}'.format(bruconv.correct_offset))
-        print('-------------------------------------------------------- ')
+    print('\nConverter input parameters: ')
+    print('-------------------------------------------------------- ')
+    print('Study name           : {}'.format(bruconv.study_name))
+    print('List of scans        : {}'.format(bruconv.scans_list))
+    print('List of scans names  : {}'.format(bruconv.list_new_name_each_scan))
+    print('Output NifTi version : {}'.format(bruconv.nifti_version))
+    print('Output NifTi q-form  : {}'.format(bruconv.qform_code))
+    print('Output NifTi s-form  : {}'.format(bruconv.sform_code))
+    print('Save human readable  : {}'.format(bruconv.save_human_readable))
+    print('Correct the slope    : {}'.format(bruconv.correct_slope))
+    print('Correct the offset   : {}'.format(bruconv.correct_offset))
+    print('-------------------------------------------------------- ')
     bruconv.convert()
 
 
