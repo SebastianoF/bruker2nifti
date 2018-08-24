@@ -61,10 +61,28 @@ feature requests and code style.
 ## Copyright, Licence and How to Cite 
 + Copyright (c) 2017, Sebastiano Ferraris, University College London.
 + Bruker2nifti is available as free open-source software under [MIT License](https://github.com/SebastianoF/bruker2nifti/blob/master/LICENCE.txt).
-+ To cite the code in your research please follow [this link](http://joss.theoj.org/papers/2ee6a3a3b1a4d8df1633f601bf2b0ffe).
++ To cite the code in your research please cite:
+
+* S. Ferraris, D. I. Shakir, J. Van Der Merwe, W. Gsell, J. Deprest, T. Vercauteren (2017), [Bruker2nifti: Magnetic Resonance Images converter from Bruker ParaVision to Nifti format](http://joss.theoj.org/papers/2ee6a3a3b1a4d8df1633f601bf2b0ffe), 
+Journal of Open Source Software, 2(16), 354, [doi:10.21105/joss.00354](http://joss.theoj.org/papers/10.21105/joss.00354)
+
+BibTeX entry:
+```
+@article{ferraris2017bruker2nifti,
+  title={{Bruker2nifti: Magnetic Resonance Images converter from Bruker ParaVision to Nifti format}},
+  author={Ferraris, Sebastiano and Shakir, Ismail Dzhoshkun and Van Der Merwe, Johannes and Gsell, Willy and Deprest, Jan and Vercauteren, Tom},
+  journal={Journal Of Open Source Software},
+  volume={2},
+  number={16},
+  pages={354},
+  year={2017},
+  publisher={Journal Of Open Source Software}
+}
+```
+
 
 ## Acknowledgements
-+ This repository is developed within the [gift-SURG research project](http://www.gift-surg.ac.uk).
++ This repository is developed within the [GIFT-surg research project](http://www.gift-surg.ac.uk).
 + Funding sources and authors list can be found in the [JOSS submission paper](https://github.com/SebastianoF/bruker2nifti/blob/master/paper/paper.md). 
 + Thanks to 
 Bernard Siow (Centre for Advanced Biomedical Imaging, University College London), 
