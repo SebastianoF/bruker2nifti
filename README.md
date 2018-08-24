@@ -6,9 +6,9 @@
 [Bruker2nifti](https://github.com/SebastianoF/bruker2nifti) is an open source medical image format converter from raw [Bruker](http://imaging.mrc-cbu.cam.ac.uk/imaging/FormatBruker) 
 ParaVision to [NifTi](https://nifti.nimh.nih.gov/nifti-1), without any intermediate step through the [DICOM](http://dicom.nema.org/standard.html) standard formats.
 
-Bruker2nifti is a pip-installable Python tool provided with a Graphical User Interface and a Command Line Utility to access the conversion method.
+Bruker2nifti is a pip-installable pure Python tool provided with a Graphical User Interface and a Command Line Utility to access the conversion method.
 
-## Getting Started
+### Getting Started
 + Requirements
     - Python 3 backward compatible with python 2.7
     - Libraries in [requirements.txt](https://github.com/SebastianoF/bruker2nifti/blob/master/requirements.txt).
@@ -29,12 +29,12 @@ Bruker2nifti is a pip-installable Python tool provided with a Graphical User Int
 
 ![gui_example](https://github.com/SebastianoF/bruker2nifti/blob/master/screenshots/gui_version_101.jpg)
 
-## API documentation, additional notes, examples and list of Bruker converter
+### API documentation, additional notes, examples and list of Bruker converter
 + [API documentation](http://bruker2nifti.readthedocs.io/en/latest/).
 + [Wiki documentation with additional notes and examples](https://github.com/SebastianoF/bruker2nifti/wiki).
 + [Links and list of available Bruker converter](https://github.com/SebastianoF/bruker2nifti/wiki/References).
 
-## Code Testing and Continuous Integration
+### Code Testing and Continuous Integration
 
 + Unit testing with [nosetest](http://pythontesting.net/framework/nose/nose-introduction/). 
 Type `nosetests` in a terminal at the cloned repository.
@@ -54,11 +54,11 @@ to see the HTML output.
 
 + Current deployment version undergoes continuous integration on [travis-ci](https://travis-ci.org/SebastianoF/bruker2nifti).
 
-## Support and contributions
+### Support and contributions
 Please see the [contribution guideline](https://github.com/SebastianoF/bruker2nifti/blob/master/CONTRIBUTE.md) for bugs report,
 feature requests and code style.
 
-## Copyright, Licence and How to Cite 
+### Copyright, Licence and How to Cite 
 + Copyright (c) 2017, Sebastiano Ferraris, University College London.
 + Bruker2nifti is available as free open-source software under [MIT License](https://github.com/SebastianoF/bruker2nifti/blob/master/LICENCE.txt).
 + To cite the code in your research please cite:
@@ -81,7 +81,7 @@ BibTeX entry:
 ```
 
 
-## Acknowledgements
+### Acknowledgements
 + This repository is developed within the [GIFT-surg research project](http://www.gift-surg.ac.uk).
 + Funding sources and authors list can be found in the [JOSS submission paper](https://github.com/SebastianoF/bruker2nifti/blob/master/paper/paper.md). 
 + Thanks to 
