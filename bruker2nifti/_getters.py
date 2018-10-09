@@ -163,6 +163,7 @@ def nifti_getter(img_data_vol,
     else:
         echo = img_data_vol.shape[0] / np.prod(vol_pre_shape)
         vol_pre_shape += [echo]
+        vol_pre_shape = [int(k) for k in vol_pre_shape]
         vol_data = img_data_vol.reshape(vol_pre_shape, order='F')
 
     # correct slope if required
