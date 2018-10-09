@@ -224,7 +224,7 @@ def write_struct(bruker_struct,
     """
 
     if not os.path.isdir(pfo_output):
-        raise IOError('Output folder does not exists.')
+        raise IOError('Output folder does not exist.')
 
     if bruker_struct is None:
         return

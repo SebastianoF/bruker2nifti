@@ -96,7 +96,7 @@ class Bruker2Nifti(object):
         :return: [None] only print to console information.
         """
         if not os.path.isdir(self.pfo_study_bruker_input):
-            raise IOError('Input folder does not exists.')
+            raise IOError('Input folder does not exist.')
 
         print('Study folder structure: ')
         scans_list = get_list_scans(self.pfo_study_bruker_input)
