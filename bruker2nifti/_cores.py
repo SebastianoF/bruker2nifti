@@ -14,6 +14,7 @@ from ._utils import bruker_read_files, normalise_b_vect, from_dict_to_txt_sorted
 def scan2struct(pfo_scan,
                 correct_slope=True,
                 correct_offset=True,
+                sample_upside_down=False,
                 nifti_version=1,
                 qform_code=1,
                 sform_code=2,
@@ -36,6 +37,7 @@ def scan2struct(pfo_scan,
     :param pfo_scan: path to folder containing the scan
     :param correct_slope: [True] if you want to correct the slope of the values.
     :param correct_offset: [True] if you want to correct the offset of the values.
+    :param sample_upside_down: [False] if you want to have the sample rotated 180 around the Anterior-Posterior axis.
     :param nifti_version: [1] output nifti version can be version 1 or version 2 (see nibabel documentation)
     :param qform_code: [1] qform of the final nifti image
     :param sform_code: [2] sform of the final nifti image
@@ -138,10 +140,13 @@ def scan2struct(pfo_scan,
         # ------------------------------------------------------ #
         # ------ Generate the nifti image using visu_pars. ----- #
         # ------------------------------------------------------ #
+
+        print('sample upside down before nib {}'.format(sample_upside_down))
         nib_im = nifti_getter(img_data_vol,
                               visu_pars,
                               correct_slope,
                               correct_offset,
+                              sample_upside_down,
                               nifti_version,
                               qform_code,
                               sform_code,

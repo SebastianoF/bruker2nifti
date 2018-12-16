@@ -81,6 +81,16 @@ def main():
                         dest='correct_offset',
                         action='store_true')
 
+    # correct_offset = True,
+    parser.add_argument('-sample_upside_down',
+                        dest='sample_upside_down',
+                        action='store_false')
+
+    # correct_offset = True,
+    parser.add_argument('-frame_body_as_frame_head',
+                        dest='frame_body_as_frame_head',
+                        action='store_false')
+
     # verbose = 1
     parser.add_argument('-verbose', '-v',
                         dest='verbose',
@@ -110,13 +120,18 @@ def main():
         bruconv.scans_list = args.scans_list
     if args.list_new_name_each_scan is not None:
         bruconv.list_new_name_each_scan = args.list_new_name_each_scan
-    bruconv.nifti_version = args.nifti_version
-    bruconv.qform_code = args.qform_code
-    bruconv.sform_code = args.sform_code
+
+    # Basics
+    bruconv.nifti_version       = args.nifti_version
+    bruconv.qform_code          = args.qform_code
+    bruconv.sform_code          = args.sform_code
     bruconv.save_human_readable = not args.do_not_save_human_readable
-    bruconv.correct_slope = args.correct_slope
-    bruconv.correct_offset = args.correct_offset
-    bruconv.verbose = args.verbose
+    bruconv.correct_slope       = args.correct_slope
+    bruconv.correct_offset      = args.correct_offset
+    bruconv.verbose             = args.verbose
+    # Sample position
+    bruconv.sample_upside_down       = args.sample_upside_down
+    bruconv.frame_body_as_frame_head = args.frame_body_as_frame_head
 
     print('\nConverter input parameters: ')
     print('-------------------------------------------------------- ')
@@ -129,6 +144,9 @@ def main():
     print('Save human readable  : {}'.format(bruconv.save_human_readable))
     print('Correct the slope    : {}'.format(bruconv.correct_slope))
     print('Correct the offset   : {}'.format(bruconv.correct_offset))
+    print('-------------------------------------------------------- ')
+    print('Sample upside down         : {}'.format(bruconv.sample_upside_down))
+    print('Frame body as frame head   : {}'.format(bruconv.frame_body_as_frame_head))
     print('-------------------------------------------------------- ')
     bruconv.convert()
 

@@ -42,6 +42,6 @@ setup(name=infos['name'],
       entry_points={
         'console_scripts': ['bruker2nifti=bruker2nifti.cli.bruker2nii:main',
                             'bruker2nifti_scan=bruker2nifti.cli.bruker2nii_scan:main_scan'],
-        'gui_scripts' : ['bruker2nifti_gui=bruker2nifti.open:open_gui']
+        'gui_scripts' : ['bruker2nifti_gui=bruker2nifti.gui.open:open_gui']
       }
       )

@@ -127,6 +127,7 @@ def nifti_getter(img_data_vol,
                  visu_pars,
                  correct_slope,
                  correct_offset,
+                 sample_upside_down,
                  nifti_version,
                  qform_code,
                  sform_code,
@@ -140,12 +141,13 @@ def nifti_getter(img_data_vol,
     :param visu_pars: corresponding dictionary to the 'visu_pars' data file.
     :param correct_slope: [True/False] if you want to correct the slope.
     :param correct_offset: [True/False] if you want to correct the offset.
+    :param sample_upside_down: [True/False] if you want to have the sample rotated 180 around the Ant-Post axis.
     :param nifti_version: [1/2] according to the required nifti output
     :param qform_code: required nifti ouptut qform code.
     :param sform_code: required nifti ouput sform code
     :param frame_body_as_frame_head: [True/False] if the frame is the same for head and body [monkey] or not [mouse].
     :param keep_same_det: flag to constrain the determinant to be as the one provided into the orientation parameter.
-    :param consider_subject_position: if taking into account the 'Head_prone' 'Head_supine' input.
+    :param consider_subject_position: [False] if taking into account the 'Head_prone' 'Head_supine' input.
     :return:
     """
     # Check units of measurements:
@@ -190,12 +192,6 @@ def nifti_getter(img_data_vol,
 
         for id_sub_vol in range(num_sub_volumes):
 
-            # get the default parameters when not filled in the parameter files. - Not used but may be useful in future vers.
-            # if 'VisuCoreTransposition' not in visu_pars.keys():
-            #     visu_core_transposition = [0, ] * vol_pre_shape[2]
-            # else:
-            #     visu_core_transposition = visu_pars['VisuCoreTransposition']
-
             # compute affine
             affine_transf = compute_affine_from_visu_pars(
                                    list(visu_pars['VisuCoreOrientation'])[id_sub_vol * vol_shape[2]],
@@ -205,6 +201,9 @@ def nifti_getter(img_data_vol,
                                    frame_body_as_frame_head=frame_body_as_frame_head,
                                    keep_same_det=keep_same_det,
                                    consider_subject_position=consider_subject_position)
+
+            if sample_upside_down:
+                affine_transf = affine_transf.dot(np.diag([-1, 1, -1, 1]))
 
             # get sub volume in the correct shape
             img_data_sub_vol = vol_data[..., id_sub_vol * vol_shape[2] : (id_sub_vol + 1) * vol_shape[2]]
@@ -286,7 +285,13 @@ def nifti_getter(img_data_vol,
         affine_transf = compute_affine_from_visu_pars(list(visu_pars['VisuCoreOrientation'])[0],
                                                       list(visu_pars['VisuCorePosition'])[0],
                                                       visu_pars['VisuSubjectPosition'],
-                                                      resolution)
+                                                      resolution,
+                                                      frame_body_as_frame_head=frame_body_as_frame_head,
+                                                      keep_same_det=keep_same_det,
+                                                      consider_subject_position=consider_subject_position)
+
+        if sample_upside_down:
+            affine_transf = affine_transf.dot(np.diag([-1, 1, -1, 1]))
 
         if nifti_version == 1:
             output_nifti = nib.Nifti1Image(vol_data, affine=affine_transf)

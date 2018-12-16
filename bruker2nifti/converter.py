@@ -37,31 +37,33 @@ class Bruker2Nifti(object):
         """
         self.pfo_study_bruker_input = pfo_study_bruker_input
         self.pfo_study_nifti_output = pfo_study_nifti_output
-        self.study_name = study_name
+        self.study_name             = study_name
         # converter settings for the nifti values
-        self.nifti_version = 1
-        self.qform_code = 1
-        self.sform_code = 2
+        self.nifti_version       = 1
+        self.qform_code          = 1
+        self.sform_code          = 2
         self.save_human_readable = True
-        self.save_b0_if_dwi = True  # if DWI, it saves the first layer as a single nfti image.
-        self.correct_slope = True
-        self.correct_offset = True
-        self.verbose = 1
+        self.save_b0_if_dwi      = True  # if DWI, it saves the first layer as a single nfti image.
+        self.correct_slope       = True
+        self.correct_offset      = True
+        # advanced sample positioning
+        self.sample_upside_down       = False
+        self.frame_body_as_frame_head = False
         # chose to convert extra files:
-        self.get_acqp = False
+        self.get_acqp   = False
         self.get_method = False
-        self.get_reco = False
+        self.get_reco   = False
         # advanced selections:
-        self.scans_list = None  # you can select a subset of scans in the study to be converted.
+        self.scans_list              = None  # you can select a subset of scans in the study to be converted.
         self.list_new_name_each_scan = None  # you can select specific names for the subset self.scans_list.
-        # self.list_new_nifti_file_names = None  # possibly redundant with self.list_new_name_each_scan
+        self.verbose                 = 1
         # automatic filling of advanced selections class attributes
-        self._get_scans_attributes()
+        self.explore_study()
 
-    def _get_scans_attributes(self):
+    def explore_study(self):
         """
-        Automatic filling of the advanced selections class attributes. These can be bypassed from the user with
-        specific preferences.
+        Automatic filling of the advanced selections class attributes.
+        It also checks if the given attributes are meaningful.
         :return:
         """
 
@@ -117,6 +119,7 @@ class Bruker2Nifti(object):
          If None, the filename will be obtained from the parameter file of the study.
         :return: [None] save the data parsed from the raw Bruker scan into a folder, including the nifti image.
         """
+
         if not os.path.isdir(pfo_input_scan):
             raise IOError('Input folder does not exist.')
 
@@ -126,15 +129,20 @@ class Bruker2Nifti(object):
             else:
                 os.system('mkdir -p {}'.format(pfo_output_converted))
 
+        print('FRAME BODY {}'.format(self.frame_body_as_frame_head))
+        print('UPSIDE DOWN {}'.format(self.sample_upside_down))
+
         struct_scan = scan2struct(pfo_input_scan,
                                   correct_slope=self.correct_slope,
                                   correct_offset=self.correct_offset,
+                                  sample_upside_down=self.sample_upside_down,
                                   nifti_version=self.nifti_version,
                                   qform_code=self.qform_code,
                                   sform_code=self.sform_code,
                                   get_acqp=self.get_acqp,
                                   get_method=self.get_method,
                                   get_reco=self.get_reco,
+                                  frame_body_as_frame_head=self.frame_body_as_frame_head
                                   )
 
         if struct_scan is not None:
