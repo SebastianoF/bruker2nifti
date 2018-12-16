@@ -3,8 +3,7 @@ import numpy as np
 import warnings
 import sys
 
-from nose.tools import assert_equal
-from numpy.testing import assert_array_equal
+from numpy.testing import assert_array_equal, assert_equal
 
 from bruker2nifti._cores import scan2struct, write_struct
 

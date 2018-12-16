@@ -3,8 +3,7 @@ import numpy as np
 import warnings
 import sys
 
-from nose.tools import assert_equal, assert_raises
-from numpy.testing import assert_array_equal
+from numpy.testing import assert_array_equal, assert_equal, assert_raises
 
 from bruker2nifti._getters import get_stack_direction_from_VisuCorePosition
 
