@@ -40,8 +40,8 @@ setup(name=infos['name'],
       packages=find_packages(),
       install_requires=requirements2list(),
       entry_points={
-        'console_scripts': ['bruker2nifti=bruker2nifti.parsers.bruker2nii:main',
-                            'bruker2nifti_scan=bruker2nifti.parsers.bruker2nii_scan:main_scan'],
-        'gui_scripts' : ['bruker2nifti_gui=bruker2nifti.open_GUI:open_gui']
+        'console_scripts': ['bruker2nifti=bruker2nifti.cli.bruker2nii:main',
+                            'bruker2nifti_scan=bruker2nifti.cli.bruker2nii_scan:main_scan'],
+        'gui_scripts' : ['bruker2nifti_gui=bruker2nifti.open:open_gui']
       }
       )

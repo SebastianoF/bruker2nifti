@@ -1,3 +1,4 @@
+import sys
 import argparse
 from bruker2nifti.converter import Bruker2Nifti
 
@@ -11,25 +12,25 @@ def main():
 
     parser = argparse.ArgumentParser()
 
-    # Helper
+    # custom helper
     parser.add_argument('-what',
                         dest='what',
-                        type=str,
+                        action='store_true',
                         required=False,
-                        help='Get more information.')
+                        help='Get more information about the software')
 
     # pfo_study_bruker_input
     parser.add_argument('-i', '--input_study_folder',
                         dest='pfo_input',
                         type=str,
-                        required=True,
+                        required=False,
                         help='Bruker study folder.')
 
     # pfo_study_nifti_output
     parser.add_argument('-o', '--output_study_folder',
                         dest='pfo_output',
                         type=str,
-                        required=True,
+                        required=False,
                         help='Output folder where the study will be saved.')
 
     # study_name = None,
@@ -86,10 +87,21 @@ def main():
                         type=int,
                         default=1)
 
-    # Parse the input arguments
+    # ------ Parsing user's input ------ #
+
     args = parser.parse_args()
 
-    # instantiate a converter:
+    # Check input:
+    if args.what:
+        msg = 'Code repository : {} \n' \
+              'Documentation   : {}'.format('https://github.com/SebastianoF/bruker2nifti',
+                                            'https://github.com/SebastianoF/bruker2nifti/wiki')
+        sys.exit(msg)
+
+    if not args.pfo_input or not args.pfo_output:
+        sys.exit('Input bruker study [-i] and output folder [-o] required')
+
+    # Instantiate a converter:
     bruconv = Bruker2Nifti(args.pfo_input,
                            args.pfo_output,
                            study_name=args.study_name)
