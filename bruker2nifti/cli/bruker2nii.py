@@ -11,6 +11,13 @@ def main():
 
     parser = argparse.ArgumentParser()
 
+    # Helper
+    parser.add_argument('-what',
+                        dest='what',
+                        type=str,
+                        required=False,
+                        help='Get more information.')
+
     # pfo_study_bruker_input
     parser.add_argument('-i', '--input_study_folder',
                         dest='pfo_input',

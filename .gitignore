@@ -35,3 +35,5 @@ _templates
 write_struct_here
 *.key
 cover
+.pytest_cache
+htmlcov
