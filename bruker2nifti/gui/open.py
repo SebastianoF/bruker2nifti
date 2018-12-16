@@ -26,7 +26,7 @@ class BrukerToNiftiGUI(tk.Tk, object):
         # Window settings:
 
         self.title('From bruker to nifti - interface - version {}'.format(version))
-        self.geometry('715x195')
+        self.geometry('715x225')
 
         # Widgets:
 
@@ -55,22 +55,30 @@ class BrukerToNiftiGUI(tk.Tk, object):
         self.CheckVar_ac = tk.IntVar(value=0)  # get acquisition parameters default False
         self.CheckVar_me = tk.IntVar(value=0)  # get method default False
         self.CheckVar_rc = tk.IntVar(value=0)  # get reco default False
+        self.CheckVar_ud = tk.IntVar(value=0)  # sample upside down, default False
 
-        self.radio_button_correct_slope  = tk.Checkbutton(self, text='correct slope', variable=self.CheckVar_cs)
-        self.radio_button_correct_offset = tk.Checkbutton(self, text='correct offset', variable=self.CheckVar_co)
-        self.radio_button_get_acqp       = tk.Checkbutton(self, text='get acqp', variable=self.CheckVar_ac)
-        self.radio_button_get_method     = tk.Checkbutton(self, text='get method', variable=self.CheckVar_me)
-        self.radio_button_get_reco       = tk.Checkbutton(self, text='get reco', variable=self.CheckVar_rc)
+        self.radio_button_correct_slope  = tk.Checkbutton(self, text='correct slope', variable=self.CheckVar_cs, compound='right')
+        self.radio_button_correct_offset = tk.Checkbutton(self, text='correct offset', variable=self.CheckVar_co, compound='right')
+        self.radio_button_get_acqp       = tk.Checkbutton(self, text='get acqp', variable=self.CheckVar_ac, compound='right')
+        self.radio_button_get_method     = tk.Checkbutton(self, text='get method', variable=self.CheckVar_me, compound='right')
+        self.radio_button_get_reco       = tk.Checkbutton(self, text='get reco', variable=self.CheckVar_rc, compound='right')
+
+        self.radio_button_sample_ups_down = tk.Checkbutton(self, text='sample upside down', variable=self.CheckVar_ud, compound='right')
 
         self.button_browse_input = tk.Button(self, text='Browse', command=self.button_browse_callback_pfo_input)
         self.button_browse_output = tk.Button(self, text='Browse', command=self.button_browse_callback_pfo_output)
         self.button_help = tk.Button(self, text='?', command=self.open_help, fg='blue', font="times 14 bold")
         self.button_convert = tk.Button(self, text='Convert', command=self.convert, highlightbackground="#1291E9")
 
-        self.label_option_menu = tk.Label(self, text='Output NifTi version:', compound='right')
-        self.option_menu_value = tk.StringVar(self)
-        self.option_menu_value.set('1')
-        self.option_menu_nifti = tk.OptionMenu(self, self.option_menu_value, '1', '2')
+        self.label_option_nifti = tk.Label(self, text='Output NifTi version:', compound='right')
+        self.option_menu_nifti_value = tk.StringVar(self)
+        self.option_menu_nifti_value.set('1')
+        self.option_menu_nifti = tk.OptionMenu(self, self.option_menu_nifti_value, '1', '2')
+
+        self.label_option_frame = tk.Label(self, text='Frame orientation:', compound='right')
+        self.option_menu_frame_value = tk.StringVar(self)
+        self.option_menu_frame_value.set('Rodent')
+        self.option_menu_frame = tk.OptionMenu(self, self.option_menu_frame_value, 'Rodent', 'Primate')
 
         # geometry
 
@@ -89,17 +97,20 @@ class BrukerToNiftiGUI(tk.Tk, object):
 
         self.radio_button_correct_slope.grid(row=4, column=0)
         self.radio_button_correct_offset.grid(row=4, column=1)
-        # -- TOD O -- add sample upside down here
+        self.radio_button_sample_ups_down.grid(row=4, column=2)
+
         self.radio_button_get_acqp.grid(row=5, column=0)
         self.radio_button_get_method.grid(row=5, column=1)
         self.radio_button_get_reco.grid(row=5, column=2)
 
-        self.button_convert.grid(row=6, column=4)
-        # self.button_help.place(relx=.941, rely=.001)
+        self.button_convert.grid(row=7, column=4)
         self.button_help.grid(row=0, column=4)
 
-        self.label_option_menu.grid(row=6, column=0)
+        self.label_option_nifti.grid(row=6, column=0)
         self.option_menu_nifti.grid(row=6, column=1)
+
+        self.label_option_frame.grid(row=7, column=0)
+        self.option_menu_frame.grid(row=7, column=1)
 
     # main commands
 
@@ -121,34 +132,44 @@ class BrukerToNiftiGUI(tk.Tk, object):
 
     def convert(self):
 
-        print(' --- GUI bruker2nifti --- ')
-        print('Input path: {}'.format(self.entry_pfo_input.get()))
-        print('Output path: {}'.format(self.entry_pfo_output.get()))
-        print('Study name: {}'.format(self.entry_study_name.get()))
-
-        print('Correct slope  : {}'.format(self.CheckVar_cs.get()))
-        print('Correct offset : {}'.format(self.CheckVar_co.get()))
-        print('Get acpq       : {}'.format(self.CheckVar_ac.get()))
-        print('get method     : {}'.format(self.CheckVar_me.get()))
-        print('get reco       : {}'.format(self.CheckVar_rc.get()))
-        print('get NifTi-     : {}'.format(self.option_menu_value.get()))
-
         bru = Bruker2Nifti(self.entry_pfo_input.get(),
                            self.entry_pfo_output.get(),
                            study_name=self.entry_study_name.get())
 
-        bru.correct_slope = self.CheckVar_cs.get()
+        bru.correct_slope  = self.CheckVar_cs.get()
         bru.correct_offset = self.CheckVar_co.get()
-        bru.get_acqp = self.CheckVar_ac.get()
-        bru.get_method = self.CheckVar_me.get()
-        bru.get_reco = self.CheckVar_rc.get()
-        bru.nifti_version = int(self.option_menu_value.get())
+        bru.get_acqp       = self.CheckVar_ac.get()
+        bru.get_method     = self.CheckVar_me.get()
+        bru.get_reco       = self.CheckVar_rc.get()
+        bru.nifti_version  = int(self.option_menu_nifti_value.get())
+
+        bru.sample_upside_down = self.CheckVar_ud.get()
+        rodent_primate         = self.option_menu_frame_value.get()
+
+        bru.frame_body_as_frame_head = False
+        if rodent_primate == 'Primate':
+            bru.frame_body_as_frame_head = True
+
+        print(' --- GUI bruker2nifti --- ')
+        print('Input path     : {}'.format(bru.pfo_study_bruker_input))
+        print('Output path    : {}'.format(bru.pfo_study_nifti_output))
+        print('Study name     : {}'.format(bru.study_name))
+        print(' ------------------ ')
+        print('Correct slope  : {}'.format(bru.correct_slope))
+        print('Correct offset : {}'.format(bru.correct_offset))
+        print('Get acpq       : {}'.format(bru.get_acqp))
+        print('get method     : {}'.format(bru.get_method))
+        print('get reco       : {}'.format(bru.get_reco))
+        print('get NifTi-     : {}'.format(bru.nifti_version))
+        print(' ------------------ ')
+        print('Sample upside down       : {}'.format(bru.sample_upside_down))
+        print('Frame body as frame head : {}'.format(bru.frame_body_as_frame_head))
 
         bru.convert()
 
         del bru
 
-        print('\nbruker2Nifti verision {} - Have a nice day!'.format(version))
+        print('\nbruker2Nifti verision {} - https://github.com/SebastianoF/bruker2nifti'.format(version))
 
 
 def open_gui(in_pfo_input=None, in_pfo_output=None, in_study_name=None):

@@ -1,3 +1,4 @@
+import sys
 import argparse
 from bruker2nifti.converter import Bruker2Nifti
 
@@ -11,18 +12,25 @@ def main():
 
     parser = argparse.ArgumentParser()
 
+    # custom helper
+    parser.add_argument('-what',
+                        dest='what',
+                        action='store_true',
+                        required=False,
+                        help='Get more information about the software')
+
     # pfo_study_bruker_input
     parser.add_argument('-i', '--input_study_folder',
                         dest='pfo_input',
                         type=str,
-                        required=True,
+                        required=False,
                         help='Bruker study folder.')
 
     # pfo_study_nifti_output
     parser.add_argument('-o', '--output_study_folder',
                         dest='pfo_output',
                         type=str,
-                        required=True,
+                        required=False,
                         help='Output folder where the study will be saved.')
 
     # study_name = None,
@@ -73,16 +81,37 @@ def main():
                         dest='correct_offset',
                         action='store_true')
 
+    # correct_offset = True,
+    parser.add_argument('-sample_upside_down',
+                        dest='sample_upside_down',
+                        action='store_false')
+
+    # correct_offset = True,
+    parser.add_argument('-frame_body_as_frame_head',
+                        dest='frame_body_as_frame_head',
+                        action='store_false')
+
     # verbose = 1
     parser.add_argument('-verbose', '-v',
                         dest='verbose',
                         type=int,
                         default=1)
 
-    # Parse the input arguments
+    # ------ Parsing user's input ------ #
+
     args = parser.parse_args()
 
-    # instantiate a converter:
+    # Check input:
+    if args.what:
+        msg = 'Code repository : {} \n' \
+              'Documentation   : {}'.format('https://github.com/SebastianoF/bruker2nifti',
+                                            'https://github.com/SebastianoF/bruker2nifti/wiki')
+        sys.exit(msg)
+
+    if not args.pfo_input or not args.pfo_output:
+        sys.exit('Input bruker study [-i] and output folder [-o] required')
+
+    # Instantiate a converter:
     bruconv = Bruker2Nifti(args.pfo_input,
                            args.pfo_output,
                            study_name=args.study_name)
@@ -91,13 +120,18 @@ def main():
         bruconv.scans_list = args.scans_list
     if args.list_new_name_each_scan is not None:
         bruconv.list_new_name_each_scan = args.list_new_name_each_scan
-    bruconv.nifti_version = args.nifti_version
-    bruconv.qform_code = args.qform_code
-    bruconv.sform_code = args.sform_code
+
+    # Basics
+    bruconv.nifti_version       = args.nifti_version
+    bruconv.qform_code          = args.qform_code
+    bruconv.sform_code          = args.sform_code
     bruconv.save_human_readable = not args.do_not_save_human_readable
-    bruconv.correct_slope = args.correct_slope
-    bruconv.correct_offset = args.correct_offset
-    bruconv.verbose = args.verbose
+    bruconv.correct_slope       = args.correct_slope
+    bruconv.correct_offset      = args.correct_offset
+    bruconv.verbose             = args.verbose
+    # Sample position
+    bruconv.sample_upside_down       = args.sample_upside_down
+    bruconv.frame_body_as_frame_head = args.frame_body_as_frame_head
 
     print('\nConverter input parameters: ')
     print('-------------------------------------------------------- ')
@@ -110,6 +144,9 @@ def main():
     print('Save human readable  : {}'.format(bruconv.save_human_readable))
     print('Correct the slope    : {}'.format(bruconv.correct_slope))
     print('Correct the offset   : {}'.format(bruconv.correct_offset))
+    print('-------------------------------------------------------- ')
+    print('Sample upside down         : {}'.format(bruconv.sample_upside_down))
+    print('Frame body as frame head   : {}'.format(bruconv.frame_body_as_frame_head))
     print('-------------------------------------------------------- ')
     bruconv.convert()
 

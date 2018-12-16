@@ -108,19 +108,19 @@ def bruker_read_files(param_file, data_path, sub_scan_num='1'):
         if os.path.exists(jph(data_path, 'pdata', '1', 'reco')):
             f = open(jph(data_path, 'pdata', '1', 'reco'), 'r')
         else:
-            print('File {} does not exists'.format(jph(data_path, 'pdata', '1', 'reco')))
+            print('File {} does not exist'.format(jph(data_path, 'pdata', '1', 'reco')))
             return {}
     elif param_file.lower() == 'acqp':
         if os.path.exists(jph(data_path, 'acqp')):
             f = open(jph(data_path, 'acqp'), 'r')
         else:
-            print('File {} does not exists'.format(jph(data_path, 'acqp')))
+            print('File {} does not exist'.format(jph(data_path, 'acqp')))
             return {}
     elif param_file.lower() == 'method':
         if os.path.exists(jph(data_path, 'method')):
             f = open(jph(data_path, 'method'), 'r')
         else:
-            print('File {} does not exists'.format(jph(data_path, 'method')))
+            print('File {} does not exist'.format(jph(data_path, 'method')))
             return {}
     elif param_file.lower() == 'visu_pars':
         if os.path.exists(jph(data_path, 'pdata', str(sub_scan_num), 'visu_pars')):
@@ -128,13 +128,13 @@ def bruker_read_files(param_file, data_path, sub_scan_num='1'):
         elif os.path.exists(jph(data_path, str(sub_scan_num), 'pdata', '1', 'visu_pars')):
             f = open(jph(data_path, str(sub_scan_num), 'pdata', '1', 'visu_pars'), 'r')
         else:
-            print('File {} does not exists'.format(jph(data_path, 'pdata', str(sub_scan_num), 'visu_pars')))
+            print('File {} does not exist'.format(jph(data_path, 'pdata', str(sub_scan_num), 'visu_pars')))
             return {}
     elif param_file.lower() == 'subject':
         if os.path.exists(jph(data_path, 'subject')):
             f = open(jph(data_path, 'subject'), 'r')
         else:
-            print('File {} does not exists'.format(jph(data_path, 'subject')))
+            print('File {} does not exist'.format(jph(data_path, 'subject')))
             return {}
     else:
         raise IOError("param_file input must be the string 'reco', 'acqp', 'method', 'visu_pars' or 'subject'")
@@ -522,8 +522,9 @@ def compute_affine_from_visu_pars(vc_orientation, vc_position, vc_subject_positi
     # 2-3) impose pivot first column negative, second column negative, third column positive
     result_orientation = result[:3, :3]
 
-    if not frame_body_as_frame_head:
-        result_orientation = result_orientation.dot(np.array([[1, 0, 0], [0, 0, 1], [0, 1, 0]]))
+    result_orientation = result_orientation.dot(np.array([[1, 0, 0], [0, 0, 1], [0, 1, 0]]))
+    if frame_body_as_frame_head:  # from SAR to ASL
+        result_orientation = result_orientation.dot(np.array([[0, -1, 0], [1, 0, 0], [0, 0, 1]]))
 
     if pivot(result_orientation[:, 0]) > 0:
         result_orientation[:, 0] = -1 * result_orientation[:, 0]
