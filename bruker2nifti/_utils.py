@@ -522,8 +522,9 @@ def compute_affine_from_visu_pars(vc_orientation, vc_position, vc_subject_positi
     # 2-3) impose pivot first column negative, second column negative, third column positive
     result_orientation = result[:3, :3]
 
-    if not frame_body_as_frame_head:
-        result_orientation = result_orientation.dot(np.array([[1, 0, 0], [0, 0, 1], [0, 1, 0]]))
+    result_orientation = result_orientation.dot(np.array([[1, 0, 0], [0, 0, 1], [0, 1, 0]]))
+    if frame_body_as_frame_head:  # from SAR to ASL
+        result_orientation = result_orientation.dot(np.array([[0, -1, 0], [1, 0, 0], [0, 0, 1]]))
 
     if pivot(result_orientation[:, 0]) > 0:
         result_orientation[:, 0] = -1 * result_orientation[:, 0]
