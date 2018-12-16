@@ -1,8 +1,7 @@
 import numpy as np
 import nibabel as nib
 
-from nose.tools import assert_equal, assert_true, assert_almost_equals, assert_raises
-from numpy.testing import assert_array_equal
+from numpy.testing import assert_array_equal, assert_equal, assert_raises, assert_almost_equal
 
 from bruker2nifti._utils import indians_file_parser, normalise_b_vect, data_corrector, \
     eliminate_consecutive_duplicates, compute_resolution_from_visu_pars, compute_affine_from_visu_pars, \
@@ -195,7 +194,7 @@ def test_normalise_b_vect():
     v_normalised = normalise_b_vect(v)
 
     for k in list(set(range(num_vects)) - {5}):
-        assert_almost_equals(np.linalg.norm(v_normalised[k, :]), 1.0)
+        assert_almost_equal(np.linalg.norm(v_normalised[k, :]), 1.0)
 
     assert_equal(np.linalg.norm(v_normalised[5, :]), .0)
 
@@ -267,7 +266,7 @@ def test_set_new_data_basic():
     im_data_2 = set_new_data(im_data_1, data_2)
 
     assert_array_equal(im_data_2.get_data(), data_2)
-    assert_array_equal(im_data_2.get_affine(), affine_1)
+    assert_array_equal(im_data_2.affine, affine_1)
     assert_equal(im_data_2.header['descrip'], b'Spam')
     assert_equal(im_data_1.get_data_dtype(), np.uint8)
     assert_equal(im_data_2.get_data_dtype(), np.float32)
@@ -301,4 +300,4 @@ def test_set_new_data_nan_no_nan():
     im_data_1 = nib.Nifti1Image(data_1, affine_1)
     im_data_2 = set_new_data(im_data_1, data_2, new_dtype=np.uint16)
 
-    assert_true(np.nan not in im_data_2.get_data())
+    assert np.nan not in im_data_2.get_data()
