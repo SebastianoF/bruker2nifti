@@ -15,11 +15,11 @@ Bruker2nifti is a pip-installable pure Python tool provided with a Graphical Use
 
 + Installation
     - Install the [latest stable release](https://github.com/SebastianoF/bruker2nifti/releases) with `pip install bruker2nifti`.
-    - [Install the latest development version](https://github.com/SebastianoF/bruker2nifti/wiki/Installing-stable-version-and-development-version).
+    - [Install the latest development version](https://github.com/SebastianoF/bruker2nifti/wiki/Installing-stable-version-and-development-version) with `pip install -e .`.
 
 + Real data examples
-    - [Python command shell](https://github.com/SebastianoF/bruker2nifti/wiki/Example:-use-bruker2nifti-via-Python-command-shell).
-    - [Command Line Utility (CLI)](https://github.com/SebastianoF/bruker2nifti/wiki/Example:-use-bruker2nifti-via-Command-Line-Utility).
+    - [Python-Ipython session](https://github.com/SebastianoF/bruker2nifti/wiki/Example:-use-bruker2nifti-in-a-python-(Ipython)-session).
+    - [Command Line Interface (CLI)](https://github.com/SebastianoF/bruker2nifti/wiki/Example:-use-bruker2nifti-via-Command-Line-Interface).
     - [Graphical User Interface (GUI)](https://github.com/SebastianoF/bruker2nifti/wiki/Graphical-User-Interface-Examples).
 
 ## Accessing only the GUI with no Python knowledge required
@@ -60,7 +60,7 @@ feature requests and code style.
 
 ### Copyright, Licence and How to Cite 
 + Copyright (c) 2017, Sebastiano Ferraris, University College London.
-+ Bruker2nifti is available as free open-source software under [MIT License](https://github.com/SebastianoF/bruker2nifti/blob/master/LICENCE.txt).
++ Bruker2nifti is provided as it is and copyrighted under [MIT License](https://github.com/SebastianoF/bruker2nifti/blob/master/LICENCE.txt).
 + To cite the code in your research please cite:
     
     + S. Ferraris, D. I. Shakir, J. Van Der Merwe, W. Gsell, J. Deprest, T. Vercauteren (2017), [Bruker2nifti: Magnetic Resonance Images converter from Bruker ParaVision to Nifti format](http://joss.theoj.org/papers/2ee6a3a3b1a4d8df1633f601bf2b0ffe), 
