@@ -104,7 +104,6 @@ after_success:
     # local cover/index.html
     # - nosetests --with-coverage --cover-package=bruker2nifti --cover-erase --cover-html
     # - open cover/index.html 
-    # run 
-    # nosetests --with-coverage --cover-package=bruker2nifti &> nose_coverage.txt
+    # run
 notifications:
   email: false

@@ -1,5 +1,7 @@
 [![status](http://joss.theoj.org/papers/2ee6a3a3b1a4d8df1633f601bf2b0ffe/status.svg)](http://joss.theoj.org/papers/2ee6a3a3b1a4d8df1633f601bf2b0ffe)
 [![Build Status](https://travis-ci.org/SebastianoF/bruker2nifti.svg?branch=master)](https://travis-ci.org/SebastianoF/bruker2nifti)
+[![coverage](https://github.com/SebastianoF/bruker2nifti/blob/master/coverage.svg)](https://github.com/SebastianoF/bruker2nifti/blob/master/coverage.svg)
+
 
 # Bruker2nifti
 
@@ -34,7 +36,7 @@ Bruker2nifti is a pip-installable pure Python tool provided with a Graphical Use
 + [Wiki documentation with additional notes and examples](https://github.com/SebastianoF/bruker2nifti/wiki).
 + [Links and list of available Bruker converter](https://github.com/SebastianoF/bruker2nifti/wiki/References).
 
-### Code Testing and Continuous Integration
+### Code Testing and Continuous Integration with Nosetest
 
 + Unit testing with [nosetest](http://pythontesting.net/framework/nose/nose-introduction/). 
 Type `nosetests` in a terminal at the cloned repository.
@@ -53,6 +55,17 @@ open cover/index.html
 to see the HTML output.
 
 + Current deployment version undergoes continuous integration on [travis-ci](https://travis-ci.org/SebastianoF/bruker2nifti).
+
+### Local testing and coverage with pytest and coverage
+
+To run the test, `pip install pytest-cov`, `pip install coverage` and `pip install coverage-badge`
+followed by:
+```bash
+pytest --cov --cov-report html
+coverage html
+open htmlcov/index.html
+coverage-badge -f -o coverage.svg  # optional to update the coverage badge
+```
 
 ### Support and contributions
 Please see the [contribution guideline](https://github.com/SebastianoF/bruker2nifti/blob/master/CONTRIBUTE.md) for bugs report,
