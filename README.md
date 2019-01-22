@@ -36,36 +36,12 @@ Bruker2nifti is a pip-installable pure Python tool provided with a Graphical Use
 + [Wiki documentation with additional notes and examples](https://github.com/SebastianoF/bruker2nifti/wiki).
 + [Links and list of available Bruker converter](https://github.com/SebastianoF/bruker2nifti/wiki/References).
 
-### Code Testing and Continuous Integration with Nosetest
+### Code Testing
 
-+ Unit testing with [nosetest](http://pythontesting.net/framework/nose/nose-introduction/). 
-Type `nosetests` in a terminal at the cloned repository.
-+ Tests are based on the open dataset in the folder 
-[test_data](https://github.com/SebastianoF/bruker2nifti/tree/master/test_data).
-+ [Bruker2nifti_qa](https://gitlab.com/naveau/bruker2nifti_qa/tree/master) provides more Bruker raw data for further experiments (thanks to Mikaël Naveau).
-+ [Coverage percentage](https://github.com/SebastianoF/bruker2nifti/blob/master/nose_coverage.txt). Created with:
-```
-nosetests --with-coverage --cover-package=bruker2nifti &> nose_coverage.txt
-```
-Use
-```
-nosetests --with-coverage --cover-package=bruker2nifti --cover-erase --cover-html
-open cover/index.html 
-```
-to see the HTML output.
++ [Testing and Continuous integration with Nosetests and Travis CI](https://github.com/SebastianoF/bruker2nifti/wiki/Code-Testing-and-Continuous-Integration-with-Nosetest)
++ [Local testing and coverage with pytest and coveragerc](https://github.com/SebastianoF/bruker2nifti/wiki/Local-testing-and-coverage-with-pytest-and-coveragerc)
++ Tests are based on the benchmark dataset [Bruker2nifti_qa](https://gitlab.com/naveau/bruker2nifti_qa/tree/master) (thanks to Mikaël Naveau)
 
-+ Current deployment version undergoes continuous integration on [travis-ci](https://travis-ci.org/SebastianoF/bruker2nifti).
-
-### Local testing and coverage with pytest and coverage
-
-To run the test, `pip install pytest-cov`, `pip install coverage` and `pip install coverage-badge`
-followed by:
-```bash
-pytest --cov --cov-report html
-coverage html
-open htmlcov/index.html
-coverage-badge -f -o coverage.svg  # optional to update the coverage badge
-```
 
 ### Support and contributions
 Please see the [contribution guideline](https://github.com/SebastianoF/bruker2nifti/blob/master/CONTRIBUTE.md) for bugs report,
