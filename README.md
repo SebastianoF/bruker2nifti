@@ -1,7 +1,7 @@
 [![status](http://joss.theoj.org/papers/2ee6a3a3b1a4d8df1633f601bf2b0ffe/status.svg)](http://joss.theoj.org/papers/2ee6a3a3b1a4d8df1633f601bf2b0ffe)
 [![Build Status](https://travis-ci.org/SebastianoF/bruker2nifti.svg?branch=master)](https://travis-ci.org/SebastianoF/bruker2nifti)
 [![coverage](https://github.com/SebastianoF/bruker2nifti/blob/master/coverage.svg)](https://github.com/SebastianoF/bruker2nifti/wiki/Local-testing-and-coverage-with-pytest-and-coveragerc)
-
+[![PyPI version](https://badge.fury.io/py/bruker2nifti.svg)](https://badge.fury.io/py/bruker2nifti)
 
 # Bruker2nifti
 
