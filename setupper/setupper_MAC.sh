@@ -16,7 +16,9 @@ echo
 pip install virtualenv
 virtualenv venv
 source venv/bin/activate
+curl https://bootstrap.pypa.io/get-pip.py | python  # after issue with pip 9.0.1
 python setup.py install
+pip install -r $PARENTDIR/requirements.txt
 deactivate
 
 echo
@@ -25,7 +27,7 @@ echo
 
 DIR_PY=venv/bin/python
 CALLER=$PARENTDIR/$DIR_PY
-EXEC=$PARENTDIR/bruker2nifti/open_GUI.py
+EXEC=$PARENTDIR/bruker2nifti/gui/open.py
 
 echo
 echo 'Generating launcher-like and add permission:'
@@ -38,3 +40,4 @@ chmod +x OpenGUIbru2nii
 
 echo
 echo '...DONE!'
+echo 'Double click on OpenGUIbru2nii inside the cloned repository to open the gui!'

@@ -32,7 +32,7 @@ echo 'Selecting paths required to have the python of the virtualenvironment:'
 echo
 
 CALLER=//anaconda/envs/venv/bin/python
-EXEC=$PARENTDIR/bruker2nifti/open_GUI.py
+EXEC=$PARENTDIR/bruker2nifti/gui/open.py
 
 echo
 echo 'Generating launcher-like and add permission:'
@@ -45,3 +45,4 @@ chmod +x OpenGUIbru2nii
 
 echo
 echo '...DONE!'
+echo 'Double click on OpenGUIbru2nii inside the cloned repository to open the gui!'
