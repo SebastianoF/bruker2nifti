@@ -1,6 +1,7 @@
 import numpy as np
 import os
 import nibabel as nib
+import re
 import warnings
 from os.path import join as jph
 
@@ -658,3 +659,10 @@ def set_new_data(image, new_data, new_dtype=None, remove_nan=True):
         new_image.set_data_dtype(new_dtype)
 
     return new_image
+
+def path_contains_whitespace(*args):
+
+    if re.search("\\s+", os.path.join(*args)):
+        return True
+    else:
+        return False
