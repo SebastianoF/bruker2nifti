@@ -1,4 +1,5 @@
 import os
+import shutil
 
 import warnings
 import subprocess
@@ -15,13 +16,13 @@ root_dir = os.path.dirname(here)
 
 def test_convert_the_banana(open_converted=False):
 
-    pfo_study_in = os.path.join(root_dir, 'test_data', 'bru_banana')
-    pfo_study_out = os.path.join(root_dir, 'test_data', 'nifti_banana')
+    pfo_study_in = os.path.join(root_dir, 'test_data', 'bru banana')
+    pfo_study_out = os.path.join(root_dir, 'test_data', 'nifti banana')
 
     # delete study if already exists:
     target_folder = os.path.join(pfo_study_out, 'banana')
     if os.path.exists(target_folder):
-        os.system('rm -r {}'.format(os.path.join(target_folder)))
+        shutil.rmtree(target_folder)
 
     # instantiate the converter:
     bru = Bruker2Nifti(pfo_study_in, pfo_study_out, study_name='banana')
@@ -51,13 +52,13 @@ def test_convert_the_banana(open_converted=False):
 
 def test_convert_the_banana_no_name(open_converted=False):
 
-    pfo_study_in = os.path.join(root_dir, 'test_data', 'bru_banana')
-    pfo_study_out = os.path.join(root_dir, 'test_data', 'nifti_banana')
+    pfo_study_in = os.path.join(root_dir, 'test_data', 'bru banana')
+    pfo_study_out = os.path.join(root_dir, 'test_data', 'nifti banana')
 
     # delete study if already exists:
     target_folder = os.path.join(pfo_study_out, 'APMFruits20111130')
     if os.path.exists(target_folder):
-        os.system('rm -r {}'.format(os.path.join(target_folder)))
+        shutil.rmtree(target_folder)
 
     bru = Bruker2Nifti(pfo_study_in, pfo_study_out)
 
@@ -81,16 +82,3 @@ def test_convert_the_banana_no_name(open_converted=False):
         experiment_folder = os.path.join(pfo_study_out, 'APMFruits20111130', 'APMFruits20111130_{}'.format(ex))
         assert os.path.exists(experiment_folder)
         assert os.path.exists(os.path.join(experiment_folder, 'APMFruits20111130_{}.nii.gz'.format(ex)))
-
-
-def test_warning_banana_bad_n():
-
-    for n in ['1', '2', '3']:
-
-        pfo_study_in = os.path.join(root_dir, 'test_data', 'bru_banana_bad_' + n)
-        pfo_study_out = os.path.join(root_dir, 'test_data', 'nifti_banana')
-
-        bru = Bruker2Nifti(pfo_study_in, pfo_study_out, study_name='banana')
-        bru.correct_slope = True
-        bru.verbose = 2
-        assert_raises(FileExistsError, bru.convert)

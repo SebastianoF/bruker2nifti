@@ -124,10 +124,7 @@ class Bruker2Nifti(object):
             raise IOError('Input folder does not exist.')
 
         if create_output_folder_if_not_exists:
-            if 'win' in os.name.lower():
-                os.system('mkdir {}'.format(pfo_output_converted))
-            else:
-                os.system('mkdir -p {}'.format(pfo_output_converted))
+            os.makedirs(pfo_output_converted)
 
         print('FRAME BODY {}'.format(self.frame_body_as_frame_head))
         print('UPSIDE DOWN {}'.format(self.sample_upside_down))
@@ -177,7 +174,7 @@ class Bruker2Nifti(object):
 
         """
         pfo_nifti_study = os.path.join(self.pfo_study_nifti_output, self.study_name)
-        os.system('mkdir -p {0}'.format(pfo_nifti_study))
+        os.makedirs(pfo_nifti_study)
 
         print('\nStudy conversion \n{}\nstarted:\n'.format(self.pfo_study_bruker_input))
 
