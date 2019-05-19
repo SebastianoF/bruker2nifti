@@ -8,7 +8,7 @@ ParaVision versions and MRI protocols involved. Take this into consideration whe
 ## Code of Conduct
 
 This project adopts the [Covenant Code of Conduct](https://contributor-covenant.org/). 
-By participating, you are expected to uphold this code. 
+This can be shortly summarised with: "please be polite and to not go off topic." 
  
 ## What you should know 
 
@@ -36,7 +36,7 @@ encountered a similar problem.
 
 + If you forked the repository and made some contributions that you would like to integrate in the git master branch, 
 you can do a [git pull request](https://yangsu.github.io/pull-request-tutorial/). Please **check tests are all passed** 
-before this (type nosetests in the code root folder).
+before this (please follow the [test guidelines](https://github.com/SebastianoF/bruker2nifti/wiki/Code-Testing-and-Continuous-Integration-with-Nosetest)).
 
 ## New feature guidelines
 
@@ -49,7 +49,8 @@ Every extra processing after the conversion, that are typically integrated into 
 + Automatic segmentation or skull stripping,
 + Otsu background thresholding,
 + Specific reorientation,
-+ ... 
++ Tensor fitting
++ ...
 
 are not considered part of the converter, as too dependent on the specific-user needs.
 
