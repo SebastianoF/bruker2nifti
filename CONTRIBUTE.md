@@ -7,17 +7,10 @@ ParaVision versions and MRI protocols involved. Take this into consideration whe
 
 ## Code of Conduct
 
-<<<<<<< HEAD
-This project adopts the [Covenant Code of Conduct](https://contributor-covenant.org/). 
-This can be shortly summarised with: "please be polite and to not go off topic." 
- 
-## What you should know 
-=======
 This project adopts the [Covenant Code of Conduct](https://contributor-covenant.org/).
-By participating, you are expected to uphold this code.
+This can be shortly summarised with: "please be polite and to not go off topic."
 
 ## What you should know
->>>>>>> 5ab8ae7... Update handling of filepaths with whitespace
 
 You should be familiar with the bruker ParaVision folder structure and the NifTi (1 and 2)
 format.
@@ -40,18 +33,14 @@ encountered a similar problem.
 
 + When raise an issue, please follow the
 [proposed definitions](https://github.com/SebastianoF/bruker2nifti/wiki/Code-rationale,-definitions-and-structure).
-
-<<<<<<< HEAD
-+ If you forked the repository and made some contributions that you would like to integrate in the git master branch, 
-you can do a [git pull request](https://yangsu.github.io/pull-request-tutorial/). Please **check tests are all passed** 
++ If you forked the repository and made some contributions that you would like to integrate in the git master branch,
+you can do a [git pull request](https://yangsu.github.io/pull-request-tutorial/). Please **check tests are all passed**
 before this (please follow the [test guidelines](https://github.com/SebastianoF/bruker2nifti/wiki/Code-Testing-and-Continuous-Integration-with-Nosetest)).
-=======
 + If you forked the repository and made some contributions that you would like to integrate in the git master branch,
 you can do a [git pull request](https://yangsu.github.io/pull-request-tutorial/). Please **check tests are all passed**
 before this. Tests are written using pytest. To use pytest you need to install
 the package into its own environment by running `pip install -e .` from the
 project root directory whilst in the projects virtual environment.
->>>>>>> 5ab8ae7... Update handling of filepaths with whitespace
 
 ## New feature guidelines
 
@@ -64,10 +53,7 @@ Every extra processing after the conversion, that are typically integrated into 
 + Automatic segmentation or skull stripping,
 + Otsu background thresholding,
 + Specific reorientation,
-<<<<<<< HEAD
 + Tensor fitting
-=======
->>>>>>> 5ab8ae7... Update handling of filepaths with whitespace
 + ...
 
 are not considered part of the converter, as too dependent on the specific-user needs.
@@ -84,9 +70,5 @@ By new feature we mean the possibility of converting data from ParaVision versio
 
 ## To-Do list
 
-<<<<<<< HEAD
-See the [todo wiki-page](https://github.com/SebastianoF/bruker2nifti/wiki/Work-in-progress-and--Future-work) 
-=======
 See the [todo wiki-page](https://github.com/SebastianoF/bruker2nifti/wiki/Work-in-progress-and--Future-work)
->>>>>>> 5ab8ae7... Update handling of filepaths with whitespace
 for the directions the next releases are oriented to go.
