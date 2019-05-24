@@ -38,3 +38,4 @@ write_struct_here
 cover
 .pytest_cache
 htmlcov
+Pipfile.lock

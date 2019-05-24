@@ -90,6 +90,11 @@ def main_scan():
     bruconv.convert_scan(args.pfo_input, args.pfo_output, nifti_file_name=args.fin_output,
                          create_output_folder_if_not_exists=True)
 
+    # Print a warning message for paths with whitespace as it may interfere
+    # with subsequent steps in an image analysis pipeline
+    if utils.path_contains_whitespace(bruconv.pfo_study_nifti_output,
+      bruconv.study_name):
+        print("INFO: Output path/filename contains whitespace")
 
 if __name__ == "__main__":
     main_scan()
