@@ -1,8 +1,10 @@
 import os
 import sys
 import argparse
+from datetime import datetime
 from bruker2nifti.converter import Bruker2Nifti
 import bruker2nifti._utils as utils
+import bruker2nifti._getters as getters
 
 
 def main():
@@ -13,6 +15,18 @@ def main():
     """
 
     parser = argparse.ArgumentParser()
+
+    # The action to be taken
+    #  'convert': Convert images to nifti format (default)
+    #  'list': List scans without converting
+    parser.add_argument('command',
+                        type=str,
+                        nargs='?',
+                        default='convert',
+                        choices=['convert', 'list'],
+                        help='Action to take: ' +
+                          'convert - convert to nifti, ' +
+                          'list - list studies and exit')
 
     # custom helper
     parser.add_argument('-what',
@@ -104,6 +118,10 @@ def main():
     args = parser.parse_args()
 
     # Check input:
+    if args.command == 'list':
+        list_scans(args.pfo_input)
+        sys.exit(0)
+
     if args.what:
         msg = 'Code repository : {} \n' \
               'Documentation   : {}'.format('https://github.com/SebastianoF/bruker2nifti',
@@ -157,6 +175,17 @@ def main():
     if utils.path_contains_whitespace(bruconv.pfo_study_nifti_output,
       bruconv.study_name):
         print("INFO: Output path/filename contains whitespace")
+
+
+def list_scans(study):
+    scans = getters.get_list_scans(study, print_structure = False)
+
+    subject_data = utils.bruker_read_files("subject", study)
+    print("Subject: {}".format(subject_data["SUBJECT_name_string"]))
+    print("Study Date: {:%Y-%m-%d %H:%M}".format(
+      datetime.strptime(subject_data["SUBJECT_date"],
+        "%Y-%m-%dT%H:%M:%S,%f%z")))
+    print(scans)
 
 
 if __name__ == "__main__":
