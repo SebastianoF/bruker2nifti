@@ -1,10 +1,9 @@
-import os
 import sys
 import argparse
-from datetime import datetime
+from datetime import datetime, timedelta
 from bruker2nifti.converter import Bruker2Nifti
 import bruker2nifti._utils as utils
-import bruker2nifti._getters as getters
+from ..metadata import BrukerMetadata
 
 
 def main():
@@ -177,15 +176,26 @@ def main():
         print("INFO: Output path/filename contains whitespace")
 
 
-def list_scans(study):
-    scans = getters.get_list_scans(study, print_structure = False)
+def list_scans(pfo_study):
+    study = BrukerMetadata(pfo_study)
+    study.parse_subject()
+    study.parse_scans()
 
-    subject_data = utils.bruker_read_files("subject", study)
-    print("Subject: {}".format(subject_data["SUBJECT_name_string"]))
-    print("Study Date: {:%Y-%m-%d %H:%M}".format(
-      datetime.strptime(subject_data["SUBJECT_date"],
-        "%Y-%m-%dT%H:%M:%S,%f%z")))
-    print(scans)
+    # Print study details to the console
+    print()
+    print("Subject: {}".format(study.subject_data["SUBJECT_name_string"]))
+    print("Study Date: {:%Y-%m-%d %H:%M}".format(datetime.strptime(
+      study.subject_data["SUBJECT_date"], "%Y-%m-%dT%H:%M:%S,%f%z")))
+    print("-------------------------------------------------------- ")
+    print()
+    for scan, value in study.scan_data.items():
+        print("Scan {}".format(scan))
+        print(
+          "Protocol: {}".format(value["acqp"]["ACQ_protocol_name"]).ljust(30) +
+          "Method: {}".format(value["acqp"]["ACQ_method"]).ljust(30) +
+          "Scan Time: {}".format(timedelta(
+          seconds=int(round(value["method"]["ScanTime"] / 1000)))).ljust(30))
+        print()
 
 
 if __name__ == "__main__":

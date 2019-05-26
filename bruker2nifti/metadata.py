@@ -77,7 +77,7 @@ class BrukerMetadata(object):
 
         Reads the 'subject' metadata file within the root study folder. It
         populates a dictionary with the data where keys correspond to variables
-        within the source file (minus any '##'/'##$' decorators).
+        within the source file (minus any ##/$/PVM_ decorators).
         """
         return utils.bruker_read_files("subject", self.pfo_input)
 
@@ -101,7 +101,7 @@ class BrukerMetadata(object):
         sub-keyed with individual recon numbers, each of which is in turn keyed
         with 'reco' and 'visu_pars'. Beneath the appropriate key is a
         sub-dictionary keyed with variables from the source file (minus and
-        '##'/'##$' decorators).
+        ##/$/PVM_ decorators).
         """
         scan_data = {}
         data_path = os.path.join(self.pfo_input, scan)
@@ -131,7 +131,7 @@ class BrukerMetadata(object):
         reconstruction sub-directory and compiles a dictionary. At the top
         level the dictionary has keys corresponding to the two files and then
         the sub-dictionaries are keyed according to variables in the relevant
-        file (minus any ##/##$ decorators).
+        file (minus any ##/$/PVM_ decorators).
         """
         recon_data = {}
         data_path = os.path.join(self.pfo_input, scan)
