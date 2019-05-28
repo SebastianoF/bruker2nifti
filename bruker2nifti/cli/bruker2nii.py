@@ -1,6 +1,8 @@
-import sys
 import argparse
 from datetime import datetime, timedelta
+import re
+import sys
+
 from bruker2nifti.converter import Bruker2Nifti
 import bruker2nifti._utils as utils
 from ..metadata import BrukerMetadata
@@ -54,9 +56,18 @@ def main():
                         default=None)
 
     # scans_list = None
+    # Accepts a list of single digit numbers without any separators. Unable to
+    # specify multi-digit scan numbers this way. The --scans argument specified
+    # below supersedes this but --scans_list is left in for backwards
+    # compatibility. If --scans is also supplied, this paramater is ignored.
     parser.add_argument('-scans_list',
                         dest='scans_list',
                         default=None)
+
+    # A comma or space/tab separated list of scans to operate on
+    parser.add_argument('--scans',
+                       dest='scans',
+                       default=None)
 
     # list_new_name_each_scan = None,
     parser.add_argument('-list_new_name_each_scan',
@@ -116,6 +127,13 @@ def main():
 
     args = parser.parse_args()
 
+    if args.scans:
+        scan_list = re.split(r"[^\d]+", args.scans)
+    elif args.scans_list:
+        scan_list = list(args.scans_list)
+    else:
+        scan_list = None
+
     # Check input:
     if args.command == 'list':
         list_scans(args.pfo_input)
@@ -135,10 +153,17 @@ def main():
                            args.pfo_output,
                            study_name=args.study_name)
 
-    if args.scans_list is not None:
-        bruconv.scans_list = args.scans_list
+    if scan_list is not None:
+        bruconv.scans_list = scan_list
     if args.list_new_name_each_scan is not None:
         bruconv.list_new_name_each_scan = args.list_new_name_each_scan
+    elif scan_list is not None:
+        # This list of output scan names is populated during object instantiation
+        # which causes problems when updating the list of scans to convert after
+        # object instantiation (the only way to do it). The following work-around
+        # replaces the list of output file names if a list is not explicitly provided.
+        # TODO: Restructure the Bruker2Nifti class so that this is not necessary.
+        bruconv.list_new_name_each_scan = [bruconv.study_name + '_' + ls for ls in scan_list]
 
     # Basics
     bruconv.nifti_version       = args.nifti_version
