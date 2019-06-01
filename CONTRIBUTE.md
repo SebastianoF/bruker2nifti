@@ -2,22 +2,22 @@
 
 Thanks for contributing to bruker2nifti!
 
-In any study using MR Bruker scanners, there are multiple scanner settings, 
+In any study based on MR Bruker scanners, there are multiple scanner settings, 
 ParaVision versions and MRI protocols involved. Take this into consideration when proposing a new contribution.
 
 ## Code of Conduct
 
 This project adopts the [Covenant Code of Conduct](https://contributor-covenant.org/). 
-This can be shortly summarised with: "please be polite and to not go off topic." 
+This can be shortly summarised with: "please be polite and do not go off topic." 
  
 ## What you should know 
 
-You should be familiar with the bruker ParaVision folder structure and the NifTi (1 and 2)
+You should be familiar with the Bruker ParaVision folder structure and the NifTi (1 and 2)
 format.
 A starting point can be the links in the [README](https://github.com/SebastianoF/bruker2nifti/blob/master/README.md) 
 and the [wiki page](https://github.com/SebastianoF/bruker2nifti/wiki).
 
-The bruker2nifti code structure and API is as simple and straight as possible and the
+The bruker2nifti code structure is as simple and straight as possible and the
  code is as commented as possible to make collaboration easier. See in particular this 
 [wiki-page](https://github.com/SebastianoF/bruker2nifti/wiki/Code-rationale,-definitions-and-structure). 
 
