@@ -167,6 +167,12 @@ class BrukerToNiftiGUI(tk.Tk, object):
 
         bru.convert()
 
+        # Print a warning message for paths with whitespace as it may interfere
+        # with subsequent steps in an image analysis pipeline
+        if utils.path_contains_whitespace(bru.pfo_study_nifti_output,
+          bru.study_name):
+            print("INFO: Output path/filename contains whitespace")
+
         del bru
 
         print('\nbruker2Nifti verision {} - https://github.com/SebastianoF/bruker2nifti'.format(version))

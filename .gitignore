@@ -14,6 +14,7 @@ build
 source
 banana
 venv
+.venv/
 OpenGUIbru2nii
 APMFruits20111130
 paper.aux
@@ -37,3 +38,4 @@ write_struct_here
 cover
 .pytest_cache
 htmlcov
+Pipfile.lock

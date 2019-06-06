@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 import nibabel as nib
 
@@ -5,7 +7,9 @@ from numpy.testing import assert_array_equal, assert_equal, assert_raises, asser
 
 from bruker2nifti._utils import indians_file_parser, normalise_b_vect, data_corrector, \
     eliminate_consecutive_duplicates, compute_resolution_from_visu_pars, compute_affine_from_visu_pars, \
-    apply_reorientation_to_b_vects, set_new_data, obtain_b_vectors_orient_matrix
+    apply_reorientation_to_b_vects, set_new_data, obtain_b_vectors_orient_matrix, \
+    path_contains_whitespace
+from bruker2nifti.converter import Bruker2Nifti
 
 
 # --- TEST text-files utils ---
@@ -301,3 +305,14 @@ def test_set_new_data_nan_no_nan():
     im_data_2 = set_new_data(im_data_1, data_2, new_dtype=np.uint16)
 
     assert np.nan not in im_data_2.get_data()
+
+
+def test_path_contains_whitespace():
+
+    assert path_contains_whitespace(os.path.join("path", "with spaces", "to"),
+      "study")
+    assert path_contains_whitespace(os.path.join("path", "to"),
+      "study with spaces")
+    assert path_contains_whitespace(os.path.join("path", "with spaces", "to"),
+      "study with spaces")
+    assert not path_contains_whitespace(os.path.join("path", "to"), "study")

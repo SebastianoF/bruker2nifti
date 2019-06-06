@@ -1,6 +1,8 @@
+import os
 import sys
 import argparse
 from bruker2nifti.converter import Bruker2Nifti
+import bruker2nifti._utils as utils
 
 
 def main():
@@ -149,6 +151,12 @@ def main():
     print('Frame body as frame head   : {}'.format(bruconv.frame_body_as_frame_head))
     print('-------------------------------------------------------- ')
     bruconv.convert()
+
+    # Print a warning message for paths with whitespace as it may interfere
+    # with subsequent steps in an image analysis pipeline
+    if utils.path_contains_whitespace(bruconv.pfo_study_nifti_output,
+      bruconv.study_name):
+        print("INFO: Output path/filename contains whitespace")
 
 
 if __name__ == "__main__":
