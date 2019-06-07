@@ -47,6 +47,7 @@ before_install:
     - virtualenv --python=python venv
     - python --version # just to check
     - source venv/bin/activate
+    - pip install nose
     - if [ -n "$DEPENDS" ]; then
         pip install $EXTRA_PIP_FLAGS $DEPENDS;
       fi;
