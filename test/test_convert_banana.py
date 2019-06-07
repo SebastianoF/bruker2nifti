@@ -3,7 +3,7 @@ import warnings
 import subprocess
 import platform
 import shutil
-
+import sys
 import pytest
 
 from bruker2nifti.converter import Bruker2Nifti
@@ -138,5 +138,9 @@ def test_warning_banana_bad_n():
         bru = Bruker2Nifti(pfo_study_in, pfo_study_out, study_name='banana')
         bru.correct_slope = True
         bru.verbose = 2
-        with pytest.raises(FileExistsError):
-            bru.convert()
+        if sys.version_info.major == 2:
+            with pytest.raises(OSError):
+                bru.convert()
+        else:
+            with pytest.raises(FileExistsError):
+                bru.convert()
