@@ -26,7 +26,3 @@ workflows:
       - Python_2.7
       - Python_3.6
       - Python_3.7
-
-      - store_artifacts:
-          path: test-reports
-          destination: test-reports
