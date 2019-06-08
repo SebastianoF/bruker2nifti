@@ -47,7 +47,7 @@ before_install:
     - virtualenv --python=python venv
     - python --version # just to check
     - source venv/bin/activate
-    - pip install nose
+    - pip install -r requirements-dev.txt
     - if [ -n "$DEPENDS" ]; then
         pip install $EXTRA_PIP_FLAGS $DEPENDS;
       fi;
@@ -77,6 +77,7 @@ install:
           pip install $EXTRA_PIP_FLAGS dist/*.whl
       elif [ "$INSTALL_TYPE" == "requirements" ]; then
           pip install $EXTRA_PIP_FLAGS -r requirements.txt
+          pip install $EXTRA_PIP_FLAGS -r requirements-dev.txt
           pip install .
       fi
 script:
