@@ -8,6 +8,7 @@ jobs:
         - checkout
         - run: sudo pip install -r requirements.txt
         - run: sudo pip install -r requirements-dev.txt
+        - run: pip intsall -e .
         - run: python --version ; pip --version ; pwd ; ls
         - run: pytest
   Python_3.6:
