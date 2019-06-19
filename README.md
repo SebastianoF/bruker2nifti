@@ -10,7 +10,12 @@ ParaVision to [NifTi](https://nifti.nimh.nih.gov/nifti-1), without any intermedi
 
 Bruker2nifti is a pip-installable pure Python tool provided with a Graphical User Interface and a Command Line Utility to access the conversion method.
 
+### Before Getting Started
+
+Since the release of ParaVision360v1.1, a NifTi format converter is natively embedded and would provide the long sought standard. Please consider this option before starting with bruker2nifti. 
+
 ### Getting Started
+
 + Requirements
     - Python 3 backward compatible with python 2.7
     - Libraries in [requirements.txt](https://github.com/SebastianoF/bruker2nifti/blob/master/requirements.txt).
@@ -28,7 +33,6 @@ Bruker2nifti is a pip-installable pure Python tool provided with a Graphical Use
 + [To access the Graphical User interface and convert some data with no python knowledge required](https://github.com/SebastianoF/bruker2nifti/wiki/Up-and-running-for-non-Python-developers).
 + [GUI instructions and real data examples](https://github.com/SebastianoF/bruker2nifti/wiki/Graphical-User-Interface-Examples).
 
-
 ![gui_example](https://github.com/SebastianoF/bruker2nifti/blob/master/screenshots/gui_version_101.jpg)
 
 ### API documentation, additional notes, examples and list of Bruker converter
@@ -42,12 +46,13 @@ Bruker2nifti is a pip-installable pure Python tool provided with a Graphical Use
 + [Local testing and coverage with pytest and coveragerc](https://github.com/SebastianoF/bruker2nifti/wiki/Local-testing-and-coverage-with-pytest-and-coveragerc)
 + Tests are based on the benchmark dataset [Bruker2nifti_qa](https://gitlab.com/naveau/bruker2nifti_qa/tree/master) (thanks to Mikaël Naveau)
 
-
 ### Support and contributions
+
 Please see the [contribution guideline](https://github.com/SebastianoF/bruker2nifti/blob/master/CONTRIBUTE.md) for bugs report,
 feature requests and code style.
 
 ### Copyright, Licence and How to Cite
+
 + Copyright (c) 2017, Sebastiano Ferraris, University College London.
 + Bruker2nifti is provided as it is and copyrighted under [MIT License](https://github.com/SebastianoF/bruker2nifti/blob/master/LICENCE.txt).
 + To cite the code in your research please cite:
@@ -69,8 +74,8 @@ BibTeX entry:
 }
 ```
 
-
 ### Acknowledgements
+
 + This repository is developed within the [GIFT-surg research project](http://www.gift-surg.ac.uk).
 + Funding sources and authors list can be found in the [JOSS submission paper](https://github.com/SebastianoF/bruker2nifti/blob/master/paper/paper.md).
 + Thanks to
