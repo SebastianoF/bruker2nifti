@@ -10,6 +10,11 @@ else:
     import mock as mock
 
 
+here = os.path.abspath(os.path.dirname(__file__))
+root_dir = os.path.dirname(here)
+banana_data = os.path.join(root_dir, 'test_data', 'bru_banana')
+
+
 class TestMetadata(object):
 
     def test_instantiation(self):
@@ -25,7 +30,7 @@ class TestMetadata(object):
             assert isinstance(m, BrukerMetadata)
             assert m.pfo_input == path
 
-    def test_list_subdirs(self, banana_data):
+    def test_list_subdirs(self):
         m = BrukerMetadata(banana_data)
         assert m._list_subdirs(banana_data) == ["1", "2", "3"]
         assert m._list_subdirs(os.path.join(banana_data, "1")) == []
@@ -57,7 +62,7 @@ class TestMetadata(object):
     # TODO: The following test case is not properly tested yet as the
     #       banana dataset does not include a subject. Will need to add a new
     #       test dataset or update banana to include a subject
-    def test_read_subject(self, banana_data):
+    def test_read_subject(self):
         expected_contents = bruker_read_files("subject", banana_data)
         with mock.patch("bruker2nifti._utils.bruker_read_files") as mock_function:
             mock_function.configure_mock(side_effect = bruker_read_files)
@@ -66,7 +71,7 @@ class TestMetadata(object):
             assert subject == expected_contents
             mock_function.assert_called_once_with("subject", banana_data)
 
-    def test_read_recon(self, banana_data):
+    def test_read_recon(self):
         selected_scan = "3"
         selected_recon = "1"
         data_path = os.path.join(banana_data, selected_scan)
@@ -98,7 +103,7 @@ class TestMetadata(object):
             mock_list_recons.assert_called_once()
             mock_read_recon.assert_called()
 
-    def test_read_scan(self, banana_data):
+    def test_read_scan(self):
         selected_scan = "1"
         data_path = os.path.join(banana_data, selected_scan)
         expected_keys = ["acqp", "method", "recons"]
@@ -108,23 +113,23 @@ class TestMetadata(object):
           return_value = { "1": None, "2": None }) as mock_read_recons:
             m = BrukerMetadata(banana_data)
             scan = m.read_scan(selected_scan)
-            assert list(scan.keys()) == expected_keys
+            assert set(scan.keys()) == set(expected_keys)
             assert scan["acqp"].keys() == ex_acqp.keys()
             assert scan["method"].keys() == ex_method.keys()
-            assert list(scan["recons"].keys()) == ["1", "2"]
+            assert set(scan["recons"].keys()) == {"1", "2"}
             mock_read_recons.assert_called_once_with(selected_scan)
 
     def test_read_scans(self):
         expected_keys = ["1", "2", "3", "4"]
         root_path = os.path.join("path", "to")
         with mock.patch.object(
-          BrukerMetadata, "list_scans",
-          return_value = expected_keys) as mock_list_scans, mock.patch.object(
+              BrukerMetadata, "list_scans",
+              return_value=expected_keys) as mock_list_scans, mock.patch.object(
           BrukerMetadata, "read_scan",
-          return_value = None) as mock_read_scan:
+          return_value=None) as mock_read_scan:
             m = BrukerMetadata(root_path)
             scans = m.read_scans()
-            assert list(scans.keys()) == expected_keys
+            assert set(scans.keys()) == set(expected_keys)
             mock_list_scans.assert_called_once()
             mock_read_scan.assert_called()
 
