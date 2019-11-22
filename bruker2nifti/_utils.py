@@ -106,10 +106,11 @@ def bruker_read_files(param_file, data_path, sub_scan_num='1'):
     :return: dict_info dictionary with the parsed information from the input file.
     """
     if param_file.lower() == 'reco':
-        if os.path.exists(jph(data_path, 'pdata', '1', 'reco')):
-            f = open(jph(data_path, 'pdata', '1', 'reco'), 'r')
+        if os.path.exists(jph(data_path, 'pdata', str(sub_scan_num), 'reco')):
+            f = open(jph(data_path, 'pdata', str(sub_scan_num), 'reco'), 'r')
         else:
-            print('File {} does not exist'.format(jph(data_path, 'pdata', '1', 'reco')))
+            print('File {} does not exist'.format(jph(data_path, 'pdata',
+              str(sub_scan_num), 'reco')))
             return {}
     elif param_file.lower() == 'acqp':
         if os.path.exists(jph(data_path, 'acqp')):

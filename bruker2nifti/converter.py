@@ -1,8 +1,8 @@
 import os
 
-from ._utils import bruker_read_files
-from ._getters import get_list_scans, get_subject_name
-from ._cores import scan2struct, write_struct
+from bruker2nifti._utils import bruker_read_files
+from bruker2nifti._getters import get_list_scans, get_subject_name
+from bruker2nifti._cores import scan2struct, write_struct
 
 
 class Bruker2Nifti(object):

@@ -1,8 +1,11 @@
-import os
-import sys
 import argparse
+from datetime import datetime, timedelta
+import re
+import sys
+
 from bruker2nifti.converter import Bruker2Nifti
 import bruker2nifti._utils as utils
+from bruker2nifti._metadata import BrukerMetadata
 
 
 def main():
@@ -13,6 +16,18 @@ def main():
     """
 
     parser = argparse.ArgumentParser()
+
+    # The action to be taken
+    #  'convert': Convert images to nifti format (default)
+    #  'list': List scans without converting
+    parser.add_argument('command',
+                        type=str,
+                        nargs='?',
+                        default='convert',
+                        choices=['convert', 'list'],
+                        help='Action to take: ' +
+                          'convert - convert to nifti, ' +
+                          'list - list studies and exit')
 
     # custom helper
     parser.add_argument('-what',
@@ -41,9 +56,18 @@ def main():
                         default=None)
 
     # scans_list = None
+    # Accepts a list of single digit numbers without any separators. Unable to
+    # specify multi-digit scan numbers this way. The --scans argument specified
+    # below supersedes this but --scans_list is left in for backwards
+    # compatibility. If --scans is also supplied, this paramater is ignored.
     parser.add_argument('-scans_list',
                         dest='scans_list',
                         default=None)
+
+    # A comma or space/tab separated list of scans to operate on
+    parser.add_argument('--scans',
+                       dest='scans',
+                       default=None)
 
     # list_new_name_each_scan = None,
     parser.add_argument('-list_new_name_each_scan',
@@ -103,7 +127,18 @@ def main():
 
     args = parser.parse_args()
 
+    if args.scans:
+        scan_list = re.split(r"[^\d]+", args.scans)
+    elif args.scans_list:
+        scan_list = list(args.scans_list)
+    else:
+        scan_list = None
+
     # Check input:
+    if args.command == 'list':
+        list_scans(args.pfo_input)
+        sys.exit(0)
+
     if args.what:
         msg = 'Code repository : {} \n' \
               'Documentation   : {}'.format('https://github.com/SebastianoF/bruker2nifti',
@@ -118,10 +153,17 @@ def main():
                            args.pfo_output,
                            study_name=args.study_name)
 
-    if args.scans_list is not None:
-        bruconv.scans_list = args.scans_list
+    if scan_list is not None:
+        bruconv.scans_list = scan_list
     if args.list_new_name_each_scan is not None:
         bruconv.list_new_name_each_scan = args.list_new_name_each_scan
+    elif scan_list is not None:
+        # This list of output scan names is populated during object instantiation
+        # which causes problems when updating the list of scans to convert after
+        # object instantiation (the only way to do it). The following work-around
+        # replaces the list of output file names if a list is not explicitly provided.
+        # TODO: Restructure the Bruker2Nifti class so that this is not necessary.
+        bruconv.list_new_name_each_scan = [bruconv.study_name + '_' + ls for ls in scan_list]
 
     # Basics
     bruconv.nifti_version       = args.nifti_version
@@ -157,6 +199,28 @@ def main():
     if utils.path_contains_whitespace(bruconv.pfo_study_nifti_output,
       bruconv.study_name):
         print("INFO: Output path/filename contains whitespace")
+
+
+def list_scans(pfo_study):
+    study = BrukerMetadata(pfo_study)
+    study.parse_subject()
+    study.parse_scans()
+
+    # Print study details to the console
+    print()
+    print("Subject: {}".format(study.subject_data["SUBJECT_name_string"]))
+    print("Study Date: {:%Y-%m-%d %H:%M}".format(datetime.strptime(
+      study.subject_data["SUBJECT_date"], "%Y-%m-%dT%H:%M:%S,%f%z")))
+    print("-------------------------------------------------------- ")
+    print()
+    for scan, value in study.scan_data.items():
+        print("Scan {}".format(scan))
+        print(
+          "Protocol: {}".format(value["acqp"]["ACQ_protocol_name"]).ljust(30) +
+          "Method: {}".format(value["acqp"]["ACQ_method"]).ljust(30) +
+          "Scan Time: {}".format(timedelta(
+          seconds=int(round(value["method"]["ScanTime"] / 1000)))).ljust(30))
+        print()
 
 
 if __name__ == "__main__":
