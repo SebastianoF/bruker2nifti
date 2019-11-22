@@ -1,10 +1,14 @@
 import os
-import unittest.mock as mock
-
-import pytest
+import sys
 
 from bruker2nifti._metadata import BrukerMetadata
 from bruker2nifti._utils import bruker_read_files
+
+if sys.version_info >= (3, 3):
+    import unittest.mock as mock
+else:
+    import mock as mock
+
 
 class TestMetadata(object):
 
