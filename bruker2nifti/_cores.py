@@ -6,8 +6,8 @@ import warnings
 
 from os.path import join as jph
 
-from ._getters import get_list_scans, nifti_getter
-from ._utils import bruker_read_files, normalise_b_vect, from_dict_to_txt_sorted, set_new_data, \
+from bruker2nifti._getters import get_list_scans, nifti_getter
+from bruker2nifti._utils import bruker_read_files, normalise_b_vect, from_dict_to_txt_sorted, set_new_data, \
     apply_reorientation_to_b_vects, obtain_b_vectors_orient_matrix
 
 

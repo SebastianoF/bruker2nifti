@@ -3,7 +3,7 @@ import unittest.mock as mock
 
 import pytest
 
-from bruker2nifti.metadata import BrukerMetadata
+from bruker2nifti._metadata import BrukerMetadata
 from bruker2nifti._utils import bruker_read_files
 
 class TestMetadata(object):

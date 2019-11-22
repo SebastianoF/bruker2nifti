@@ -5,7 +5,7 @@ import sys
 
 from bruker2nifti.converter import Bruker2Nifti
 import bruker2nifti._utils as utils
-from ..metadata import BrukerMetadata
+from bruker2nifti._metadata import BrukerMetadata
 
 
 def main():

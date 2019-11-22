@@ -37,7 +37,7 @@ list_recons() returns a list of recon numbers for a given scan
 """
 import os
 
-from . import _utils as utils
+import bruker2nifti._utils as utils
 
 class BrukerMetadata(object):
     """Represents metadata associated with a given MRI study."""
