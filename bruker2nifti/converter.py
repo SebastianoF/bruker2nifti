@@ -37,26 +37,32 @@ class Bruker2Nifti(object):
         """
         self.pfo_study_bruker_input = pfo_study_bruker_input
         self.pfo_study_nifti_output = pfo_study_nifti_output
-        self.study_name             = study_name
+        self.study_name = study_name
         # converter settings for the nifti values
-        self.nifti_version       = 1
-        self.qform_code          = 1
-        self.sform_code          = 2
+        self.nifti_version = 1
+        self.qform_code = 1
+        self.sform_code = 2
         self.save_human_readable = True
-        self.save_b0_if_dwi      = True  # if DWI, it saves the first layer as a single nfti image.
-        self.correct_slope       = True
-        self.correct_offset      = True
+        self.save_b0_if_dwi = (
+            True
+        )  # if DWI, it saves the first layer as a single nfti image.
+        self.correct_slope = True
+        self.correct_offset = True
         # advanced sample positioning
-        self.sample_upside_down       = False
+        self.sample_upside_down = False
         self.frame_body_as_frame_head = False
         # chose to convert extra files:
-        self.get_acqp   = False
+        self.get_acqp = False
         self.get_method = False
-        self.get_reco   = False
+        self.get_reco = False
         # advanced selections:
-        self.scans_list              = None  # you can select a subset of scans in the study to be converted.
-        self.list_new_name_each_scan = None  # you can select specific names for the subset self.scans_list.
-        self.verbose                 = 1
+        self.scans_list = (
+            None
+        )  # you can select a subset of scans in the study to be converted.
+        self.list_new_name_each_scan = (
+            None
+        )  # you can select specific names for the subset self.scans_list.
+        self.verbose = 1
         # automatic filling of advanced selections class attributes
         self.explore_study()
 
@@ -68,28 +74,38 @@ class Bruker2Nifti(object):
         """
 
         if not os.path.isdir(self.pfo_study_bruker_input):
-            raise IOError('Input folder does not exist.')
+            raise IOError("Input folder does not exist.")
         if not os.path.isdir(self.pfo_study_nifti_output):
-            raise IOError('Output folder does not exist.')
+            raise IOError("Output folder does not exist.")
         if self.scans_list is None:
-            self.scans_list = get_list_scans(self.pfo_study_bruker_input, print_structure=False)
+            self.scans_list = get_list_scans(
+                self.pfo_study_bruker_input, print_structure=False
+            )
             assert isinstance(self.scans_list, list)
-            msg = 'No scans found, are you sure the input folder contains a Bruker study?'
+            msg = (
+                "No scans found, are you sure the input folder contains a Bruker study?"
+            )
             if not len(self.scans_list) > 0:
                 raise IOError(msg)
-        if self.study_name is None or self.study_name is '':
-            _study_name = get_subject_name(self.pfo_study_bruker_input).replace(' ', '_')
-            self.study_name = ''.join(e for e in _study_name if e.isalnum())
+        if self.study_name is None or self.study_name is "":
+            _study_name = get_subject_name(self.pfo_study_bruker_input).replace(
+                " ", "_"
+            )
+            self.study_name = "".join(e for e in _study_name if e.isalnum())
         if self.list_new_name_each_scan is None:
-            list_new_name_each_scan = [self.study_name + '_' + ls for ls in self.scans_list]
+            list_new_name_each_scan = [
+                self.study_name + "_" + ls for ls in self.scans_list
+            ]
             self.list_new_name_each_scan = list_new_name_each_scan
             assert isinstance(self.list_new_name_each_scan, list)
         # if self.list_new_nifti_file_names is None:
         #     self.list_new_nifti_file_names = self.list_new_name_each_scan
         else:
             if not len(self.scans_list) == len(self.list_new_name_each_scan):
-                msg = 'list_name_each_scan {0} does not have the same amount of scans in the ' \
-                      'study: {1}'.format(self.list_new_name_each_scan, self.scans_list)
+                msg = (
+                    "list_name_each_scan {0} does not have the same amount of scans in the "
+                    "study: {1}".format(self.list_new_name_each_scan, self.scans_list)
+                )
                 raise IOError(msg)
 
     def show_study_structure(self):
@@ -98,18 +114,23 @@ class Bruker2Nifti(object):
         :return: [None] only print to console information.
         """
         if not os.path.isdir(self.pfo_study_bruker_input):
-            raise IOError('Input folder does not exist.')
+            raise IOError("Input folder does not exist.")
 
-        print('Study folder structure: ')
+        print("Study folder structure: ")
         scans_list = get_list_scans(self.pfo_study_bruker_input)
-        print('\n')
-        print('List of scans: {}'.format(scans_list))
+        print("\n")
+        print("List of scans: {}".format(scans_list))
         pfi_first_scan = os.path.join(self.pfo_study_bruker_input, scans_list[0])
-        acqp = bruker_read_files('acqp', pfi_first_scan)
-        print('Version: {}'.format(acqp['ACQ_sw_version'][0]))
+        acqp = bruker_read_files("acqp", pfi_first_scan)
+        print("Version: {}".format(acqp["ACQ_sw_version"][0]))
 
-    def convert_scan(self, pfo_input_scan, pfo_output_converted, nifti_file_name=None,
-                     create_output_folder_if_not_exists=True):
+    def convert_scan(
+        self,
+        pfo_input_scan,
+        pfo_output_converted,
+        nifti_file_name=None,
+        create_output_folder_if_not_exists=True,
+    ):
         """
         :param pfo_input_scan: path to folder (pfo) containing a scan from Bruker, see documentation for the difference
          between Bruker 'scan' and Bruker 'study'.
@@ -121,35 +142,34 @@ class Bruker2Nifti(object):
         """
 
         if not os.path.isdir(pfo_input_scan):
-            raise IOError('Input folder does not exist.')
+            raise IOError("Input folder does not exist.")
 
         if create_output_folder_if_not_exists:
             os.makedirs(pfo_output_converted)
 
-        print('FRAME BODY {}'.format(self.frame_body_as_frame_head))
-        print('UPSIDE DOWN {}'.format(self.sample_upside_down))
-
-        struct_scan = scan2struct(pfo_input_scan,
-                                  correct_slope=self.correct_slope,
-                                  correct_offset=self.correct_offset,
-                                  sample_upside_down=self.sample_upside_down,
-                                  nifti_version=self.nifti_version,
-                                  qform_code=self.qform_code,
-                                  sform_code=self.sform_code,
-                                  get_acqp=self.get_acqp,
-                                  get_method=self.get_method,
-                                  get_reco=self.get_reco,
-                                  frame_body_as_frame_head=self.frame_body_as_frame_head
-                                  )
+        struct_scan = scan2struct(
+            pfo_input_scan,
+            correct_slope=self.correct_slope,
+            correct_offset=self.correct_offset,
+            sample_upside_down=self.sample_upside_down,
+            nifti_version=self.nifti_version,
+            qform_code=self.qform_code,
+            sform_code=self.sform_code,
+            get_acqp=self.get_acqp,
+            get_method=self.get_method,
+            get_reco=self.get_reco,
+            frame_body_as_frame_head=self.frame_body_as_frame_head,
+        )
 
         if struct_scan is not None:
-            write_struct(struct_scan,
-                         pfo_output_converted,
-                         fin_scan=nifti_file_name,
-                         save_human_readable=self.save_human_readable,
-                         save_b0_if_dwi=self.save_b0_if_dwi,
-                         verbose=self.verbose,
-                         )
+            write_struct(
+                struct_scan,
+                pfo_output_converted,
+                fin_scan=nifti_file_name,
+                save_human_readable=self.save_human_readable,
+                save_b0_if_dwi=self.save_b0_if_dwi,
+                verbose=self.verbose,
+            )
 
     def convert(self):
         """
@@ -176,17 +196,23 @@ class Bruker2Nifti(object):
         pfo_nifti_study = os.path.join(self.pfo_study_nifti_output, self.study_name)
         os.makedirs(pfo_nifti_study)
 
-        print('\nStudy conversion \n{}\nstarted:\n'.format(self.pfo_study_bruker_input))
+        print("\nStudy conversion \n{}\nstarted:\n".format(self.pfo_study_bruker_input))
 
-        for bruker_scan_name, scan_name in zip(self.scans_list, self.list_new_name_each_scan):
-            pfo_scan_bruker = os.path.join(self.pfo_study_bruker_input, bruker_scan_name)
+        for bruker_scan_name, scan_name in zip(
+            self.scans_list, self.list_new_name_each_scan
+        ):
+            pfo_scan_bruker = os.path.join(
+                self.pfo_study_bruker_input, bruker_scan_name
+            )
             pfo_scan_nifti = os.path.join(pfo_nifti_study, scan_name)
 
-            print('\nConverting experiment {}:\n'.format(bruker_scan_name))
+            print("\nConverting experiment {}:\n".format(bruker_scan_name))
 
-            self.convert_scan(pfo_scan_bruker,
-                               pfo_scan_nifti,
-                               create_output_folder_if_not_exists=True,
-                               nifti_file_name=scan_name)
+            self.convert_scan(
+                pfo_scan_bruker,
+                pfo_scan_nifti,
+                create_output_folder_if_not_exists=True,
+                nifti_file_name=scan_name,
+            )
 
-        print('\nStudy converted and saved in \n{}'.format(self.pfo_study_nifti_output))
+        print("\nStudy converted and saved in \n{}".format(self.pfo_study_nifti_output))

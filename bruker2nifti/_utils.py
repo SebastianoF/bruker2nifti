@@ -8,6 +8,7 @@ from os.path import join as jph
 
 # --- text-files utils ---
 
+
 def unique_words_in_string(in_string):
     ulist = []
     [ulist.append(s) for s in in_string.split() if s not in ulist]
@@ -35,28 +36,30 @@ def indians_file_parser(s, sh=None):
     s = s.strip()  # removes initial and final spaces.
 
     # A
-    if ('(' in s) and (')' in s):
+    if ("(" in s) and (")" in s):
         s = s[1:-1]  # removes initial and final ( )
-        a = ['(' + v + ')' for v in s.split(') (')]
+        a = ["(" + v + ")" for v in s.split(") (")]
     # B
-    elif s.replace('-', '').replace('.', '').replace(' ', '').replace('e', '').isdigit():
-        if ' ' in s:
+    elif (
+        s.replace("-", "").replace(".", "").replace(" ", "").replace("e", "").isdigit()
+    ):
+        if " " in s:
             a = np.array([float(x) for x in s.split()])
             if sh is not None:
                 a = a.reshape(sh)
         else:
             a = float(s)
     # B-bis
-    elif 'inf' in s:
-        if 'inf' == unique_words_in_string(s):
-            num_occurrences = sum('inf' == word for word in s.split())
-            a = [np.inf, ] * num_occurrences
+    elif "inf" in s:
+        if "inf" == unique_words_in_string(s):
+            num_occurrences = sum("inf" == word for word in s.split())
+            a = [np.inf] * num_occurrences
         else:
             a = s[:]
     # C
-    elif ('<' in s) and ('>' in s):
+    elif ("<" in s) and (">" in s):
         s = s[1:-1]  # removes initial and final < >
-        a = [v for v in s.split('> <')]
+        a = [v for v in s.split("> <")]
     # D
     else:
         a = s[:]
@@ -75,7 +78,7 @@ def var_name_clean(line_in):
     :param line_in: input string
     :return: output string cleaned from #, $ and PVM_
     """
-    line_out = line_in.replace('#', '').replace('$', '').replace('PVM_', '').strip()
+    line_out = line_in.replace("#", "").replace("$", "").replace("PVM_", "").strip()
     return line_out
 
 
@@ -89,11 +92,11 @@ def from_dict_to_txt_sorted(dict_input, pfi_output):
     """
     sorted_keys = sorted(dict_input.keys())
 
-    with open(pfi_output, 'w') as f:
-        f.writelines('{0} = {1} \n'.format(k, dict_input[k]) for k in sorted_keys)
+    with open(pfi_output, "w") as f:
+        f.writelines("{0} = {1} \n".format(k, dict_input[k]) for k in sorted_keys)
 
 
-def bruker_read_files(param_file, data_path, sub_scan_num='1'):
+def bruker_read_files(param_file, data_path, sub_scan_num="1"):
     """
     Reads parameters files of from Bruker raw data imaging format.
     It parses the files 'acqp', 'method', 'reco', 'visu_pars' and 'subject'.
@@ -105,140 +108,163 @@ def bruker_read_files(param_file, data_path, sub_scan_num='1'):
     are stored.
     :return: dict_info dictionary with the parsed information from the input file.
     """
-    if param_file.lower() == 'reco':
-        if os.path.exists(jph(data_path, 'pdata', str(sub_scan_num), 'reco')):
-            f = open(jph(data_path, 'pdata', str(sub_scan_num), 'reco'), 'r')
+    if param_file.lower() == "reco":
+        if os.path.exists(jph(data_path, "pdata", str(sub_scan_num), "reco")):
+            f = open(jph(data_path, "pdata", str(sub_scan_num), "reco"), "r")
         else:
-            print('File {} does not exist'.format(jph(data_path, 'pdata',
-              str(sub_scan_num), 'reco')))
+            print(
+                "File {} does not exist".format(
+                    jph(data_path, "pdata", str(sub_scan_num), "reco")
+                )
+            )
             return {}
-    elif param_file.lower() == 'acqp':
-        if os.path.exists(jph(data_path, 'acqp')):
-            f = open(jph(data_path, 'acqp'), 'r')
+    elif param_file.lower() == "acqp":
+        if os.path.exists(jph(data_path, "acqp")):
+            f = open(jph(data_path, "acqp"), "r")
         else:
-            print('File {} does not exist'.format(jph(data_path, 'acqp')))
+            print("File {} does not exist".format(jph(data_path, "acqp")))
             return {}
-    elif param_file.lower() == 'method':
-        if os.path.exists(jph(data_path, 'method')):
-            f = open(jph(data_path, 'method'), 'r')
+    elif param_file.lower() == "method":
+        if os.path.exists(jph(data_path, "method")):
+            f = open(jph(data_path, "method"), "r")
         else:
-            print('File {} does not exist'.format(jph(data_path, 'method')))
+            print("File {} does not exist".format(jph(data_path, "method")))
             return {}
-    elif param_file.lower() == 'visu_pars':
-        if os.path.exists(jph(data_path, 'pdata', str(sub_scan_num), 'visu_pars')):
-            f = open(jph(data_path, 'pdata', str(sub_scan_num), 'visu_pars'), 'r')
-        elif os.path.exists(jph(data_path, str(sub_scan_num), 'pdata', '1', 'visu_pars')):
-            f = open(jph(data_path, str(sub_scan_num), 'pdata', '1', 'visu_pars'), 'r')
+    elif param_file.lower() == "visu_pars":
+        if os.path.exists(jph(data_path, "pdata", str(sub_scan_num), "visu_pars")):
+            f = open(jph(data_path, "pdata", str(sub_scan_num), "visu_pars"), "r")
+        elif os.path.exists(
+            jph(data_path, str(sub_scan_num), "pdata", "1", "visu_pars")
+        ):
+            f = open(jph(data_path, str(sub_scan_num), "pdata", "1", "visu_pars"), "r")
         else:
-            print('File {} does not exist'.format(jph(data_path, 'pdata', str(sub_scan_num), 'visu_pars')))
+            print(
+                "File {} does not exist".format(
+                    jph(data_path, "pdata", str(sub_scan_num), "visu_pars")
+                )
+            )
             return {}
-    elif param_file.lower() == 'subject':
-        if os.path.exists(jph(data_path, 'subject')):
-            f = open(jph(data_path, 'subject'), 'r')
+    elif param_file.lower() == "subject":
+        if os.path.exists(jph(data_path, "subject")):
+            f = open(jph(data_path, "subject"), "r")
         else:
-            print('File {} does not exist'.format(jph(data_path, 'subject')))
+            print("File {} does not exist".format(jph(data_path, "subject")))
             return {}
     else:
-        raise IOError("param_file input must be the string 'reco', 'acqp', 'method', 'visu_pars' or 'subject'")
+        raise IOError(
+            "param_file input must be the string 'reco', 'acqp', 'method', 'visu_pars' or 'subject'"
+        )
 
     dict_info = {}
     lines = f.readlines()
 
     for line_num in range(len(lines)):
-        '''
+        """
         Relevant information are in the lines with '##'.
         For the parameters that have arrays values specified between (), with values in the next line.
         Values in the next line can be parsed in lists or np.ndarray when they contains also characters or numbers.
-        '''
+        """
 
         line_in = lines[line_num]
 
-        if '##' in line_in:
+        if "##" in line_in:
 
-            if ('$' in line_in) and ('(' in line_in) and ('<' not in line_in):
+            if ("$" in line_in) and ("(" in line_in) and ("<" not in line_in):
                 # A:
-                splitted_line = line_in.split('=')
+                splitted_line = line_in.split("=")
                 # name of the variable contained in the row, and shape:
                 var_name = var_name_clean(splitted_line[0][3:])
 
                 done = False
-                indian_file = ''
+                indian_file = ""
                 pos = line_num
                 sh = splitted_line[1]
                 # this is not the shape of the vector but the beginning of a full vector.
-                if sh.replace(' ', '').endswith(',\n'):
-                    sh = sh.replace('(', '').replace(')', '').replace('\n', '').strip()
+                if sh.replace(" ", "").endswith(",\n"):
+                    sh = sh.replace("(", "").replace(")", "").replace("\n", "").strip()
                     indian_file += sh
                     sh = None
                 # this is not the shape of the vector but a full vector.
-                elif sh.replace(' ', '').endswith(')\n') and '.' in sh:
-                    sh = sh.replace('(', '').replace(')', '').replace('\n', '').strip()
+                elif sh.replace(" ", "").endswith(")\n") and "." in sh:
+                    sh = sh.replace("(", "").replace(")", "").replace("\n", "").strip()
                     indian_file += sh
                     sh = None
                 # this is finally the shape of the vector that will start in the next line.
                 else:
-                    sh = sh.replace('(', '').replace(')', '').replace('\n', '').strip()
-                    sh = [int(num) for num in sh.split(',')]
+                    sh = sh.replace("(", "").replace(")", "").replace("\n", "").strip()
+                    sh = [int(num) for num in sh.split(",")]
 
                 while not done:
 
                     pos += 1
                     # collect the indian file: info related to the same variables that can appears on multiple rows.
-                    line_to_explore = lines[pos]  # tell seek does not work in the line iterators...
+                    line_to_explore = lines[
+                        pos
+                    ]  # tell seek does not work in the line iterators...
 
-                    if ('##' in line_to_explore) or ('$$' in line_to_explore):
+                    if ("##" in line_to_explore) or ("$$" in line_to_explore):
                         # indian file is over
                         done = True
 
                     else:
                         # we store the rows in the indian file all in the same string.
-                        indian_file += line_to_explore.replace('\n', '').strip() + ' '
+                        indian_file += line_to_explore.replace("\n", "").strip() + " "
 
                 dict_info[var_name] = indians_file_parser(indian_file, sh)
 
-            elif ('$' in line_in) and ('(' not in line_in):
+            elif ("$" in line_in) and ("(" not in line_in):
                 # B:
-                splitted_line = line_in.split('=')
+                splitted_line = line_in.split("=")
                 var_name = var_name_clean(splitted_line[0][3:])
                 indian_file = splitted_line[1]
 
                 dict_info[var_name] = indians_file_parser(indian_file)
 
-            elif ('$' not in line_in) and ('(' in line_in):
+            elif ("$" not in line_in) and ("(" in line_in):
                 # C:
-                splitted_line = line_in.split('=')
+                splitted_line = line_in.split("=")
                 var_name = var_name_clean(splitted_line[0][2:])
 
                 done = False
-                indian_file = splitted_line[1].strip() + ' '
+                indian_file = splitted_line[1].strip() + " "
                 pos = line_num
 
                 while not done:
                     pos += 1
                     # collect the indian file: info related to the same variables that can appears on multiple rows.
-                    line_to_explore = lines[pos]  # tell seek does not work in the line iterators...
-                    if ('##' in line_to_explore) or ('$$' in line_to_explore):
+                    line_to_explore = lines[
+                        pos
+                    ]  # tell seek does not work in the line iterators...
+                    if ("##" in line_to_explore) or ("$$" in line_to_explore):
                         # indian file is over
                         done = True
                     else:
                         # we store the rows in the indian file all in the same string.
-                        indian_file += line_to_explore.replace('\n', '').strip() + ' '
+                        indian_file += line_to_explore.replace("\n", "").strip() + " "
 
                 dict_info[var_name] = indians_file_parser(indian_file)
 
-            elif ('$' not in line_in) and ('(' not in line_in):
+            elif ("$" not in line_in) and ("(" not in line_in):
                 # D:
-                splitted_line = line_in.split('=')
+                splitted_line = line_in.split("=")
                 var_name = var_name_clean(splitted_line[0])
-                indian_file = splitted_line[1].replace('=', '').strip()
+                indian_file = splitted_line[1].replace("=", "").strip()
                 dict_info[var_name] = indians_file_parser(indian_file)
 
             else:
                 # General case: take it as a simple string.
-                splitted_line = line_in.split('=')
+                splitted_line = line_in.split("=")
                 var_name = var_name_clean(splitted_line[0])
-                dict_info[var_name] = splitted_line[1].replace('(', '').replace(')', '').replace('\n', ''). \
-                                                       replace('<', '').replace('>', '').replace(',', ' ').strip()
+                dict_info[var_name] = (
+                    splitted_line[1]
+                    .replace("(", "")
+                    .replace(")", "")
+                    .replace("\n", "")
+                    .replace("<", "")
+                    .replace(">", "")
+                    .replace(",", " ")
+                    .strip()
+                )
 
         else:
             # line does not contain any 'assignable' variable, so this information is not included in the info.
@@ -263,14 +289,16 @@ def eliminate_consecutive_duplicates(input_list):
                 output_list.append(k)
         return output_list
     else:
-        output_list = [input_list[0], ]
+        output_list = [input_list[0]]
         for i in range(1, len(input_list)):
-            if not input_list[i] == input_list[i-1]:
+            if not input_list[i] == input_list[i - 1]:
                 output_list.append(input_list[i])
         return output_list
 
 
-def data_corrector(data, factors, kind='slope', num_initial_dir_to_skip=None, dtype=np.float64):
+def data_corrector(
+    data, factors, kind="slope", num_initial_dir_to_skip=None, dtype=np.float64
+):
     """
     Slope is a float or a vector that needs to be multiplied to the data, to obtain the data as they are acquired.
     To reduce the weight of an image, each slice can be divided by a common float factor, so that at each voxel only the
@@ -295,13 +323,21 @@ def data_corrector(data, factors, kind='slope', num_initial_dir_to_skip=None, dt
     """
 
     if len(data.shape) > 5:
-        raise IOError('4d or lower dimensional images allowed. Input data has shape {} '.format(data.shape))
-    assert kind in ('slope', 'offset')
+        raise IOError(
+            "4d or lower dimensional images allowed. Input data has shape {} ".format(
+                data.shape
+            )
+        )
+    assert kind in ("slope", "offset")
 
-    if hasattr(factors, '__contains__'):
+    if hasattr(factors, "__contains__"):
         if np.inf in factors:
-            warnings.warn('bruker2nifti - Vector corresponding to {} has some inf values. Can not correct it.'.
-                          format(kind), UserWarning)
+            warnings.warn(
+                "bruker2nifti - Vector corresponding to {} has some inf values. Can not correct it.".format(
+                    kind
+                ),
+                UserWarning,
+            )
             return data
 
     data = data.astype(dtype)
@@ -315,23 +351,32 @@ def data_corrector(data, factors, kind='slope', num_initial_dir_to_skip=None, dt
     # be in the fact that there are duplicates in the slope vector. This has been seein only in PV5.1).
     if not (isinstance(factors, int) or isinstance(factors, float)):
         if factors.ndim == 1:
-            if not factors.size == data.shape[-1] and not factors.size == data.shape[-2]:
-                factors = np.array(eliminate_consecutive_duplicates(list(factors)), dtype=np.float64)
-                if not factors.size == data.shape[-1] and not factors.size == data.shape[-2]:
-                    msg = 'Slope shape {0} and data shape {1} appears to be not compatible'.format(
-                        factors.shape, data.shape)
+            if (
+                not factors.size == data.shape[-1]
+                and not factors.size == data.shape[-2]
+            ):
+                factors = np.array(
+                    eliminate_consecutive_duplicates(list(factors)), dtype=np.float64
+                )
+                if (
+                    not factors.size == data.shape[-1]
+                    and not factors.size == data.shape[-2]
+                ):
+                    msg = "Slope shape {0} and data shape {1} appears to be not compatible".format(
+                        factors.shape, data.shape
+                    )
                     raise IOError(msg)
 
     if isinstance(factors, int) or isinstance(factors, float):
         # scalar slope/offset times nd array data
-        if kind == 'slope':
+        if kind == "slope":
             data *= factors
-        elif kind == 'offset':
+        elif kind == "offset":
             data += factors
 
     elif factors.size == 1:
         # scalar slope/offset embedded in a singleton times nd array data
-        if kind == 'slope':
+        if kind == "slope":
             data *= factors[0]
         else:
             data += factors[0]
@@ -340,47 +385,63 @@ def data_corrector(data, factors, kind='slope', num_initial_dir_to_skip=None, dt
         # each slice of the 3d image is multiplied an element of the slope consecutively
         if data.shape[2] == factors.shape[0]:
             for t, fa in enumerate(factors):
-                if kind == 'slope':
+                if kind == "slope":
                     data[..., t] = data[..., t] * fa
-                elif kind == 'offset':
+                elif kind == "offset":
                     data[..., t] = data[..., t] + fa
         else:
-            raise IOError('Shape of the 2d image and slope dimensions are not consistent')
+            raise IOError(
+                "Shape of the 2d image and slope dimensions are not consistent"
+            )
 
-    elif len(data.shape) == 4 and len(factors.shape) == 1 and factors.shape[0] == data.shape[2]:
+    elif (
+        len(data.shape) == 4
+        and len(factors.shape) == 1
+        and factors.shape[0] == data.shape[2]
+    ):
         # each slice of the 4d image, taken from the third dim, is multiplied by each element of the slope in sequence.
         if factors.size == data.shape[2]:
             for t in range(data.shape[3]):
                 for k in range(factors.size):
-                    if kind == 'slope':
+                    if kind == "slope":
                         data[..., k, t] = data[..., k, t] * factors[k]
-                    elif kind == 'offset':
+                    elif kind == "offset":
                         data[..., k, t] = data[..., k, t] + factors[k]
         else:
-            raise IOError('If you are here, your case cannot be converted. Further investigations required.')
+            raise IOError(
+                "If you are here, your case cannot be converted. Further investigations required."
+            )
 
-    elif len(data.shape) == 5 and len(factors.shape) == 1 and factors.shape[0] == data.shape[3]:
+    elif (
+        len(data.shape) == 5
+        and len(factors.shape) == 1
+        and factors.shape[0] == data.shape[3]
+    ):
         # each slice of the 5d image, taken from the fourth dim, is multiplied by each element of the slope in sequence.
         if factors.size == data.shape[3]:
             for t in range(data.shape[4]):
                 for k in range(factors.size):
-                    if kind == 'slope':
+                    if kind == "slope":
                         data[..., k, t] = data[..., k, t] * factors[k]
-                    elif kind == 'offset':
+                    elif kind == "offset":
                         data[..., k, t] = data[..., k, t] + factors[k]
         else:
-            raise IOError('If you are here, your case cannot be converted. Further investigations required.')
+            raise IOError(
+                "If you are here, your case cannot be converted. Further investigations required."
+            )
 
     else:
         # each slice of the nd image, taken from the last dimension, is multiplied by each element of the slope.
         if factors.size == data.shape[-1]:
             for t in range(data.shape[-1]):
-                if kind == 'slope':
+                if kind == "slope":
                     data[..., t] = data[..., t] * factors[t]
-                elif kind == 'offset':
+                elif kind == "offset":
                     data[..., t] = data[..., t] + factors[t]
         else:
-            msg = 'Slope shape {0} and data shape {1} appears to be not compatible'.format(factors.shape, data.shape)
+            msg = "Slope shape {0} and data shape {1} appears to be not compatible".format(
+                factors.shape, data.shape
+            )
             raise IOError(msg)
 
     return data
@@ -404,7 +465,9 @@ def compute_resolution_from_visu_pars(vc_extent, vc_size, vc_frame_thickness):
     else:
         raise IOError
 
-    if isinstance(vc_frame_thickness, np.ndarray) or isinstance(vc_frame_thickness, list):
+    if isinstance(vc_frame_thickness, np.ndarray) or isinstance(
+        vc_frame_thickness, list
+    ):
         vc_frame_thickness = vc_frame_thickness[0]
 
     if len(vc_extent) == 2:
@@ -422,7 +485,7 @@ def sanity_check_visu_core_subject_position(vc_subject_position):
     :param vc_subject_position: VisuCoreSubjectPosition from 'visu_pars'
     :return: Raise error if VisuCoreSubjectPosition is not 'Head_Prone' or 'Head_Supine'
     """
-    if vc_subject_position not in ['Head_Prone', 'Head_Supine']:
+    if vc_subject_position not in ["Head_Prone", "Head_Supine"]:
         msg = "Known cases are 'Head_Prone' or  'Head_Supine' for the parameter 'visu_pars.VisuSubjectPosition."
         raise IOError(msg)
 
@@ -438,7 +501,7 @@ def filter_orientation(visu_parse_orientation):
         # Take the first 9 elements:
         visu_parse_orientation = visu_parse_orientation.flat[:9]
 
-    ans = np.around(visu_parse_orientation.reshape([3, 3], order='F'), decimals=4)
+    ans = np.around(visu_parse_orientation.reshape([3, 3], order="F"), decimals=4)
     return ans
 
 
@@ -451,9 +514,15 @@ def pivot(v):
     return v[list(abs(v)).index(abs(v).max())]
 
 
-def compute_affine_from_visu_pars(vc_orientation, vc_position, vc_subject_position, resolution,
-                                  frame_body_as_frame_head=False, keep_same_det=True,
-                                  consider_subject_position=False):
+def compute_affine_from_visu_pars(
+    vc_orientation,
+    vc_position,
+    vc_subject_position,
+    resolution,
+    frame_body_as_frame_head=False,
+    keep_same_det=True,
+    consider_subject_position=False,
+):
     """
     How the affine is computed (to the understanding acquired so far):
 
@@ -519,14 +588,18 @@ def compute_affine_from_visu_pars(vc_orientation, vc_position, vc_subject_positi
     result = np.round(np.linalg.inv(result), decimals=4)
     result_det = np.linalg.det(result)
     if result_det == 0:
-        raise IOError('Orientation determinant is 0. Cannot grasp this dataset.')
+        raise IOError("Orientation determinant is 0. Cannot grasp this dataset.")
 
     # 2-3) impose pivot first column negative, second column negative, third column positive
     result_orientation = result[:3, :3]
 
-    result_orientation = result_orientation.dot(np.array([[1, 0, 0], [0, 0, 1], [0, 1, 0]]))
+    result_orientation = result_orientation.dot(
+        np.array([[1, 0, 0], [0, 0, 1], [0, 1, 0]])
+    )
     if frame_body_as_frame_head:  # from SAR to ASL
-        result_orientation = result_orientation.dot(np.array([[0, -1, 0], [1, 0, 0], [0, 0, 1]]))
+        result_orientation = result_orientation.dot(
+            np.array([[0, -1, 0], [1, 0, 0], [0, 0, 1]])
+        )
 
     if pivot(result_orientation[:, 0]) > 0:
         result_orientation[:, 0] = -1 * result_orientation[:, 0]
@@ -541,11 +614,13 @@ def compute_affine_from_visu_pars(vc_orientation, vc_position, vc_subject_positi
 
     # 4) - optional
     if consider_subject_position:
-        if vc_subject_position == 'Head_Prone':
+        if vc_subject_position == "Head_Prone":
             result[1, :] = -1 * result[1, :]
     # 5) - optional
     if keep_same_det:
-        if (np.linalg.det(result) < 0 < result_det) or (np.linalg.det(result) > 0 > result_det):
+        if (np.linalg.det(result) < 0 < result_det) or (
+            np.linalg.det(result) > 0 > result_det
+        ):
             result[0, :3] = -1 * result[0, :3]
 
     return result
@@ -554,8 +629,13 @@ def compute_affine_from_visu_pars(vc_orientation, vc_position, vc_subject_positi
 # --- b-vectors utils ---
 
 
-def obtain_b_vectors_orient_matrix(vc_orientation, vc_subject_position, frame_body_as_frame_head=False,
-                                           keep_same_det=True, consider_subject_position=False):
+def obtain_b_vectors_orient_matrix(
+    vc_orientation,
+    vc_subject_position,
+    frame_body_as_frame_head=False,
+    keep_same_det=True,
+    consider_subject_position=False,
+):
 
     """
     See _utils.compute_affine_from_visu_pars help for the same input parameters.
@@ -569,9 +649,15 @@ def obtain_b_vectors_orient_matrix(vc_orientation, vc_subject_position, frame_bo
     resolution = np.array([1, 1, 1])
     translation = np.array([0, 0, 0])
 
-    aff = compute_affine_from_visu_pars(vc_orientation, translation, vc_subject_position, resolution,
-                                        frame_body_as_frame_head=frame_body_as_frame_head, keep_same_det=keep_same_det,
-                                        consider_subject_position=consider_subject_position)
+    aff = compute_affine_from_visu_pars(
+        vc_orientation,
+        translation,
+        vc_subject_position,
+        resolution,
+        frame_body_as_frame_head=frame_body_as_frame_head,
+        keep_same_det=keep_same_det,
+        consider_subject_position=consider_subject_position,
+    )
 
     return np.copy(aff[:3, :3])
 
@@ -624,7 +710,9 @@ def apply_reorientation_to_b_vects(reorientation_matrix, row_b_vectors_in_rows):
     ...
 
     """
-    b_vectors_in_column_reoriented = np.einsum('ij, kj -> ki', reorientation_matrix, row_b_vectors_in_rows)
+    b_vectors_in_column_reoriented = np.einsum(
+        "ij, kj -> ki", reorientation_matrix, row_b_vectors_in_rows
+    )
     return b_vectors_in_column_reoriented
 
 
@@ -645,13 +733,13 @@ def set_new_data(image, new_data, new_dtype=None, remove_nan=True):
         new_data = np.nan_to_num(new_data)
 
     # if nifty1
-    if image.header['sizeof_hdr'] == 348:
+    if image.header["sizeof_hdr"] == 348:
         new_image = nib.Nifti1Image(new_data, image.affine, header=image.header)
     # if nifty2
-    elif image.header['sizeof_hdr'] == 540:
+    elif image.header["sizeof_hdr"] == 540:
         new_image = nib.Nifti2Image(new_data, image.affine, header=image.header)
     else:
-        raise IOError('Input image header problem')
+        raise IOError("Input image header problem")
 
     # update data type:
     if new_dtype is None:
@@ -660,6 +748,7 @@ def set_new_data(image, new_data, new_dtype=None, remove_nan=True):
         new_image.set_data_dtype(new_dtype)
 
     return new_image
+
 
 def path_contains_whitespace(*args):
 

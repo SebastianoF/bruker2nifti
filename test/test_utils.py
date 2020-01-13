@@ -3,12 +3,25 @@ import os
 import numpy as np
 import nibabel as nib
 
-from numpy.testing import assert_array_equal, assert_equal, assert_raises, assert_almost_equal
+from numpy.testing import (
+    assert_array_equal,
+    assert_equal,
+    assert_raises,
+    assert_almost_equal,
+)
 
-from bruker2nifti._utils import indians_file_parser, normalise_b_vect, data_corrector, \
-    eliminate_consecutive_duplicates, compute_resolution_from_visu_pars, compute_affine_from_visu_pars, \
-    apply_reorientation_to_b_vects, set_new_data, obtain_b_vectors_orient_matrix, \
-    path_contains_whitespace
+from bruker2nifti._utils import (
+    indians_file_parser,
+    normalise_b_vect,
+    data_corrector,
+    eliminate_consecutive_duplicates,
+    compute_resolution_from_visu_pars,
+    compute_affine_from_visu_pars,
+    apply_reorientation_to_b_vects,
+    set_new_data,
+    obtain_b_vectors_orient_matrix,
+    path_contains_whitespace,
+)
 from bruker2nifti.converter import Bruker2Nifti
 
 
@@ -52,8 +65,12 @@ def test_indians_file_parser_B():
     assert_equal(a2, 4.24)
     assert_equal(a3, 1)
     np.testing.assert_array_equal(a4, np.array([80, 6400]))
-    np.testing.assert_array_equal(a5, np.array([[22.3, 5.3e12, 4.4], [5.62e-05, 3.9, 42.42]]))
-    np.testing.assert_array_equal(a6, np.array([22.3, 5.3e12, 4.4, 5.62e-05, 3.9, 42.42]))
+    np.testing.assert_array_equal(
+        a5, np.array([[22.3, 5.3e12, 4.4], [5.62e-05, 3.9, 42.42]])
+    )
+    np.testing.assert_array_equal(
+        a6, np.array([22.3, 5.3e12, 4.4, 5.62e-05, 3.9, 42.42])
+    )
 
 
 def test_indians_file_parser_C():
@@ -66,9 +83,9 @@ def test_indians_file_parser_C():
     a2 = indians_file_parser(indian_file_test_2)
     a3 = indians_file_parser(indian_file_test_3)
 
-    assert_equal(a1, '123.321.123')
-    assert_equal(a2, ['123.321.123', '123.321.123'])
-    assert_equal(a3, '20:19:47  1 Sep 2016')
+    assert_equal(a1, "123.321.123")
+    assert_equal(a2, ["123.321.123", "123.321.123"])
+    assert_equal(a3, "20:19:47  1 Sep 2016")
 
 
 def test_indians_file_parser_D():
@@ -95,8 +112,8 @@ def test_slope_corrector_int_float_slope():
     sl1 = 5
     sl2 = 5.3
 
-    out_data1 = data_corrector(in_data, sl1, kind='slope', dtype=np.float64)
-    out_data2 = data_corrector(in_data, sl2, kind='slope', dtype=np.float64)
+    out_data1 = data_corrector(in_data, sl1, kind="slope", dtype=np.float64)
+    out_data2 = data_corrector(in_data, sl2, kind="slope", dtype=np.float64)
 
     assert_equal(out_data1.dtype, np.float64)
     assert_equal(out_data2.dtype, np.float64)
@@ -109,10 +126,10 @@ def test_slope_corrector_slice_wise_slope_3d():
     in_data = np.random.normal(5, 10, [4, 5, 3])
     sl = np.random.normal(5, 10, 3)
 
-    out_data = data_corrector(in_data, sl, kind='slope', dtype=np.float64)
+    out_data = data_corrector(in_data, sl, kind="slope", dtype=np.float64)
 
     for k in range(3):
-        assert_array_equal(out_data[..., k], in_data[..., k]*sl[k])
+        assert_array_equal(out_data[..., k], in_data[..., k] * sl[k])
 
 
 def test_slope_corrector_slice_wise_slope_3d_fail():
@@ -128,11 +145,12 @@ def test_slope_corrector_slice_wise_slope_4d():
 
     in_data = np.random.normal(5, 10, [2, 3, 4, 5])
     sl = np.random.normal(5, 10, 4)
-    out_data = data_corrector(in_data, sl, kind='slope', dtype=np.float64)
+    out_data = data_corrector(in_data, sl, kind="slope", dtype=np.float64)
 
     for t in range(5):
         for k in range(4):
             assert_array_equal(out_data[..., k, t], in_data[..., k, t] * sl[k])
+
 
 # def test_slope_corrector_slice_wise_slope_4d_fail():
 #
@@ -147,7 +165,7 @@ def test_slope_corrector_slice_wise_slope_5d():
 
     in_data = np.random.normal(5, 10, [2, 3, 4, 5, 6])
     sl = np.random.normal(5, 10, 5)
-    out_data = data_corrector(in_data, sl, kind='slope', dtype=np.float64)
+    out_data = data_corrector(in_data, sl, kind="slope", dtype=np.float64)
 
     for t in range(6):
         for k in range(5):
@@ -160,7 +178,8 @@ def test_slope_corrector_slice_wise_slope_5d_fail():
     sl = np.random.normal(5, 10, 7)
 
     with assert_raises(IOError):
-        data_corrector(in_data, sl, kind='slope')
+        data_corrector(in_data, sl, kind="slope")
+
 
 test_slope_corrector_slice_wise_slope_5d_fail()
 
@@ -194,30 +213,22 @@ def test_normalise_b_vect():
 
     num_vects = 30
     v = np.random.normal(5, 10, [num_vects, 3])
-    v[5, :] = np.array([np.nan, ] * 3)
+    v[5, :] = np.array([np.nan] * 3)
     v_normalised = normalise_b_vect(v)
 
     for k in list(set(range(num_vects)) - {5}):
         assert_almost_equal(np.linalg.norm(v_normalised[k, :]), 1.0)
 
-    assert_equal(np.linalg.norm(v_normalised[5, :]), .0)
+    assert_equal(np.linalg.norm(v_normalised[5, :]), 0.0)
 
 
 def test_apply_reorientation_to_b_vects_1():
 
-    v = np.array([[1, 2, 3],
-                  [4, 5, 6],
-                  [7, 8, 9],
-                  [10, 11, 12]])
+    v = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]])
 
-    m = np.array([[1, 0, 0],
-                  [0, 0, 1],
-                  [0, 1, 0]])
+    m = np.array([[1, 0, 0], [0, 0, 1], [0, 1, 0]])
 
-    u = np.array([[1, 3, 2],
-                  [4, 6, 5],
-                  [7, 9, 8],
-                  [10, 12, 11]])
+    u = np.array([[1, 3, 2], [4, 6, 5], [7, 9, 8], [10, 12, 11]])
 
     w = apply_reorientation_to_b_vects(m, v)
 
@@ -226,19 +237,11 @@ def test_apply_reorientation_to_b_vects_1():
 
 def test_apply_reorientation_to_b_vects_2():
 
-    v = np.array([[1,  2,  3],
-                  [4,  5,  6],
-                  [7,  8,  9],
-                  [10, 11, 12]])
+    v = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]])
 
-    m = np.array([[0, 1, 0],
-                  [0, 0, 1],
-                  [1, 0, 0]])
+    m = np.array([[0, 1, 0], [0, 0, 1], [1, 0, 0]])
 
-    u = np.array([[2,  3, 1],
-                  [5,  6, 4],
-                  [8,  9, 7],
-                  [11, 12, 10]])
+    u = np.array([[2, 3, 1], [5, 6, 4], [8, 9, 7], [11, 12, 10]])
 
     w = apply_reorientation_to_b_vects(m, v)
 
@@ -250,7 +253,15 @@ def test_apply_reorientation_to_b_vects_2():
 
 def test_eliminate_consecutive_duplicates():
 
-    l = [[3, 1, 4, 1], [3, 1, 4, 1], [5, 8, 2], [6, 5, 3], [6, 5, 3], [3, 1, 4, 1], [3, 1, 4, 1]]
+    l = [
+        [3, 1, 4, 1],
+        [3, 1, 4, 1],
+        [5, 8, 2],
+        [6, 5, 3],
+        [6, 5, 3],
+        [3, 1, 4, 1],
+        [3, 1, 4, 1],
+    ]
     m = eliminate_consecutive_duplicates(l)
     n = [[3, 1, 4, 1], [5, 8, 2], [6, 5, 3], [3, 1, 4, 1]]
 
@@ -265,13 +276,13 @@ def test_set_new_data_basic():
     data_2 = np.random.normal(5, 10, [3, 2, 4]).astype(np.float32)
     im_data_1 = nib.Nifti1Image(data_1, affine_1)
     im_data_1.set_data_dtype(np.uint8)
-    im_data_1.header['descrip'] = 'Spam'
+    im_data_1.header["descrip"] = "Spam"
 
     im_data_2 = set_new_data(im_data_1, data_2)
 
     assert_array_equal(im_data_2.get_data(), data_2)
     assert_array_equal(im_data_2.affine, affine_1)
-    assert_equal(im_data_2.header['descrip'], b'Spam')
+    assert_equal(im_data_2.header["descrip"], b"Spam")
     assert_equal(im_data_1.get_data_dtype(), np.uint8)
     assert_equal(im_data_2.get_data_dtype(), np.float32)
 
@@ -309,10 +320,9 @@ def test_set_new_data_nan_no_nan():
 
 def test_path_contains_whitespace():
 
-    assert path_contains_whitespace(os.path.join("path", "with spaces", "to"),
-      "study")
-    assert path_contains_whitespace(os.path.join("path", "to"),
-      "study with spaces")
-    assert path_contains_whitespace(os.path.join("path", "with spaces", "to"),
-      "study with spaces")
+    assert path_contains_whitespace(os.path.join("path", "with spaces", "to"), "study")
+    assert path_contains_whitespace(os.path.join("path", "to"), "study with spaces")
+    assert path_contains_whitespace(
+        os.path.join("path", "with spaces", "to"), "study with spaces"
+    )
     assert not path_contains_whitespace(os.path.join("path", "to"), "study")
