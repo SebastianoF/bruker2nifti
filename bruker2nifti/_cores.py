@@ -142,7 +142,6 @@ def scan2struct(pfo_scan,
         # ------ Generate the nifti image using visu_pars. ----- #
         # ------------------------------------------------------ #
 
-        print('sample upside down before nib {}'.format(sample_upside_down))
         nib_im = nifti_getter(img_data_vol,
                               visu_pars,
                               correct_slope,

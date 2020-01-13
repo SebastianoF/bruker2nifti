@@ -126,9 +126,6 @@ class Bruker2Nifti(object):
         if create_output_folder_if_not_exists:
             os.makedirs(pfo_output_converted)
 
-        print('FRAME BODY {}'.format(self.frame_body_as_frame_head))
-        print('UPSIDE DOWN {}'.format(self.sample_upside_down))
-
         struct_scan = scan2struct(pfo_input_scan,
                                   correct_slope=self.correct_slope,
                                   correct_offset=self.correct_offset,
