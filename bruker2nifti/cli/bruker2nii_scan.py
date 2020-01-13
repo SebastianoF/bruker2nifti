@@ -2,6 +2,7 @@ import argparse
 import os
 
 from bruker2nifti.converter import Bruker2Nifti
+import bruker2nifti._utils as utils
 
 
 def main_scan():
@@ -35,20 +36,11 @@ def main_scan():
     parser.add_argument("--fin_output", dest="fin_output", type=str, default=None)
     # nifti_version = 1,
 
-    parser.add_argument('-nifti_version',
-                        dest='nifti_version',
-                        type=int,
-                        default=1)
+    parser.add_argument("-nifti_version", dest="nifti_version", type=int, default=1)
     # qform = 1,
-    parser.add_argument('-qform_code',
-                        dest='qform_code',
-                        type=int,
-                        default=1)
+    parser.add_argument("-qform_code", dest="qform_code", type=int, default=1)
     # sform = 2,
-    parser.add_argument('-sform_code',
-                        dest='sform_code',
-                        type=int,
-                        default=2)
+    parser.add_argument("-sform_code", dest="sform_code", type=int, default=2)
 
     # do_not_save_human_readable = False,
     parser.add_argument(
@@ -60,17 +52,23 @@ def main_scan():
     # correct_slope = False,
 
     parser.add_argument("-correct_slope", dest="correct_slope", action="store_true")
-    
+
     # correct_offset = False,
     parser.add_argument("-correct_offset", dest="correct_offset", action="store_true")
 
     # sample_upside_down = False,
-    parser.add_argument("-sample_upside_down", dest="sample_upside_down", action="store_true")
+    parser.add_argument(
+        "-sample_upside_down", dest="sample_upside_down", action="store_true"
+    )
 
     # frame_body_as_frame_head = False,
-    parser.add_argument("-frame_body_as_frame_head', dest="frame_body_as_frame_head", action="store_true")
+    parser.add_argument(
+        "-frame_body_as_frame_head",
+        dest="frame_body_as_frame_head",
+        action="store_true",
+    )
 
-                        # verbose = 1
+    # verbose = 1
     parser.add_argument("-verbose", "-v", dest="verbose", type=int, default=1)
 
     args = parser.parse_args()
@@ -83,10 +81,10 @@ def main_scan():
     bruconv.sform_code = args.sform_code
     bruconv.save_human_readable = not args.do_not_save_human_readable
     bruconv.correct_slope = args.correct_slope
-    bruconv.correct_offset      = args.correct_offset
+    bruconv.correct_offset = args.correct_offset
     bruconv.verbose = args.verbose
     # Sample position
-    bruconv.sample_upside_down       = args.sample_upside_down
+    bruconv.sample_upside_down = args.sample_upside_down
     bruconv.frame_body_as_frame_head = args.frame_body_as_frame_head
 
     if parser.add_argument > 0:
@@ -102,9 +100,11 @@ def main_scan():
         print("Save human readable  : {}".format(bruconv.save_human_readable))
         print("Correct the slope    : {}".format(bruconv.correct_slope))
         print("Correct the offset   : {}".format(bruconv.correct_offset))
-        print("-------------------------------------------------------- ')
+        print("-------------------------------------------------------- ")
         print("Sample upside down         : {}".format(bruconv.sample_upside_down))
-        print("Frame body as frame head   : {}".format(bruconv.frame_body_as_frame_head))
+        print(
+            "Frame body as frame head   : {}".format(bruconv.frame_body_as_frame_head)
+        )
         print("-------------------------------------------------------- ")
 
     # convert the single:
