@@ -39,6 +39,7 @@ import os
 
 import bruker2nifti._utils as utils
 
+
 class BrukerMetadata(object):
     """Represents metadata associated with a given MRI study."""
 
@@ -136,8 +137,7 @@ class BrukerMetadata(object):
         recon_data = {}
         data_path = os.path.join(self.pfo_input, scan)
         recon_data["reco"] = utils.bruker_read_files("reco", data_path, recon)
-        recon_data["visu_pars"] = utils.bruker_read_files("visu_pars",
-          data_path, recon)
+        recon_data["visu_pars"] = utils.bruker_read_files("visu_pars", data_path, recon)
         return recon_data
 
     def list_scans(self):
@@ -178,6 +178,9 @@ class BrukerMetadata(object):
         Note this function does not read the contents of directories to confirm
         that they contain scan or reconstruction data.
         """
-        dirs = [d for d in os.listdir(path) if
-          os.path.isdir(os.path.join(path, d)) and d.isdigit()]
-        return sorted(dirs, key = int)
+        dirs = [
+            d
+            for d in os.listdir(path)
+            if os.path.isdir(os.path.join(path, d)) and d.isdigit()
+        ]
+        return sorted(dirs, key=int)
