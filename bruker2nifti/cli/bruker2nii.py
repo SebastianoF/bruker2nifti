@@ -80,13 +80,13 @@ def main():
                         type=int,
                         default=1)
 
-    # qform = 2,
+    # qform = 1,
     parser.add_argument('-qform_code',
                         dest='qform_code',
                         type=int,
                         default=1)
 
-    # sform= 1,
+    # sform = 2,
     parser.add_argument('-sform_code',
                         dest='sform_code',
                         type=int,
@@ -97,25 +97,25 @@ def main():
                         dest='do_not_save_human_readable',
                         action='store_true')
 
-    # correct_slope = True,
+    # correct_slope = False,
     parser.add_argument('-correct_slope',
                         dest='correct_slope',
                         action='store_true')
 
-    # correct_offset = True,
+    # correct_offset = False,
     parser.add_argument('-correct_offset',
                         dest='correct_offset',
                         action='store_true')
 
-    # correct_offset = True,
+    # sample_upside_down = False,
     parser.add_argument('-sample_upside_down',
                         dest='sample_upside_down',
-                        action='store_false')
+                        action='store_true')
 
-    # correct_offset = True,
+    # frame_body_as_frame_head = False,
     parser.add_argument('-frame_body_as_frame_head',
                         dest='frame_body_as_frame_head',
-                        action='store_false')
+                        action='store_true')
 
     # verbose = 1
     parser.add_argument('-verbose', '-v',
