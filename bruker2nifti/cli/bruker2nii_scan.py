@@ -14,53 +14,49 @@ def main_scan():
     parser = argparse.ArgumentParser()
 
     # pfo_input_scan
-    parser.add_argument('-i', '--input_scan_folder',
-                        dest='pfo_input',
-                        type=str,
-                        required=True,
-                        help='Bruker scan folder.')
+    parser.add_argument(
+        "-i",
+        "--input_scan_folder",
+        dest="pfo_input",
+        type=str,
+        required=True,
+        help="Bruker scan folder.",
+    )
     # pfo_output
-    parser.add_argument('-o', '--output_scan_folder',
-                        dest='pfo_output',
-                        type=str,
-                        required=True,
-                        help='Output folder where the study will be saved.')
+    parser.add_argument(
+        "-o",
+        "--output_scan_folder",
+        dest="pfo_output",
+        type=str,
+        required=True,
+        help="Output folder where the study will be saved.",
+    )
     # fin_output = None
-    parser.add_argument('--fin_output',
-                        dest='fin_output',
-                        type=str,
-                        default=None)
+    parser.add_argument("--fin_output", dest="fin_output", type=str, default=None)
     # nifti_version = 1,
-    parser.add_argument('-nifti_version',
-                        dest='nifti_version',
-                        type=int,
-                        default=1,
-                        help='Filename of the nifti output.')
+    parser.add_argument(
+        "-nifti_version",
+        dest="nifti_version",
+        type=int,
+        default=1,
+        help="Filename of the nifti output.",
+    )
     # qform = 2,
-    parser.add_argument('-qform_code',
-                        dest='qform_code',
-                        type=int,
-                        default=2)
+    parser.add_argument("-qform_code", dest="qform_code", type=int, default=2)
     # sform = 1,
-    parser.add_argument('-sform_code',
-                        dest='sform_code',
-                        type=int,
-                        default=1)
+    parser.add_argument("-sform_code", dest="sform_code", type=int, default=1)
 
     # do_not_save_human_readable = False,
-    parser.add_argument('-do_not_save_human_readable',
-                        dest='do_not_save_human_readable',
-                        action='store_true')
+    parser.add_argument(
+        "-do_not_save_human_readable",
+        dest="do_not_save_human_readable",
+        action="store_true",
+    )
 
     # correct_slope = False,
-    parser.add_argument('-correct_slope',
-                        dest='correct_slope',
-                        action='store_true')
+    parser.add_argument("-correct_slope", dest="correct_slope", action="store_true")
     # verbose = 1
-    parser.add_argument('-verbose', '-v',
-                        dest='verbose',
-                        type=int,
-                        default=1)
+    parser.add_argument("-verbose", "-v", dest="verbose", type=int, default=1)
 
     args = parser.parse_args()
 
@@ -75,26 +71,32 @@ def main_scan():
     bruconv.verbose = args.verbose
 
     if parser.add_argument > 0:
-        print('\nConverter parameters: ')
-        print('-------------------------------------------------------- ')
-        print('Study Folder         : {}'.format(os.path.dirname(args.pfo_input)))
-        print('Scan to convert      : {}'.format(os.path.basename(args.pfo_input)))
-        print('List of scans        : {}'.format(bruconv.scans_list))
-        print('Output NifTi version : {}'.format(bruconv.nifti_version))
-        print('Output NifTi q-form  : {}'.format(bruconv.qform_code))
-        print('Output NifTi s-form  : {}'.format(bruconv.sform_code))
-        print('Save human readable  : {}'.format(bruconv.save_human_readable))
-        print('Correct the slope    : {}'.format(bruconv.correct_slope))
-        print('-------------------------------------------------------- ')
+        print("\nConverter parameters: ")
+        print("-------------------------------------------------------- ")
+        print("Study Folder         : {}".format(os.path.dirname(args.pfo_input)))
+        print("Scan to convert      : {}".format(os.path.basename(args.pfo_input)))
+        print("List of scans        : {}".format(bruconv.scans_list))
+        print("Output NifTi version : {}".format(bruconv.nifti_version))
+        print("Output NifTi q-form  : {}".format(bruconv.qform_code))
+        print("Output NifTi s-form  : {}".format(bruconv.sform_code))
+        print("Save human readable  : {}".format(bruconv.save_human_readable))
+        print("Correct the slope    : {}".format(bruconv.correct_slope))
+        print("-------------------------------------------------------- ")
     # convert the single:
-    bruconv.convert_scan(args.pfo_input, args.pfo_output, nifti_file_name=args.fin_output,
-                         create_output_folder_if_not_exists=True)
+    bruconv.convert_scan(
+        args.pfo_input,
+        args.pfo_output,
+        nifti_file_name=args.fin_output,
+        create_output_folder_if_not_exists=True,
+    )
 
     # Print a warning message for paths with whitespace as it may interfere
     # with subsequent steps in an image analysis pipeline
-    if utils.path_contains_whitespace(bruconv.pfo_study_nifti_output,
-      bruconv.study_name):
+    if utils.path_contains_whitespace(
+        bruconv.pfo_study_nifti_output, bruconv.study_name
+    ):
         print("INFO: Output path/filename contains whitespace")
+
 
 if __name__ == "__main__":
     main_scan()

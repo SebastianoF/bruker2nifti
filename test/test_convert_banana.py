@@ -15,16 +15,16 @@ root_dir = os.path.dirname(here)
 
 def test_convert_the_banana(open_converted=False):
 
-    pfo_study_in = os.path.join(root_dir, 'test_data', 'bru_banana')
-    pfo_study_out = os.path.join(root_dir, 'test_data', 'nifti_banana')
+    pfo_study_in = os.path.join(root_dir, "test_data", "bru_banana")
+    pfo_study_out = os.path.join(root_dir, "test_data", "nifti_banana")
 
     # delete study if already exists:
-    target_folder = os.path.join(pfo_study_out, 'banana')
+    target_folder = os.path.join(pfo_study_out, "banana")
     if os.path.exists(target_folder):
-        os.system('rm -r {}'.format(os.path.join(target_folder)))
+        os.system("rm -r {}".format(os.path.join(target_folder)))
 
     # instantiate the converter:
-    bru = Bruker2Nifti(pfo_study_in, pfo_study_out, study_name='banana')
+    bru = Bruker2Nifti(pfo_study_in, pfo_study_out, study_name="banana")
 
     bru.verbose = 2
     bru.correct_slope = True
@@ -37,36 +37,40 @@ def test_convert_the_banana(open_converted=False):
     if open_converted:
 
         if platform.system() == "Windows":
-            os.startfile(pfo_study_out.encode('string-escape'))
+            os.startfile(pfo_study_out.encode("string-escape"))
         elif platform.system() == "Darwin":
             subprocess.Popen(["open", pfo_study_out])
         else:
             subprocess.Popen(["xdg-open", pfo_study_out])
 
-    for ex in ['1', '2', '3']:
-        experiment_folder = os.path.join(pfo_study_out, 'banana', 'banana_{}'.format(ex))
+    for ex in ["1", "2", "3"]:
+        experiment_folder = os.path.join(
+            pfo_study_out, "banana", "banana_{}".format(ex)
+        )
         assert os.path.exists(experiment_folder)
-        assert os.path.exists(os.path.join(experiment_folder, 'banana_{}.nii.gz'.format(ex)))
+        assert os.path.exists(
+            os.path.join(experiment_folder, "banana_{}.nii.gz".format(ex))
+        )
 
 
 def test_convert_the_banana_with_spaces(open_converted=False):
 
-    pfo_study_in = os.path.join(root_dir, 'test_data', 'bru banana')
-    pfo_study_out = os.path.join(root_dir, 'test_data', 'nifti banana')
+    pfo_study_in = os.path.join(root_dir, "test_data", "bru banana")
+    pfo_study_out = os.path.join(root_dir, "test_data", "nifti banana")
 
     # Copy test data to a folder with space in it
-    original_study_in = os.path.join(root_dir, 'test_data', 'bru_banana')
+    original_study_in = os.path.join(root_dir, "test_data", "bru_banana")
     if os.path.exists(pfo_study_in):
         shutil.rmtree(pfo_study_in)
     shutil.copytree(original_study_in, pfo_study_in)
 
     # delete study if already exists:
-    target_folder = os.path.join(pfo_study_out, 'banana')
+    target_folder = os.path.join(pfo_study_out, "banana")
     if os.path.exists(target_folder):
         shutil.rmtree(target_folder)
 
     # instantiate the converter:
-    bru = Bruker2Nifti(pfo_study_in, pfo_study_out, study_name='banana')
+    bru = Bruker2Nifti(pfo_study_in, pfo_study_out, study_name="banana")
 
     bru.verbose = 2
     bru.correct_slope = True
@@ -79,16 +83,20 @@ def test_convert_the_banana_with_spaces(open_converted=False):
     if open_converted:
 
         if platform.system() == "Windows":
-            os.startfile(pfo_study_out.encode('string-escape'))
+            os.startfile(pfo_study_out.encode("string-escape"))
         elif platform.system() == "Darwin":
             subprocess.Popen(["open", pfo_study_out])
         else:
             subprocess.Popen(["xdg-open", pfo_study_out])
 
-    for ex in ['1', '2', '3']:
-        experiment_folder = os.path.join(pfo_study_out, 'banana', 'banana_{}'.format(ex))
+    for ex in ["1", "2", "3"]:
+        experiment_folder = os.path.join(
+            pfo_study_out, "banana", "banana_{}".format(ex)
+        )
         assert os.path.exists(experiment_folder)
-        assert os.path.exists(os.path.join(experiment_folder, 'banana_{}.nii.gz'.format(ex)))
+        assert os.path.exists(
+            os.path.join(experiment_folder, "banana_{}.nii.gz".format(ex))
+        )
 
     # Delete temporary copy of the test data
     shutil.rmtree(pfo_study_in)
@@ -96,46 +104,50 @@ def test_convert_the_banana_with_spaces(open_converted=False):
 
 def test_convert_the_banana_no_name(open_converted=False):
 
-    pfo_study_in = os.path.join(root_dir, 'test_data', 'bru_banana')
-    pfo_study_out = os.path.join(root_dir, 'test_data', 'nifti_banana')
+    pfo_study_in = os.path.join(root_dir, "test_data", "bru_banana")
+    pfo_study_out = os.path.join(root_dir, "test_data", "nifti_banana")
 
     # delete study if already exists:
-    target_folder = os.path.join(pfo_study_out, 'APMFruits20111130')
+    target_folder = os.path.join(pfo_study_out, "APMFruits20111130")
     if os.path.exists(target_folder):
-        os.system('rm -r {}'.format(os.path.join(target_folder)))
+        os.system("rm -r {}".format(os.path.join(target_folder)))
 
     bru = Bruker2Nifti(pfo_study_in, pfo_study_out)
 
-    bru.verbose       = 2,
-    bru.correct_slope = True,
-    bru.get_acqp      = False,
-    bru.get_method    = False,
-    bru.get_reco      = False
+    bru.verbose = (2,)
+    bru.correct_slope = (True,)
+    bru.get_acqp = (False,)
+    bru.get_method = (False,)
+    bru.get_reco = False
     bru.convert()
 
     if open_converted:
 
         if platform.system() == "Windows":
-            os.startfile(pfo_study_out.encode('string-escape'))
+            os.startfile(pfo_study_out.encode("string-escape"))
         elif platform.system() == "Darwin":
             subprocess.Popen(["open", pfo_study_out])
         else:
             subprocess.Popen(["xdg-open", pfo_study_out])
 
-    for ex in ['1', '2', '3']:
-        experiment_folder = os.path.join(pfo_study_out, 'APMFruits20111130', 'APMFruits20111130_{}'.format(ex))
+    for ex in ["1", "2", "3"]:
+        experiment_folder = os.path.join(
+            pfo_study_out, "APMFruits20111130", "APMFruits20111130_{}".format(ex)
+        )
         assert os.path.exists(experiment_folder)
-        assert os.path.exists(os.path.join(experiment_folder, 'APMFruits20111130_{}.nii.gz'.format(ex)))
+        assert os.path.exists(
+            os.path.join(experiment_folder, "APMFruits20111130_{}.nii.gz".format(ex))
+        )
 
 
 def test_warning_banana_bad_n():
 
-    for n in ['1', '2', '3']:
+    for n in ["1", "2", "3"]:
 
-        pfo_study_in = os.path.join(root_dir, 'test_data', 'bru_banana_bad_' + n)
-        pfo_study_out = os.path.join(root_dir, 'test_data', 'nifti_banana')
+        pfo_study_in = os.path.join(root_dir, "test_data", "bru_banana_bad_" + n)
+        pfo_study_out = os.path.join(root_dir, "test_data", "nifti_banana")
 
-        bru = Bruker2Nifti(pfo_study_in, pfo_study_out, study_name='banana')
+        bru = Bruker2Nifti(pfo_study_in, pfo_study_out, study_name="banana")
         bru.correct_slope = True
         bru.verbose = 2
         if sys.version_info.major == 2:
