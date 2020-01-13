@@ -107,12 +107,12 @@ def main():
                         dest='correct_offset',
                         action='store_true')
 
-    # correct_offset = True,
+    # sample_upside_down = True,
     parser.add_argument('-sample_upside_down',
                         dest='sample_upside_down',
-                        action='store_false')
+                        action='store_true')
 
-    # correct_offset = True,
+    # frame_body_as_frame_head = False,
     parser.add_argument('-frame_body_as_frame_head',
                         dest='frame_body_as_frame_head',
                         action='store_false')
