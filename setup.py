@@ -35,7 +35,7 @@ setup(
     author=infos["author"],
     author_email=infos["author_email"],
     url=infos["repository"]["url"],
-    packages=find_packages(),
+    packages=find_packages(exclude=('test',)),
     install_requires=requirements2list(),
     entry_points={
         "console_scripts": [
