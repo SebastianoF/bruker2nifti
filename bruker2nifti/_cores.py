@@ -504,7 +504,7 @@ def write_struct(
                 nib.save(
                     set_new_data(
                         bruker_struct["nib_scans_list"][i],
-                        bruker_struct["nib_scans_list"][i].get_data()[..., 0],
+                        bruker_struct["nib_scans_list"][i].get_fdata()[..., 0],
                     ),
                     pfi_scan_b0,
                 )
