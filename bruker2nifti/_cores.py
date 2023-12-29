@@ -326,12 +326,12 @@ def write_struct(
 
         if verbose > 0:
             print(
-                "B-vectors saved in {}".format(
+                "B-values  saved in {}".format(
                     jph(pfo_output, fin_scan + "_DwEffBval.npy")
                 )
             )
             print(
-                "B-values  saved in {}".format(
+                "B-vectors saved in {}".format(
                     jph(pfo_output, fin_scan + "_DwGradVec.npy")
                 )
             )
